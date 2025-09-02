@@ -376,16 +376,33 @@
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 if (upgradeInfo) {
                     upgradeOfferContainer.classList.remove('hidden');
+                    
+                    // --- Upgrade Offer Calculation ---
+                    // 1. Get the percentage of the current principal that the cash down payment represents.
                     const cashDownRatio = cashDown / principal;
+
+                    // 2. Calculate the next principal amount after applying the TA-Code discount.
                     const nextPrincipal = upgradeInfo.price - TA_CODES[taCode];
+                    
+                    // 3. Apply the same cash down percentage to the next principal to find the next cash down amount.
                     const nextCashDown = nextPrincipal * cashDownRatio;
+                    
+                    // 4. Calculate the remaining balance for the upgraded plan.
                     const nextRemainingBalance = nextPrincipal - nextCashDown;
+                    
+                    // 5. Calculate the new 24-month monthly payment for the upgraded plan.
                     const nextMonthlyPayment = pmt(monthlyRate, 24, nextRemainingBalance);
 
+                    // 6. Calculate the current 24-month monthly payment.
                     const currentMonthlyPayment = pmt(monthlyRate, 24, remainingBalance);
+                    
+                    // 7. Find the difference between the two monthly payments.
                     const monthlyDifference = nextMonthlyPayment - currentMonthlyPayment;
+                    
+                    // 8. Convert the monthly difference to a daily difference for the display text.
                     const dailyDifference = monthlyDifference / 30.44;
 
+                    // Display the final calculation to the user.
                     upgradeOfferText.textContent = `${upgradeInfo.message} ${formatCurrencyWithCents(dailyDifference)} per day.`;
                 } else {
                     upgradeOfferContainer.classList.add('hidden');
@@ -399,7 +416,8 @@
                     interestDiv.className = `p-4 rounded-xl shadow-sm bg-gray-50 downplayed flex flex-col justify-between`;
                     interestDiv.innerHTML = `
                         <p>${term} Months</p>
-                        <p class="text-sm font-bold">${formatCurrency(totalInterest, 2)}</p>
+                        <p class="text-xs text-gray-500">Total Interest Paid</p>
+                        <p class="text-lg font-bold">${formatCurrency(totalInterest, 2)}</p>
                     `;
                     totalInterestPaidContainer.appendChild(interestDiv);
                 });
