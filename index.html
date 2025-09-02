@@ -73,7 +73,7 @@
 
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
-            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="max-w-[120px] mb-4">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-24 sm:w-32 md:w-40 mb-2">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
         </div>
@@ -415,7 +415,7 @@
                     const interestDiv = document.createElement('div');
                     interestDiv.className = `p-4 rounded-xl shadow-sm bg-gray-50 downplayed flex flex-col justify-between`;
                     interestDiv.innerHTML = `
-                        <p>${term} Months</p>
+                        <p class="text-sm text-gray-500">${term} Months</p>
                         <p class="text-xs text-gray-500">Total Interest Paid</p>
                         <p class="text-lg font-bold">${formatCurrency(totalInterest, 2)}</p>
                     `;
