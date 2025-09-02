@@ -73,7 +73,7 @@
 
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
-            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-24 sm:w-32 md:w-40 mb-2">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-32 sm:w-40 md:w-48 mb-2">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
         </div>
@@ -93,23 +93,26 @@
                 </div>
             </div>
 
-            <!-- Initial Amount -->
-            <div id="initialAmountSection">
-                <label for="cashDown" class="block text-sm font-medium text-gray-700">Initial Amount</label>
-                <div class="mt-1">
-                    <input type="number" id="cashDown" step="50" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="0">
+            <!-- Initial Amount & Interest Savings side by side -->
+            <!-- Added items-center to the parent flex container for vertical alignment -->
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 sm:items-center">
+                <!-- Initial Amount -->
+                <div id="initialAmountSection" class="w-full sm:w-2/5 flex flex-col items-center sm:block">
+                    <label for="cashDown" class="block text-sm font-medium text-gray-700 sm:text-left">Initial Amount</label>
+                    <div class="mt-1">
+                        <input type="number" id="cashDown" step="50" class="block w-3/4 sm:w-full mx-auto sm:mx-0 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="0">
+                    </div>
+                    <p id="cashDownError" class="error-message hidden mt-2 text-sm text-red-500">Initial Amount must be at least 10% of the total Membership value.</p>
                 </div>
-                <p id="cashDownError" class="error-message hidden mt-2 text-sm text-red-500">Initial Amount must be at least 10% of the total Membership value.</p>
-            </div>
-            
-            <!-- Interest Savings with Initial Amount (Moved here) -->
-            <div id="totalInterestSavedDiv">
-                <p class="text-sm font-medium text-gray-700">Interest Savings</p>
-                <div id="totalInterestSaved" class="p-4 rounded-xl bg-green-50 highlight-interest mt-1">
-                    <p class="text-xl font-bold text-green-800">$0</p>
+                
+                <!-- Your Interest Savings -->
+                <div id="totalInterestSavedDiv" class="w-full sm:w-3/5">
+                    <p class="text-sm sm:text-base font-medium text-gray-700">Your Interest Savings</p>
+                    <div id="totalInterestSaved" class="p-4 sm:p-6 rounded-xl bg-green-50 highlight-interest mt-1 text-center cursor-pointer transition-transform duration-200 transform hover:scale-105">
+                        <p class="text-2xl sm:text-3xl font-bold text-green-800">$0</p>
+                    </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Calculated Results Section -->
@@ -138,7 +141,7 @@
                     <!-- Daily Upgrade Offer -->
                     <div id="upgradeOfferContainer">
                         <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
-                        <div id="upgradeOffer" class="p-4 rounded-xl upgrade-offer-box mt-1 flex justify-between items-center cursor-pointer">
+                        <div id="upgradeOffer" class="p-4 rounded-xl upgrade-offer-box mt-1 flex justify-center items-center cursor-pointer">
                             <p id="upgradeOfferText" class="text-lg font-semibold"></p>
                         </div>
                     </div>
@@ -335,9 +338,9 @@
             const interestSaved = baseTotalInterest - currentTotalInterest;
 
             if (cashDown === minCashDown) {
-                totalInterestSavedOutput.innerHTML = `<p class="text-xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
+                totalInterestSavedOutput.innerHTML = `<p class="text-2xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
             } else {
-                totalInterestSavedOutput.innerHTML = `<p class="text-xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
+                totalInterestSavedOutput.innerHTML = `<p class="text-2xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
             }
 
             // Check for cash deal
@@ -467,6 +470,15 @@
                 planInput.value = nextPlan;
                 planInput.dispatchEvent(new Event('change'));
             }
+        });
+
+        // New event listener for the interest savings button
+        totalInterestSaved.addEventListener('click', () => {
+            let currentCashDown = parseFloat(cashDownInput.value) || 0;
+            const principal = planPrices[planInput.value] - TA_CODES[taCodeInput.value];
+            const newCashDown = Math.min(currentCashDown + 50, principal);
+            cashDownInput.value = newCashDown;
+            calculate();
         });
         
         // Add event listeners
