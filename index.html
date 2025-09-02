@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesale Travel Program Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .container-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-group input {
+            padding-left: 2rem;
+            border-radius: 8px;
+            border: 1px solid #d2d2d7;
+            outline: none;
+            transition: border-color 0.2s ease-in-out;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        .input-group input:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+        .input-group .currency-symbol {
+            position: absolute;
+            left: 10px;
+            color: #8e8e93;
+        }
+        .input-error {
+            border-color: #ff3b30 !important;
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important;
+        }
+        .highlight-monthly {
+            background-color: #f2faff;
+            color: #007aff;
+            font-weight: 600;
+        }
+        .highlight-interest {
+            background-color: #f0fdf4;
+            color: #28a745;
+            font-weight: 600;
+        }
+        .aloha-brand-text {
+            color: #006699;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+
+    <!-- Main Container -->
+    <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
+
+        <!-- Header -->
+        <div class="flex flex-col items-center mb-8">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="max-w-[120px] mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
+            <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
+        </div>
+
+        <!-- Input Fields Section -->
+        <div class="space-y-6 mb-8">
+            <!-- Membership -->
+            <div>
+                <label for="plan" class="block text-sm font-medium text-gray-700">Membership</label>
+                <div class="mt-1">
+                    <select id="plan" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200">
+                        <option value="">Select Membership</option>
+                        <option value="legacy">Legacy</option>
+                        <option value="10year">10 Year</option>
+                        <option value="3year">3 Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Initial Amount -->
+            <div id="initialAmountSection">
+                <label for="cashDown" class="block text-sm font-medium text-gray-700">Initial Amount</label>
+                <div class="mt-1">
+                    <input type="number" id="cashDown" step="50" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="0">
+                </div>
+                <p id="cashDownError" class="error-message hidden mt-2 text-sm text-red-500">Initial Amount must be at least 10% of the total Membership value.</p>
+            </div>
+            
+        </div>
+
+        <!-- Calculated Results Section -->
+        <div class="border-t border-gray-200 pt-8">
+            <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
+            
+            <div id="results" class="space-y-6">
+                <!-- Key Numbers -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-center sm:text-left">
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Membership Value</p>
+                        <p id="principalAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Initial Amount</p>
+                        <p id="cashDownAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
+                        <p id="remainingBalanceAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                </div>
+                
+                <!-- Combined Options -->
+                <div id="combinedResults">
+                     <!-- Interest Savings with Initial Amount -->
+                    <div id="totalInterestSavedDiv" class="mb-4">
+                        <p class="text-sm font-medium text-gray-700">Interest Savings</p>
+                        <div id="totalInterestSaved" class="p-4 rounded-xl bg-green-50 highlight-interest mt-1">
+                            <p class="text-xl font-bold text-green-800">$0</p>
+                        </div>
+                    </div>
+
+                    <!-- Cash Options -->
+                    <div id="cashResults" class="hidden">
+                        <h3 class="text-lg sm:text-xl font-semibold mb-4">Cash Price</h3>
+                        <div class="p-4 rounded-xl bg-green-50 highlight-interest mb-4">
+                            <p class="text-sm text-gray-700">Total Due</p>
+                            <p id="cashOutTotal" class="text-3xl sm:text-4xl font-bold mt-1">$0</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Financing Options -->
+                    <div id="financingResults" class="hidden">
+                        <h3 class="text-lg sm:text-xl font-semibold mb-4">Monthly Amount</h3>
+                        <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Monthly payments will be inserted here by JavaScript -->
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">Total Interest Paid</h3>
+                            <div id="totalInterestPaid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <!-- Total interest paid will be inserted here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TA-Code -->
+            <div class="mt-8">
+                <label for="taCode" class="block text-sm font-medium text-gray-700">TA-Code</label>
+                <div class="mt-1">
+                    <select id="taCode" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200">
+                        <option value="no">No</option>
+                        <option value="1">1 ($250)</option>
+                        <option value="2">2 ($500)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get all input elements
+        const planInput = document.getElementById('plan');
+        const taCodeInput = document.getElementById('taCode');
+        const cashDownInput = document.getElementById('cashDown');
+
+        // Get all output elements
+        const principalAmountOutput = document.getElementById('principalAmount');
+        const cashDownAmountOutput = document.getElementById('cashDownAmount');
+        const remainingBalanceAmountOutput = document.getElementById('remainingBalanceAmount');
+        const monthlyPaymentsContainer = document.getElementById('monthlyPayments');
+        const totalInterestPaidContainer = document.getElementById('totalInterestPaid'); 
+        const totalInterestSavedOutputDiv = document.getElementById('totalInterestSavedDiv');
+        const totalInterestSavedOutput = document.getElementById('totalInterestSaved');
+        const cashOutTotalOutput = document.getElementById('cashOutTotal');
+        const financingResultsSection = document.getElementById('financingResults');
+        const cashResultsSection = document.getElementById('cashResults');
+        const cashDownError = document.getElementById('cashDownError');
+        const resultsSection = document.getElementById('results');
+
+        // Constants
+        const interestRate = 0.1799;
+        const terms = [24, 18, 12, 6];
+        const TA_CODES = {
+            'no': 0,
+            '1': 250,
+            '2': 500
+        };
+        const planPrices = {
+            'legacy': 4499,
+            '10year': 2499,
+            '3year': 999,
+        };
+
+        // PMT (Payment) formula implementation
+        function pmt(rate, nper, pv) {
+            const pvif = Math.pow(1 + rate, nper);
+            return (rate * pv * pvif) / (pvif - 1);
+        }
+        
+        // Helper function for currency formatting
+        function formatCurrency(amount, fractionDigits = 0) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: fractionDigits,
+                maximumFractionDigits: fractionDigits
+            }).format(amount);
+        }
+
+        // Main calculation function
+        function calculate() {
+            const plan = planInput.value;
+            const taCode = taCodeInput.value;
+            const principal = planPrices[plan] - TA_CODES[taCode];
+            let cashDown = parseFloat(cashDownInput.value) || 0;
+            
+            const minCashDownFinancing = Math.round(principal * 0.10);
+
+            // Set min and max attributes for the input field to constrain arrow keys
+            cashDownInput.min = minCashDownFinancing;
+            cashDownInput.max = principal;
+
+            // Enforce minimum and maximum values for manual entry
+            if (cashDown < minCashDownFinancing) {
+                cashDownInput.classList.add('input-error');
+                cashDownError.classList.remove('hidden');
+            } else {
+                cashDownInput.classList.remove('input-error');
+                cashDownError.classList.add('hidden');
+            }
+             if (cashDown > principal) {
+                cashDown = principal;
+                cashDownInput.value = cashDown;
+            }
+            
+            // Update main numbers
+            principalAmountOutput.textContent = formatCurrency(principal);
+            cashDownAmountOutput.textContent = formatCurrency(cashDown);
+            
+            // Always calculate and display interest savings first
+            const minCashDown = Math.round(principal * 0.10);
+            const baseRemainingBalance = principal - minCashDown;
+            const baseMonthlyPayment = pmt(interestRate / 12, 24, baseRemainingBalance);
+            const baseTotalInterest = (baseMonthlyPayment * 24) - baseRemainingBalance;
+            
+            const currentRemainingBalance = principal - cashDown;
+            let currentTotalInterest = 0;
+            if (currentRemainingBalance > 0) {
+                const currentMonthlyPayment = pmt(interestRate / 12, 24, currentRemainingBalance);
+                currentTotalInterest = (currentMonthlyPayment * 24) - currentRemainingBalance;
+            }
+            
+            const interestSaved = baseTotalInterest - currentTotalInterest;
+
+            if (cashDown === minCashDown) {
+                totalInterestSavedOutput.innerHTML = `<p class="text-xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
+            } else {
+                totalInterestSavedOutput.innerHTML = `<p class="text-xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
+            }
+
+            // Check for cash deal
+            if (cashDown >= principal) {
+                cashResultsSection.classList.remove('hidden');
+                financingResultsSection.classList.add('hidden');
+                remainingBalanceAmountOutput.textContent = formatCurrency(0);
+                cashOutTotal.textContent = formatCurrency(cashDown);
+            } else {
+                cashResultsSection.classList.add('hidden');
+                financingResultsSection.classList.remove('hidden');
+                const remainingBalance = principal - cashDown;
+                remainingBalanceAmountOutput.textContent = formatCurrency(remainingBalance);
+
+                // Update monthly payments
+                monthlyPaymentsContainer.innerHTML = '';
+                totalInterestPaidContainer.innerHTML = '';
+                const monthlyRate = interestRate / 12;
+
+                terms.forEach(term => {
+                    const monthlyPayment = pmt(monthlyRate, term, remainingBalance);
+                    const is24Months = term === 24;
+                    
+                    const monthlyDiv = document.createElement('div');
+                    monthlyDiv.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${is24Months ? 'highlight-monthly' : 'bg-gray-50'}`;
+                    monthlyDiv.innerHTML = `
+                        <p class="text-sm text-gray-500">${term} Months</p>
+                        <p class="text-lg font-bold text-gray-900">${formatCurrency(monthlyPayment, 2)}</p>
+                    `;
+                    monthlyPaymentsContainer.appendChild(monthlyDiv);
+                });
+
+                // Update total interest paid
+                terms.forEach(term => {
+                    const monthlyPayment = pmt(monthlyRate, term, remainingBalance);
+                    const totalInterest = (monthlyPayment * term) - remainingBalance;
+                    const interestDiv = document.createElement('div');
+                    interestDiv.className = `p-4 rounded-xl shadow-sm bg-gray-50 downplayed flex flex-col justify-between`;
+                    interestDiv.innerHTML = `
+                        <p>${term} Months</p>
+                        <p class="text-sm font-bold">${formatCurrency(totalInterest, 2)}</p>
+                    `;
+                    totalInterestPaidContainer.appendChild(interestDiv);
+                });
+            }
+        }
+
+        // Function to handle changes to the plan selection
+        function handlePlanChange() {
+            const plan = planInput.value;
+            if (plan) {
+                const defaultCashDown = Math.round(planPrices[plan] * 0.20);
+                cashDownInput.value = defaultCashDown;
+                // Disable TA-Code for 3 year plan
+                taCodeInput.disabled = (plan === '3year');
+                if (plan === '3year') {
+                    taCodeInput.value = 'no';
+                }
+                resultsSection.classList.remove('hidden');
+            } else {
+                resultsSection.classList.add('hidden');
+                cashDownInput.value = '';
+                taCodeInput.disabled = false;
+            }
+            calculate();
+        }
+        
+        // Add event listeners
+        planInput.addEventListener('change', handlePlanChange);
+        taCodeInput.addEventListener('change', calculate);
+        cashDownInput.addEventListener('input', calculate);
+        cashDownInput.addEventListener('blur', calculate);
+        cashDownInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set an initial plan and trigger the calculation
+            planInput.value = "legacy";
+            handlePlanChange();
+        });
+    </script>
+</body>
+</html>
