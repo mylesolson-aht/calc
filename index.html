@@ -122,7 +122,7 @@
                 <div id="combinedResults">
                      <!-- Interest Savings with Initial Amount -->
                     <div id="totalInterestSavedDiv" class="mb-4">
-                        <p class="text-sm font-medium text-gray-700">Your Interest Savings</p>
+                        <p class="text-sm font-medium text-gray-700">Interest Savings</p>
                         <div id="totalInterestSaved" class="p-4 rounded-xl bg-green-50 highlight-interest mt-1">
                             <p class="text-xl font-bold text-green-800">$0</p>
                         </div>
@@ -143,6 +143,10 @@
                         <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <!-- Monthly payments will be inserted here by JavaScript -->
                         </div>
+                        <!-- New upgrade offer section -->
+                        <div id="upgradeOffer" class="mt-4 hidden">
+                            <!-- Upgrade offer will be inserted here by JavaScript -->
+                        </div>
 
                         <div class="mt-6">
                             <h3 class="text-sm font-medium text-gray-700 mb-2">Total Interest Paid</h3>
@@ -160,8 +164,8 @@
                 <div class="mt-1">
                     <select id="taCode" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200">
                         <option value="no">No</option>
-                        <option value="1">1 ($250)</option>
-                        <option value="2">2 ($500)</option>
+                        <option value="1">1 ($250) (Requires Manager Approval)</option>
+                        <option value="2">2 ($500) (Requires Manager Approval)</option>
                     </select>
                 </div>
             </div>
@@ -187,6 +191,7 @@
         const cashResultsSection = document.getElementById('cashResults');
         const cashDownError = document.getElementById('cashDownError');
         const resultsSection = document.getElementById('results');
+        const upgradeOfferDiv = document.getElementById('upgradeOffer');
 
         // Constants
         const interestRate = 0.1799;
@@ -194,12 +199,26 @@
         const TA_CODES = {
             'no': 0,
             '1': 250,
-            '2': 500
+            '2': 500,
         };
         const planPrices = {
             'legacy': 4499,
             '10year': 2499,
             '3year': 999,
+        };
+        const UPGRADE_PATHS = {
+            '3year': [
+                {
+                    price: 2499,
+                    message: 'Add 7 More Years for only',
+                }
+            ],
+            '10year': [
+                {
+                    price: 4499,
+                    message: 'Never Pay Retail Again for only'
+                }
+            ]
         };
 
         // PMT (Payment) formula implementation
@@ -215,6 +234,14 @@
                 currency: 'USD',
                 minimumFractionDigits: fractionDigits,
                 maximumFractionDigits: fractionDigits
+            }).format(amount);
+        }
+        function formatCurrencyWithCents(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }).format(amount);
         }
 
@@ -298,6 +325,31 @@
                     `;
                     monthlyPaymentsContainer.appendChild(monthlyDiv);
                 });
+                
+                // Calculate and display upgrade offer
+                upgradeOfferDiv.innerHTML = ''; // Clear previous offers
+                if (UPGRADE_PATHS[plan]) {
+                    upgradeOfferDiv.classList.remove('hidden');
+                    const cashDownRatio = cashDown / principal;
+
+                    UPGRADE_PATHS[plan].forEach(upgradeInfo => {
+                        const nextPrincipal = upgradeInfo.price - TA_CODES[taCode];
+                        const nextCashDown = nextPrincipal * cashDownRatio;
+                        const nextRemainingBalance = nextPrincipal - nextCashDown;
+                        const nextMonthlyPayment = pmt(monthlyRate, 24, nextRemainingBalance);
+
+                        const currentMonthlyPayment = pmt(monthlyRate, 24, remainingBalance);
+                        const monthlyDifference = nextMonthlyPayment - currentMonthlyPayment;
+                        const dailyDifference = monthlyDifference / 30.44;
+
+                        const offerHtml = `
+                            <p class="text-sm font-semibold text-gray-700">${upgradeInfo.message} ${formatCurrencyWithCents(dailyDifference)} per day.</p>
+                        `;
+                        upgradeOfferDiv.innerHTML += offerHtml;
+                    });
+                } else {
+                    upgradeOfferDiv.classList.add('hidden');
+                }
 
                 // Update total interest paid
                 terms.forEach(term => {
