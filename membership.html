@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Value Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem; /* Equivalent to gap-6 */
+        }
+        .membership-card {
+            background-color: #fff;
+            border: 2px solid transparent;
+            padding: 1.5rem; /* p-6 */
+            border-radius: 1.5rem; /* rounded-2xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            width: 100%;
+            max-width: 24rem; /* For responsiveness on smaller screens */
+        }
+        .membership-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* hover:shadow-xl */
+            transform: translateY(-5px);
+        }
+        .membership-card.selected {
+            border-color: #3B82F6; /* border-blue-500 */
+            box-shadow: 0 0 0 4px #BFDBFE, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* ring-4 ring-blue-200, hover:shadow-xl */
+            transform: translateY(-5px);
+        }
+        @media (min-width: 768px) {
+            .membership-card {
+                flex: 1 1 30%; /* Flexible sizing for desktop */
+            }
+        }
+        .label-best-value {
+            background: linear-gradient(145deg, #fef08a, #fcd34d);
+            color: #b45309;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* rounded-full */
+        }
+        .label-trial {
+            background: linear-gradient(145deg, #fee2e2, #fca5a5);
+            color: #991b1b;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* rounded-full */
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl max-w-4xl w-full">
+        <h1 class="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-2">Find Your Perfect Membership</h1>
+        <p class="text-center text-gray-500 mb-8">Select your membership and special offers to see the total value.</p>
+
+        <!-- Podium Speaker Name Input -->
+        <div class="mb-4">
+            <label for="podium-speaker-name" class="block text-gray-700 font-medium mb-2">Podium Speaker Name</label>
+            <input type="text" id="podium-speaker-name" placeholder="Enter speaker's name" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Guest Name Input -->
+        <div class="mb-8">
+            <label for="guest-name" class="block text-gray-700 font-medium mb-2">Guest Name</label>
+            <input type="text" id="guest-name" placeholder="Enter guest's name" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <!-- Membership Selection -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Choose Your Membership</h2>
+            <div id="membership-cards" class="card-container">
+                <!-- Legacy Membership -->
+                <div id="legacy-card" class="membership-card">
+                    <h3 class="text-xl font-bold text-teal-600">Legacy Membership</h3>
+                    <p class="text-sm font-semibold text-gray-500 mb-4">The ultimate value, unlock your best memories.</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <span class="text-sm text-gray-400 line-through">$7,999 Retail</span>
+                            <span class="text-2xl font-bold text-gray-800 block">$4,499</span>
+                        </div>
+                        <span class="label-best-value">Best Value</span>
+                    </div>
+                    <ul class="text-gray-600 text-sm space-y-2">
+                        <li>Lifetime Access. Willable & Transferable.</li>
+                        <li>Experience luxury destinations at wholesale rates, forever.</li>
+                        <li>Access to direct, raw-rate pricing on all travel.</li>
+                    </ul>
+                </div>
+                <!-- 10 Membership -->
+                <div id="ten-card" class="membership-card">
+                    <h3 class="text-xl font-bold text-indigo-600">10-Year Membership</h3>
+                    <p class="text-sm font-semibold text-gray-500 mb-4">Same unlimited access, at a more affordable price.</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <span class="text-sm text-gray-400 line-through">$5,999 Retail</span>
+                            <span class="text-2xl font-bold text-gray-800 block">$2,499</span>
+                        </div>
+                    </div>
+                    <ul class="text-gray-600 text-sm space-y-2">
+                        <li>Unlimited Access.</li>
+                        <li>Everyday savings on top-quality brand-name vacations, hotels, cruises and rental cars.</li>
+                    </ul>
+                </div>
+                <!-- Hidden 3 Membership -->
+                <div id="three-card" class="membership-card hidden">
+                    <h3 class="text-xl font-bold text-purple-600">3-Year Membership</h3>
+                    <p class="text-sm font-semibold text-gray-500 mb-4">Take it for a Test Drive. Unlimited Access.</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <span class="text-sm text-gray-400 block mb-1">Not Available Retail</span>
+                            <span class="text-2xl font-bold text-gray-800">$999</span>
+                        </div>
+                        <span class="label-trial">Trial</span>
+                    </div>
+                    <ul class="text-gray-600 text-sm space-y-2">
+                        <li>Save money and time on hotels, rental cars, and cruises.</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Upgrade Offer Button -->
+            <div class="hidden mt-4 text-center" id="upgrade-offer-container">
+                <button id="upgrade-offer-btn" class="w-full md:w-auto p-4 rounded-xl bg-blue-50 text-blue-700 font-semibold transition-all duration-300 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </button>
+            </div>
+
+            <!-- Last Ditch Pitch Button -->
+            <div class="text-center mt-6">
+                <button id="show-three-btn" class="text-sm text-gray-500 underline transition-all duration-300 hover:text-gray-700">Memberships Declined</button>
+            </div>
+        </div>
+
+        <!-- Premium Gifts -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Premium Gifts</h2>
+            <p class="text-sm italic text-gray-500 mb-4">Webinar Exclusive Offerings</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Global Week Stay Offer -->
+                <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
+                    <input type="checkbox" id="global-week-offer" name="ta-offer" value="2000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <span class="text-gray-700 font-medium">Global Week Stay Certificate ($2,000 value)</span>
+                </label>
+                <!-- Hawaii Certificate Offer -->
+                <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
+                    <input type="checkbox" id="hawaii-offer" name="ta-offer" value="1000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <span class="text-gray-700 font-medium">Hawaii Certificate ($1,000 value)</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Financing and Discounts -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Financing Details</h2>
+            <div class="bg-gray-50 p-6 rounded-2xl shadow-inner">
+                 <!-- Financing Terms -->
+                 <div class="mb-4">
+                    <label for="financing-term" class="block text-gray-700 font-medium mb-2">Financing Term</label>
+                    <select id="financing-term" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="6">6 Months</option>
+                        <option value="12">12 Months</option>
+                        <option value="18">18 Months</option>
+                        <option value="24" selected>24 Months</option>
+                    </select>
+                </div>
+                 <!-- Downpayment Input -->
+                <div class="mb-4">
+                    <label for="downpayment" class="block text-gray-700 font-medium mb-2">Downpayment</label>
+                    <input type="number" id="downpayment" placeholder="Enter amount" min="0" value="0" step="50" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <!-- Monthly Payment Display -->
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-700 font-medium">Monthly Payment:</span>
+                    <span id="monthly-payment" class="font-bold text-gray-800 text-xl">$0.00</span>
+                </div>
+            </div>
+            
+            <!-- This section now only contains webinar-specific discounts. -->
+            <div id="advanced-options-btn-container" class="text-center mt-6 hidden">
+                <button id="show-advanced-options-btn" class="text-sm text-gray-500 underline transition-all duration-300 hover:text-gray-700">Show Advanced Options</button>
+            </div>
+            <div id="advanced-options" class="hidden mt-6 bg-gray-50 p-6 rounded-2xl shadow-inner border border-gray-200">
+                <p class="text-sm italic text-gray-500 mb-4 font-semibold">Note: These options require manager approval.</p>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Webinar Exclusive Discounts</h3>
+                 <!-- Waive Annual Fee -->
+                <div class="flex items-center space-x-3 cursor-pointer mb-4">
+                    <input type="checkbox" id="annual-fee-waived" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <span class="text-gray-700 font-medium">Waive First Year Annual Fee</span>
+                </div>
+                 <!-- Webinar Participation Gift & Buyback -->
+                <div class="mb-4">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" id="webinar-gift-checkbox" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                        <span class="text-gray-700 font-medium">Webinar Participation Gift</span>
+                    </label>
+                    <!-- This section is hidden by default and only for Legacy/10 memberships -->
+                    <div id="webinar-buyback-options" class="mt-4 pl-8 space-y-2 text-sm text-gray-600 hidden">
+                        <p class="font-semibold">Select Buyback Amount (Discounts package):</p>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="buyback-amount" value="250" class="form-radio text-blue-600 h-4 w-4">
+                            <span class="ml-2">$250 Buyback</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer ml-4">
+                            <input type="radio" name="buyback-amount" value="500" class="form-radio text-blue-600 h-4 w-4">
+                            <span class="ml-2">$500 Buyback</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary & Results -->
+        <div class="bg-gray-100 p-6 rounded-2xl">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Package Summary</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-medium">Membership Cost:</span>
+                    <span id="membership-cost" class="font-bold text-gray-800">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-medium">Annual Fee:</span>
+                    <span id="annual-fee" class="font-bold text-gray-800">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-medium">Total Gift Value:</span>
+                    <span id="gift-value" class="font-bold text-green-600">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-medium">Total Discounts:</span>
+                    <span id="total-discounts" class="font-bold text-red-600">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-medium">Financing Cost:</span>
+                    <span id="financing-cost" class="font-bold text-red-600">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-medium">Downpayment:</span>
+                    <span id="downpayment-value" class="font-bold text-gray-800">$0.00</span>
+                </div>
+                 <!-- Correctly added total cost display -->
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-medium">Total Cost:</span>
+                    <span id="total-cost" class="font-bold text-gray-800">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2 md:col-span-2">
+                    <span class="font-medium">Interest Savings:</span>
+                    <span id="interest-savings" class="font-bold text-green-600">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2 md:col-span-2">
+                    <span class="font-medium">Total Package Value:</span>
+                    <span id="package-value" class="font-bold text-green-600 text-xl md:text-2xl">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2 md:col-span-2">
+                    <span class="font-medium">Net Savings:</span>
+                    <span id="net-savings" class="font-bold text-blue-600 text-xl md:text-2xl">$0.00</span>
+                </div>
+            </div>
+            <p id="disclaimer" class="text-center text-sm italic mt-4 text-gray-500">
+                This is for illustration purposes only and does not constitute a formal quote. All figures are estimates.
+            </p>
+        </div>
+        
+        <!-- VLO Call Button & Message -->
+        <div class="mt-8 text-center">
+            <button id="vlo-call-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                Call VLO
+            </button>
+            <div id="vlo-message" class="mt-4 text-center text-gray-700 font-semibold hidden"></div>
+        </div>
+
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Constant values for membership data and calculations
+            const MEMBERSHIPS = {
+                legacy: { cost: 4499, retailCost: 7999, annualFee: 199, value: 3000 },
+                ten: { cost: 2499, retailCost: 5999, annualFee: 199, value: 2000 },
+                three: { cost: 999, retailCost: null, annualFee: 199, value: 0 }
+            };
+            const FINANCING_RATE = 17.99;
+            const DOWNPAYMENT_MIN_PERCENT = 0.10;
+            const DOWNPAYMENT_MAX_PERCENT = 1.00;
+            const DOWNPAYMENT_DEFAULT_PERCENT = 0.20;
+
+            // DOM element references
+            const elements = {
+                legacyCard: document.getElementById('legacy-card'),
+                tenCard: document.getElementById('ten-card'),
+                threeCard: document.getElementById('three-card'),
+                showThreeBtn: document.getElementById('show-three-btn'),
+                financingTermSelect: document.getElementById('financing-term'),
+                downpaymentInput: document.getElementById('downpayment'),
+                offers: document.querySelectorAll('input[name="ta-offer"]'),
+                showAdvancedOptionsBtn: document.getElementById('show-advanced-options-btn'),
+                advancedOptionsBtnContainer: document.getElementById('advanced-options-btn-container'),
+                advancedOptionsDiv: document.getElementById('advanced-options'),
+                webinarGiftCheckbox: document.getElementById('webinar-gift-checkbox'),
+                webinarBuybackOptions: document.getElementById('webinar-buyback-options'),
+                buybackRadios: document.querySelectorAll('input[name="buyback-amount"]'),
+                annualFeeWaivedCheckbox: document.getElementById('annual-fee-waived'),
+                vloCallBtn: document.getElementById('vlo-call-btn'),
+                vloMessageDiv: document.getElementById('vlo-message'),
+                guestNameInput: document.getElementById('guest-name'),
+                podiumSpeakerNameInput: document.getElementById('podium-speaker-name'),
+                upgradeOfferContainer: document.getElementById('upgrade-offer-container'),
+                upgradeOfferBtn: document.getElementById('upgrade-offer-btn'),
+                membershipCostEl: document.getElementById('membership-cost'),
+                annualFeeEl: document.getElementById('annual-fee'),
+                giftValueEl: document.getElementById('gift-value'),
+                financingCostEl: document.getElementById('financing-cost'),
+                totalCostEl: document.getElementById('total-cost'),
+                totalDiscountsEl: document.getElementById('total-discounts'),
+                packageValueEl: document.getElementById('package-value'),
+                netSavingsEl: document.getElementById('net-savings'),
+                monthlyPaymentEl: document.getElementById('monthly-payment'),
+                downpaymentValueEl: document.getElementById('downpayment-value'),
+                interestSavingsEl: document.getElementById('interest-savings'),
+            };
+
+            // Global state
+            let selectedMembership = null;
+
+            // --- Core Calculation Logic ---
+
+            /**
+             * Calculates all totals and updates the UI.
+             */
+            function calculateTotals() {
+                if (!selectedMembership) {
+                    renderResults({}); // Clear all displayed values
+                    return;
+                }
+
+                // Get base membership data
+                let { cost, annualFee, retailCost } = MEMBERSHIPS[selectedMembership];
+                let downpayment = parseFloat(elements.downpaymentInput.value) || 0;
+
+                // Calculate discounts and final cost
+                const { buybackDiscount, totalDiscounts, finalCostAfterDiscounts } = getDiscounts(cost);
+                
+                // Clamp downpayment to min/max percentages
+                const minDownpayment = finalCostAfterDiscounts * DOWNPAYMENT_MIN_PERCENT;
+                const maxDownpayment = finalCostAfterDiscounts * DOWNPAYMENT_MAX_PERCENT;
+                downpayment = Math.max(minDownpayment, Math.min(downpayment, maxDownpayment));
+                elements.downpaymentInput.value = Math.round(downpayment);
+
+                // Handle annual fee waiver
+                if (elements.annualFeeWaivedCheckbox.checked) {
+                    annualFee = 0;
+                }
+
+                // Calculate financing details
+                const { monthlyPayment, financingCost, interestSavings } = calculateFinancing(finalCostAfterDiscounts, downpayment);
+
+                // Calculate gift value
+                const giftValue = getGiftValue();
+                
+                // Calculate final summary values
+                const totalCost = downpayment + (monthlyPayment * parseInt(elements.financingTermSelect.value, 10)) + annualFee;
+                const totalPackageValue = (retailCost !== null ? retailCost : cost) + giftValue + (interestSavings > 0 ? interestSavings : 0);
+                const netSavings = totalPackageValue - totalCost;
+
+                renderResults({
+                    membershipCost: cost,
+                    annualFee,
+                    giftValue,
+                    totalDiscounts,
+                    financingCost,
+                    downpayment,
+                    totalCost,
+                    interestSavings,
+                    packageValue: totalPackageValue,
+                    netSavings,
+                    monthlyPayment
+                });
+            }
+            
+            /**
+             * Calculates the daily cost delta for upgrading to a new membership.
+             * @param {string} currentMembership - The key for the current membership.
+             * @param {string} targetMembership - The key for the target membership.
+             * @returns {string} The formatted daily cost delta.
+             */
+            function calculateDailyUpgradeCost(currentMembership, targetMembership) {
+                const currentCost = MEMBERSHIPS[currentMembership].cost;
+                const targetCost = MEMBERSHIPS[targetMembership].cost;
+
+                // Calculate down payments based on the default percentage
+                const currentDownpayment = currentCost * DOWNPAYMENT_DEFAULT_PERCENT;
+                const targetDownpayment = targetCost * DOWNPAYMENT_DEFAULT_PERCENT;
+
+                // Calculate the financed amount for both memberships
+                const currentFinanced = currentCost - currentDownpayment;
+                const targetFinanced = targetCost - targetDownpayment;
+
+                const financedDelta = targetFinanced - currentFinanced;
+
+                const selectedTermInMonths = parseInt(elements.financingTermSelect.value, 10);
+                const totalDays = selectedTermInMonths * 30.44; // Approx days per month
+                
+                const dailyCost = financedDelta / totalDays;
+                
+                return dailyCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            /**
+             * Calculates the total value of selected gifts.
+             * @returns {number}
+             */
+            function getGiftValue() {
+                let giftValue = 0;
+                elements.offers.forEach(offer => {
+                    if (offer.checked) {
+                        giftValue += parseFloat(offer.value);
+                    }
+                });
+                return giftValue;
+            }
+
+            /**
+             * Calculates all applicable discounts.
+             * @param {number} membershipCost
+             * @returns {{buybackDiscount: number, totalDiscounts: number, finalCostAfterDiscounts: number}}
+             */
+            function getDiscounts(membershipCost) {
+                let buybackDiscount = 0;
+                let cashDiscount = 0;
+                
+                if (elements.webinarGiftCheckbox.checked && (selectedMembership === 'legacy' || selectedMembership === 'ten')) {
+                    const selectedBuyback = document.querySelector('input[name="buyback-amount"]:checked');
+                    if (selectedBuyback) {
+                        buybackDiscount = parseFloat(selectedBuyback.value);
+                    }
+                }
+                
+                const finalMembershipCost = membershipCost - buybackDiscount;
+                const isCashOutEligible = parseFloat(elements.downpaymentInput.value) >= (finalMembershipCost * 0.90);
+                if (isCashOutEligible) {
+                    cashDiscount = membershipCost * 0.10;
+                }
+
+                const totalDiscounts = buybackDiscount + cashDiscount;
+                const finalCostAfterDiscounts = membershipCost - totalDiscounts;
+                return { buybackDiscount, totalDiscounts, finalCostAfterDiscounts };
+            }
+            
+            /**
+             * Calculates financing-related costs.
+             * @param {number} totalCost
+             * @param {number} downpayment
+             * @returns {{monthlyPayment: number, financingCost: number, interestSavings: number}}
+             */
+            function calculateFinancing(totalCost, downpayment) {
+                const selectedTerm = parseInt(elements.financingTermSelect.value, 10);
+                const monthlyRate = (FINANCING_RATE / 100) / 12;
+
+                const financedAmount = totalCost - downpayment;
+                let monthlyPayment = 0;
+                if (monthlyRate > 0 && financedAmount > 0) {
+                    monthlyPayment = (financedAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -selectedTerm));
+                } else if (financedAmount > 0) {
+                    monthlyPayment = financedAmount / selectedTerm;
+                }
+                const financingCost = (monthlyPayment * selectedTerm) - financedAmount;
+
+                // Calculate interest savings for the summary section
+                const financedAmountWithoutDownpayment = totalCost;
+                let monthlyPaymentWithoutDownpayment = 0;
+                if (monthlyRate > 0) {
+                    monthlyPaymentWithoutDownpayment = (financedAmountWithoutDownpayment * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -selectedTerm));
+                } else {
+                    monthlyPaymentWithoutDownpayment = financedAmountWithoutDownpayment / selectedTerm;
+                }
+                const financingCostWithoutDownpayment = (monthlyPaymentWithoutDownpayment * selectedTerm) - financedAmountWithoutDownpayment;
+                const interestSavings = financingCostWithoutDownpayment - (financingCost > 0 ? financingCost : 0);
+                
+                return {
+                    monthlyPayment,
+                    financingCost: financingCost > 0 ? financingCost : 0,
+                    interestSavings: interestSavings > 0 ? interestSavings : 0
+                };
+            }
+
+            /**
+             * Updates the UI with calculated values.
+             * @param {object} values
+             */
+            function renderResults(values) {
+                const formatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+                const format = (value) => `$${(value || 0).toLocaleString('en-US', formatOptions)}`;
+
+                elements.membershipCostEl.textContent = format(values.membershipCost);
+                elements.annualFeeEl.textContent = format(values.annualFee);
+                elements.giftValueEl.textContent = format(values.giftValue);
+                elements.financingCostEl.textContent = format(values.financingCost);
+                elements.downpaymentValueEl.textContent = format(values.downpayment);
+                elements.totalCostEl.textContent = format(values.totalCost);
+                elements.totalDiscountsEl.textContent = `-${format(values.totalDiscounts)}`;
+                elements.packageValueEl.textContent = format(values.packageValue);
+                elements.netSavingsEl.textContent = format(values.netSavings);
+                elements.monthlyPaymentEl.textContent = format(values.monthlyPayment);
+                elements.interestSavingsEl.textContent = format(values.interestSavings);
+            }
+
+            // --- UI Interaction Logic ---
+
+            /**
+             * Updates the visual state of the membership cards.
+             */
+            function updateCardSelection() {
+                const cards = [elements.legacyCard, elements.tenCard, elements.threeCard];
+                cards.forEach(card => {
+                    const id = card.id.replace('-card', '');
+                    if (id === selectedMembership) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+
+                // Control card visibility based on selected membership
+                elements.legacyCard.classList.toggle('hidden', selectedMembership === 'three');
+                elements.tenCard.classList.toggle('hidden', selectedMembership === 'three');
+                elements.threeCard.classList.toggle('hidden', selectedMembership !== 'three');
+                elements.showThreeBtn.classList.toggle('hidden', selectedMembership === 'three');
+
+                // Show/hide upgrade offer button and set text
+                elements.upgradeOfferContainer.classList.add('hidden');
+                if (selectedMembership === 'ten') {
+                    const dailyCost = calculateDailyUpgradeCost('ten', 'legacy');
+                    elements.upgradeOfferBtn.textContent = `Upgrade to Legacy Membership for only $${dailyCost}/day`;
+                    elements.upgradeOfferContainer.classList.remove('hidden');
+                } else if (selectedMembership === 'three') {
+                    const dailyCost = calculateDailyUpgradeCost('three', 'ten');
+                    elements.upgradeOfferBtn.textContent = `Upgrade to 10-Year Membership for only $${dailyCost}/day`;
+                    elements.upgradeOfferContainer.classList.remove('hidden');
+                }
+                
+                const isLegacyOrTen = selectedMembership === 'legacy' || selectedMembership === 'ten';
+                elements.advancedOptionsBtnContainer.classList.toggle('hidden', !isLegacyOrTen);
+                elements.advancedOptionsDiv.classList.add('hidden');
+                elements.showAdvancedOptionsBtn.textContent = 'Show Advanced Options';
+                
+                elements.buybackRadios.forEach(radio => radio.disabled = !isLegacyOrTen);
+                elements.webinarBuybackOptions.classList.add('hidden');
+                elements.webinarGiftCheckbox.checked = false;
+                elements.annualFeeWaivedCheckbox.checked = false;
+                elements.offers.forEach(offer => offer.checked = false);
+
+                if (selectedMembership) {
+                    const membershipCost = MEMBERSHIPS[selectedMembership].cost;
+                    const defaultDownpayment = membershipCost * DOWNPAYMENT_DEFAULT_PERCENT;
+                    elements.downpaymentInput.value = Math.round(defaultDownpayment);
+                }
+
+                calculateTotals();
+            }
+
+            /**
+             * Handles click on the upgrade offer button.
+             */
+            function handleUpgrade() {
+                if (selectedMembership === 'ten') {
+                    selectedMembership = 'legacy';
+                } else if (selectedMembership === 'three') {
+                    selectedMembership = 'ten';
+                }
+                updateCardSelection();
+            }
+
+            /**
+             * Handles gift checkbox clicks.
+             * @param {Event} event
+             */
+            function handleGiftSelection(event) {
+                if (selectedMembership === 'three') {
+                    elements.offers.forEach(offer => {
+                        if (offer !== event.target) {
+                            offer.checked = false;
+                        }
+                    });
+                }
+                calculateTotals();
+            }
+
+            /**
+             * Handles VLO call button click and copies data to clipboard.
+             */
+            function handleVloCall() {
+                const podiumSpeakerName = elements.podiumSpeakerNameInput.value.trim();
+                const guestName = elements.guestNameInput.value.trim();
+
+                if (!podiumSpeakerName || !selectedMembership) {
+                    elements.vloMessageDiv.textContent = !podiumSpeakerName ? "Please enter the podium speaker's name." : "Please select a membership first.";
+                    elements.vloMessageDiv.classList.remove('hidden', 'text-green-600');
+                    elements.vloMessageDiv.classList.add('text-red-500');
+                    return;
+                }
+                
+                const formattedDownpayment = parseFloat(elements.downpaymentInput.value) || 0;
+                const downpaymentLine = `Down: $${formattedDownpayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                const selectedBuyback = document.querySelector('input[name="buyback-amount"]:checked');
+                const buybackLine = selectedBuyback ? `BB: ${selectedBuyback.value}` : '';
+                const annualFeeWaivedLine = elements.annualFeeWaivedCheckbox.checked ? 'AF: Waived' : '';
+
+                const clipboardText = `VLO Please
+Podium: ${podiumSpeakerName}
+Guest: ${guestName || 'N/A'}
+${downpaymentLine}
+Terms: ${elements.financingTermSelect.value} ${elements.monthlyPaymentEl.textContent}${buybackLine ? `\n${buybackLine}` : ''}${annualFeeWaivedLine ? `\n${annualFeeWaivedLine}` : ''}`;
+                
+                const textarea = document.createElement('textarea');
+                textarea.value = clipboardText;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+
+                const success = document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                elements.vloMessageDiv.textContent = success ? "VLO Call Copied to Clipboard" : 'Could not copy details to clipboard. Please copy manually.';
+                elements.vloMessageDiv.classList.remove('hidden', success ? 'text-red-500' : 'text-green-600');
+                elements.vloMessageDiv.classList.add(success ? 'text-green-600' : 'text-red-500');
+            }
+
+            // --- Event Listeners and Initialization ---
+
+            function init() {
+                // Membership card clicks
+                elements.legacyCard.addEventListener('click', () => { selectedMembership = 'legacy'; updateCardSelection(); });
+                elements.tenCard.addEventListener('click', () => { selectedMembership = 'ten'; updateCardSelection(); });
+                elements.threeCard.addEventListener('click', () => { selectedMembership = 'three'; updateCardSelection(); });
+                
+                // Button clicks
+                elements.showThreeBtn.addEventListener('click', () => { selectedMembership = 'three'; updateCardSelection(); });
+                elements.showAdvancedOptionsBtn.addEventListener('click', () => {
+                    elements.advancedOptionsDiv.classList.toggle('hidden');
+                    elements.showAdvancedOptionsBtn.textContent = elements.advancedOptionsDiv.classList.contains('hidden') ? 'Show Advanced Options' : 'Hide Advanced Options';
+                });
+                elements.vloCallBtn.addEventListener('click', handleVloCall);
+                elements.upgradeOfferBtn.addEventListener('click', handleUpgrade);
+
+                // Option changes
+                elements.webinarGiftCheckbox.addEventListener('change', () => {
+                    const isLegacyOrTen = selectedMembership === 'legacy' || selectedMembership === 'ten';
+                    elements.webinarBuybackOptions.classList.toggle('hidden', !(elements.webinarGiftCheckbox.checked && isLegacyOrTen));
+                    calculateTotals();
+                });
+                elements.financingTermSelect.addEventListener('change', updateCardSelection); // Update on term change to recalculate upgrade cost
+                elements.downpaymentInput.addEventListener('input', calculateTotals);
+                elements.annualFeeWaivedCheckbox.addEventListener('change', calculateTotals);
+                elements.offers.forEach(offer => offer.addEventListener('change', handleGiftSelection));
+                elements.buybackRadios.forEach(radio => radio.addEventListener('change', calculateTotals));
+
+                // Initial calculation on page load
+                updateCardSelection();
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
