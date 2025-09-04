@@ -139,7 +139,25 @@
             </div>
         </div>
 
-        <!-- Financing and Discounts -->
+        <!-- PREMIUM GIFTS SECTION -->
+        <div class="mt-6 bg-gray-50 p-6 rounded-2xl shadow-inner border border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">Premium Gifts</h3>
+            <p class="text-sm italic text-gray-500 mb-4">Webinar Exclusive Offerings</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Global Week Stay Offer -->
+                <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
+                    <input type="checkbox" id="global-week-offer" name="ta-offer" value="2000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <span class="text-gray-700 font-medium">Global Week Stay Certificate ($2,000 value)</span>
+                </label>
+                <!-- Hawaii Certificate Offer -->
+                <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
+                    <input type="checkbox" id="hawaii-offer" name="ta-offer" value="1000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <span class="text-gray-700 font-medium">Hawaii Certificate ($1,000 value)</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Financing and Summary Section -->
         <div class="mb-8">
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Financing Details</h2>
             <div class="bg-gray-50 p-6 rounded-2xl shadow-inner">
@@ -164,58 +182,6 @@
                     <span id="monthly-payment" class="font-bold text-gray-800 text-xl">$0.00</span>
                 </div>
             </div>
-            
-            <!-- This section now only contains webinar-specific discounts. -->
-            <div id="advanced-options-btn-container" class="text-center mt-6 hidden">
-                <button id="show-advanced-options-btn" class="text-sm text-gray-500 underline transition-all duration-300 hover:text-gray-700">Show Advanced Options</button>
-            </div>
-            <div id="advanced-options" class="hidden mt-6 bg-gray-50 p-6 rounded-2xl shadow-inner border border-gray-200">
-                <p class="text-sm italic text-gray-500 mb-4 font-semibold">Note: These options require manager approval.</p>
-
-                <!-- Premium Gifts moved here from the main screen -->
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Premium Gifts</h3>
-                    <p class="text-sm italic text-gray-500 mb-4">Webinar Exclusive Offerings - Select only one.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Global Week Stay Offer -->
-                        <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
-                            <input type="checkbox" id="global-week-offer" name="ta-offer" value="2000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
-                            <span class="text-gray-700 font-medium">Global Week Stay Certificate ($2,000 value)</span>
-                        </label>
-                        <!-- Hawaii Certificate Offer -->
-                        <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
-                            <input type="checkbox" id="hawaii-offer" name="ta-offer" value="1000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
-                            <span class="text-gray-700 font-medium">Hawaii Certificate ($1,000 value)</span>
-                        </label>
-                    </div>
-                </div>
-
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Webinar Exclusive Discounts</h3>
-                 <!-- Waive Annual Fee -->
-                <div class="flex items-center space-x-3 cursor-pointer mb-4">
-                    <input type="checkbox" id="annual-fee-waived" class="form-checkbox text-blue-600 h-5 w-5 rounded">
-                    <span class="text-gray-700 font-medium">Waive First Year Annual Fee</span>
-                </div>
-                 <!-- Webinar Participation Gift & Buyback -->
-                <div class="mb-4">
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" id="webinar-gift-checkbox" class="form-checkbox text-blue-600 h-5 w-5 rounded">
-                        <span class="text-gray-700 font-medium">Webinar Participation Gift</span>
-                    </label>
-                    <!-- This section is hidden by default and only for Legacy/10 memberships -->
-                    <div id="webinar-buyback-options" class="mt-4 pl-8 space-y-2 text-sm text-gray-600 hidden">
-                        <p class="font-semibold">Select Buyback Amount (Discounts package):</p>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="buyback-amount" value="250" class="form-radio text-blue-600 h-4 w-4">
-                            <span class="ml-2">$250 Buyback</span>
-                        </label>
-                        <label class="inline-flex items-center cursor-pointer ml-4">
-                            <input type="radio" name="buyback-amount" value="500" class="form-radio text-blue-600 h-4 w-4">
-                            <span class="ml-2">$500 Buyback</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Summary & Results -->
@@ -227,7 +193,7 @@
                     <span id="membership-cost" class="font-bold text-gray-800">$0.00</span>
                 </div>
                 <div class="flex justify-between items-center border-b pb-2">
-                    <span class="font-medium">Annual Fee:</span>
+                    <span class="font-medium">First Year Annual Fee:</span>
                     <span id="annual-fee" class="font-bold text-gray-800">$0.00</span>
                 </div>
                 <div class="flex justify-between items-center border-b pb-2">
@@ -236,7 +202,7 @@
                 </div>
                 <!-- New line for Cash Out discount -->
                 <div class="flex justify-between items-center border-b pb-2" id="cash-out-line">
-                    <span class="font-medium">Cash Out Discount:</span>
+                    <span class="font-medium">Cash Discount:</span>
                     <span id="cash-out-discount" class="font-bold text-red-600">$0.00</span>
                 </div>
                 <div class="flex justify-between items-center border-b pb-2">
@@ -258,7 +224,7 @@
                 </div>
                 <div class="flex justify-between items-center border-b pb-2 md:col-span-2">
                     <span class="font-medium">Interest Savings:</span>
-                    <span id="interest-savings" class="font-bold text-green-600">$0.00</span>
+                    <span id="interest-savings" class="font-bold text-green-600 text-lg md:text-xl"></span>
                 </div>
                 <div class="flex justify-between items-center border-b pb-2 md:col-span-2">
                     <span class="font-medium">Total Package Value:</span>
@@ -272,6 +238,51 @@
             <p id="disclaimer" class="text-center text-sm italic mt-4 text-gray-500">
                 This is for illustration purposes only and does not constitute a formal quote. All figures are estimates.
             </p>
+        </div>
+
+        <!-- ADVANCED OPTIONS SECTION -->
+        <div id="advanced-options-container" class="mt-6 bg-gray-50 p-6 rounded-2xl shadow-inner border border-gray-200">
+            <div id="advanced-options-header" class="flex justify-between items-center cursor-pointer">
+                <h3 class="text-xl font-semibold text-gray-700">Advanced Options</h3>
+                <button id="toggle-options-btn" class="text-gray-500 hover:text-gray-700">
+                    <svg id="eye-open" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <svg id="eye-closed" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zm-1.414 7.07a1 1 0 00-.707 1.414l1.414 1.414a1 1 0 001.414-.707l-1.414-1.414zM10 17a1 1 0 001.414-1.414L10 14.586l-1.414 1.414a1 1 0 001.414 1.414zM14 10a4 4 0 01-6.912 2.768l2.253-2.253a1 1 0 00-1.414-1.414L6.232 9.088a4 4 0 015.656 5.656l-1.414-1.414a1 1 0 00-1.414 1.414z" clip-rule="evenodd"/>
+                        <path d="M16.912 12.232l-2.253 2.253a4 4 0 01-5.656-5.656L9.088 6.232A4 4 0 0116.912 12.232z"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- The following div is what will be hidden/shown -->
+            <div id="advanced-options-content" class="mt-4 hidden">
+                <p class="text-sm italic text-gray-500 mb-4 font-semibold">Note: These options require manager approval.</p>
+                <!-- Waive Annual Fee -->
+                <label class="flex items-center space-x-3 cursor-pointer mb-4">
+                    <input type="checkbox" id="annual-fee-waived" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <span class="text-gray-700 font-medium">Waive First Year Annual Fee ($199)</span>
+                </label>
+                <!-- Webinar Participation Buyback -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-700">Webinar Participation Buyback</p>
+                    <div id="webinar-buyback-options" class="mt-2 pl-8 space-y-2 text-sm text-gray-600">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="buyback-amount" value="250" class="form-radio text-blue-600 h-4 w-4">
+                            <span class="ml-2">$250 Buyback</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer ml-4">
+                            <input type="radio" name="buyback-amount" value="500" class="form-radio text-blue-600 h-4 w-4">
+                            <span class="ml-2">$500 Buyback</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Cash Discount -->
+                <div class="mb-4">
+                    <label for="cash-out-input" class="block text-gray-700 font-medium mb-2">Cash Discount</label>
+                    <input type="number" id="cash-out-input" placeholder="0" min="0" value="0" step="1" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
         </div>
         
         <!-- VLO Call Button & Message -->
@@ -290,7 +301,7 @@
             const MEMBERSHIPS = {
                 legacy: { cost: 4499, retailCost: 7999, annualFee: 199, value: 3000 },
                 ten: { cost: 2499, retailCost: 5999, annualFee: 199, value: 2000 },
-                three: { cost: 999, retailCost: null, annualFee: 199, value: 0 }
+                three: { cost: 999, retailCost: null, annualFee: 0, value: 0 }
             };
             const FINANCING_RATE = 17.99;
             const DOWNPAYMENT_MIN_PERCENT = 0.10;
@@ -306,13 +317,14 @@
                 financingTermSelect: document.getElementById('financing-term'),
                 downpaymentInput: document.getElementById('downpayment'),
                 offers: document.querySelectorAll('input[name="ta-offer"]'),
-                showAdvancedOptionsBtn: document.getElementById('show-advanced-options-btn'),
-                advancedOptionsBtnContainer: document.getElementById('advanced-options-btn-container'),
-                advancedOptionsDiv: document.getElementById('advanced-options'),
-                webinarGiftCheckbox: document.getElementById('webinar-gift-checkbox'),
+                advancedOptionsHeader: document.getElementById('advanced-options-header'),
+                advancedOptionsContent: document.getElementById('advanced-options-content'),
+                eyeOpenIcon: document.getElementById('eye-open'),
+                eyeClosedIcon: document.getElementById('eye-closed'),
                 webinarBuybackOptions: document.getElementById('webinar-buyback-options'),
                 buybackRadios: document.querySelectorAll('input[name="buyback-amount"]'),
                 annualFeeWaivedCheckbox: document.getElementById('annual-fee-waived'),
+                cashOutInput: document.getElementById('cash-out-input'),
                 vloCallBtn: document.getElementById('vlo-call-btn'),
                 vloMessageDiv: document.getElementById('vlo-message'),
                 guestNameInput: document.getElementById('guest-name'),
@@ -352,17 +364,16 @@
                 let { cost, annualFee, retailCost } = MEMBERSHIPS[selectedMembership];
                 let downpayment = parseFloat(elements.downpaymentInput.value) || 0;
 
-                // Determine downpayment bounds based on ORIGINAL cost
-                const minDownpayment = cost * DOWNPAYMENT_MIN_PERCENT;
-                const maxDownpayment = cost; // Allow downpayment up to 100% of the cost.
-                
-                // Clamp user input to stay within the valid range.
-                // Note: The min downpayment is still enforced.
-                downpayment = Math.max(minDownpayment, Math.min(downpayment, maxDownpayment));
-                elements.downpaymentInput.value = Math.round(downpayment);
+                // Calculate discounts first
+                const { buybackDiscount, cashDiscount, totalDiscounts, finalCostAfterDiscounts } = getDiscounts(cost);
 
-                // Calculate discounts after clamping
-                const { buybackDiscount, cashDiscount, totalDiscounts, finalCostAfterDiscounts, cashOutApplied } = getDiscounts(cost, downpayment);
+                // Re-clamp the downpayment amount based on the final cost after discounts
+                const minDownpayment = finalCostAfterDiscounts * DOWNPAYMENT_MIN_PERCENT;
+                const maxDownpayment = finalCostAfterDiscounts * DOWNPAYMENT_MAX_PERCENT;
+                downpayment = Math.max(minDownpayment, Math.min(downpayment, maxDownpayment));
+                
+                // Update the downpayment input field to reflect the clamped value
+                elements.downpaymentInput.value = Math.round(downpayment);
 
                 // Handle annual fee waiver
                 if (elements.annualFeeWaivedCheckbox.checked) {
@@ -392,8 +403,7 @@
                     packageValue: totalPackageValue,
                     netSavings,
                     monthlyPayment,
-                    cashDiscount,
-                    cashOutApplied
+                    cashDiscount
                 });
             }
             
@@ -440,35 +450,27 @@
             }
 
             /**
-             * Calculates all applicable discounts.
+             * Calculates all applicable discounts based on input state, regardless of visibility.
              * @param {number} membershipCost
-             * @param {number} downpayment
-             * @returns {{buybackDiscount: number, cashDiscount: number, totalDiscounts: number, finalCostAfterDiscounts: number, cashOutApplied: boolean}}
+             * @returns {{buybackDiscount: number, cashDiscount: number, totalDiscounts: number, finalCostAfterDiscounts: number}}
              */
-            function getDiscounts(membershipCost, downpayment) {
+            function getDiscounts(membershipCost) {
                 let buybackDiscount = 0;
-                let cashDiscount = 0;
-                let cashOutApplied = false;
                 
-                if (elements.webinarGiftCheckbox.checked && (selectedMembership === 'legacy' || selectedMembership === 'ten')) {
-                    const selectedBuyback = document.querySelector('input[name="buyback-amount"]:checked');
-                    if (selectedBuyback) {
-                        buybackDiscount = parseFloat(selectedBuyback.value);
-                    }
+                // Get buyback discount based on selected radio button
+                const selectedBuyback = document.querySelector('input[name="buyback-amount"]:checked');
+                if (selectedBuyback) {
+                    buybackDiscount = parseFloat(selectedBuyback.value);
                 }
                 
-                const finalMembershipCostBeforeCashOut = membershipCost - buybackDiscount;
+                // Get cash discount from input, clamped to max 10% of membership cost
+                const maxCashDiscount = membershipCost * 0.10;
+                let cashDiscount = Math.min(parseFloat(elements.cashOutInput.value) || 0, maxCashDiscount);
+                elements.cashOutInput.value = Math.round(cashDiscount);
                 
-                // Check for Cash Out eligibility based on the downpayment
-                const isCashOutEligible = downpayment >= (finalMembershipCostBeforeCashOut * 0.90);
-                if (isCashOutEligible) {
-                    cashDiscount = finalMembershipCostBeforeCashOut * 0.10;
-                    cashOutApplied = true;
-                }
-
                 const totalDiscounts = buybackDiscount + cashDiscount;
                 const finalCostAfterDiscounts = membershipCost - totalDiscounts;
-                return { buybackDiscount, cashDiscount, totalDiscounts, finalCostAfterDiscounts, cashOutApplied };
+                return { buybackDiscount, cashDiscount, totalDiscounts, finalCostAfterDiscounts };
             }
             
             /**
@@ -517,7 +519,12 @@
                 const format = (value) => `$${(value || 0).toLocaleString('en-US', formatOptions)}`;
 
                 elements.membershipCostEl.textContent = format(values.membershipCost);
-                elements.annualFeeEl.textContent = format(values.annualFee);
+                // Highlight waived annual fee
+                if (elements.annualFeeWaivedCheckbox.checked) {
+                    elements.annualFeeEl.textContent = 'Waived';
+                } else {
+                    elements.annualFeeEl.textContent = format(values.annualFee);
+                }
                 elements.giftValueEl.textContent = format(values.giftValue);
                 elements.financingCostEl.textContent = format(values.financingCost);
                 elements.downpaymentValueEl.textContent = format(values.downpayment);
@@ -526,10 +533,17 @@
                 elements.packageValueEl.textContent = format(values.packageValue);
                 elements.netSavingsEl.textContent = format(values.netSavings);
                 elements.monthlyPaymentEl.textContent = format(values.monthlyPayment);
+                
+                // Special formatting for interest savings
                 elements.interestSavingsEl.textContent = format(values.interestSavings);
+                if (values.monthlyPayment <= 0) {
+                    elements.interestSavingsEl.classList.add('text-green-600', 'font-bold');
+                } else {
+                    elements.interestSavingsEl.classList.remove('text-green-600', 'font-bold');
+                }
                 
                 // Show/hide and format Cash Out discount
-                elements.cashOutLine.classList.toggle('hidden', !values.cashOutApplied);
+                elements.cashOutLine.classList.toggle('hidden', values.cashDiscount === 0);
                 elements.cashOutDiscountEl.textContent = `-${format(values.cashDiscount)}`;
             }
 
@@ -567,17 +581,6 @@
                     elements.upgradeOfferContainer.classList.remove('hidden');
                 }
                 
-                const isLegacyOrTen = selectedMembership === 'legacy' || selectedMembership === 'ten';
-                elements.advancedOptionsBtnContainer.classList.toggle('hidden', !isLegacyOrTen);
-                elements.advancedOptionsDiv.classList.add('hidden');
-                elements.showAdvancedOptionsBtn.textContent = 'Show Advanced Options';
-                
-                elements.buybackRadios.forEach(radio => radio.disabled = !isLegacyOrTen);
-                elements.webinarBuybackOptions.classList.add('hidden');
-                elements.webinarGiftCheckbox.checked = false;
-                elements.annualFeeWaivedCheckbox.checked = false;
-                elements.offers.forEach(offer => offer.checked = false);
-
                 if (selectedMembership) {
                     const membershipCost = MEMBERSHIPS[selectedMembership].cost;
                     const defaultDownpayment = membershipCost * DOWNPAYMENT_DEFAULT_PERCENT;
@@ -600,16 +603,18 @@
             }
 
             /**
-             * Handles gift checkbox clicks, ensuring only one is selected.
+             * Handles gift checkbox clicks, ensuring only one is selected for the 3-year plan.
              * @param {Event} event
              */
             function handleGiftSelection(event) {
-                // Uncheck all other offers
-                elements.offers.forEach(offer => {
-                    if (offer !== event.target) {
-                        offer.checked = false;
-                    }
-                });
+                // If the selected membership is 'three', enforce single selection
+                if (selectedMembership === 'three') {
+                    elements.offers.forEach(offer => {
+                        if (offer !== event.target) {
+                            offer.checked = false;
+                        }
+                    });
+                }
                 calculateTotals();
             }
 
@@ -626,27 +631,46 @@
                     elements.vloMessageDiv.classList.add('text-red-500');
                     return;
                 }
-
-                const { cashOutApplied } = getDiscounts(MEMBERSHIPS[selectedMembership].cost, parseFloat(elements.downpaymentInput.value) || 0);
                 
-                const formattedDownpayment = parseFloat(elements.downpaymentInput.value) || 0;
-                let downpaymentLine = `Down: $${formattedDownpayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                const { buybackDiscount, cashDiscount, finalCostAfterDiscounts } = getDiscounts(MEMBERSHIPS[selectedMembership].cost);
+                
+                const currentDownpaymentValue = parseFloat(elements.downpaymentInput.value) || 0;
+                let downpaymentLine = `Down: $${currentDownpaymentValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 
                 // Add "CO" if Cash Out discount was applied
+                let cashOutApplied = cashDiscount > 0 && currentDownpaymentValue >= finalCostAfterDiscounts;
                 if (cashOutApplied) {
-                    downpaymentLine = `Down: CO - $${formattedDownpayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    downpaymentLine = `Down: CO - $${finalCostAfterDiscounts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 }
 
+                let buybackLine = '';
+                let annualFeeWaivedLine = '';
+                // The visibility check has been removed, as the values should persist.
                 const selectedBuyback = document.querySelector('input[name="buyback-amount"]:checked');
-                const buybackLine = selectedBuyback ? `BB: ${selectedBuyback.value}` : '';
-                const annualFeeWaivedLine = elements.annualFeeWaivedCheckbox.checked ? 'AF: Waived' : '';
+                if (selectedBuyback) {
+                    buybackLine = `BB: ${selectedBuyback.value}`;
+                }
+                if (elements.annualFeeWaivedCheckbox.checked) {
+                    annualFeeWaivedLine = 'AF: Waived';
+                }
 
-                const clipboardText = `VLO Please
+                // Construct the clipboard text conditionally
+                let clipboardText = `VLO Please
 Podium: ${podiumSpeakerName}
 Guest: ${guestName || 'N/A'}
-${downpaymentLine}
-Terms: ${elements.financingTermSelect.value} ${elements.monthlyPaymentEl.textContent}${buybackLine ? `\n${buybackLine}` : ''}${annualFeeWaivedLine ? `\n${annualFeeWaivedLine}` : ''}`;
+${downpaymentLine}`;
                 
+                if (!cashOutApplied) {
+                    clipboardText += `\nTerms: ${elements.financingTermSelect.value} ${elements.monthlyPaymentEl.textContent}`;
+                }
+
+                if (buybackLine) {
+                    clipboardText += `\n${buybackLine}`;
+                }
+                if (annualFeeWaivedLine) {
+                    clipboardText += `\n${annualFeeWaivedLine}`;
+                }
+
                 const textarea = document.createElement('textarea');
                 textarea.value = clipboardText;
                 textarea.style.position = 'fixed';
@@ -663,6 +687,18 @@ Terms: ${elements.financingTermSelect.value} ${elements.monthlyPaymentEl.textCon
                 elements.vloMessageDiv.classList.add(success ? 'text-green-600' : 'text-red-500');
             }
 
+            /**
+             * Toggles the visibility of the webinar discounts section and updates the icon.
+             */
+            function toggleOptions() {
+                elements.advancedOptionsContent.classList.toggle('hidden');
+                elements.eyeOpenIcon.classList.toggle('hidden');
+                elements.eyeClosedIcon.classList.toggle('hidden');
+
+                // Recalculate totals to reflect changes in buyback/annual fee
+                calculateTotals();
+            }
+
             // --- Event Listeners and Initialization ---
 
             function init() {
@@ -673,25 +709,20 @@ Terms: ${elements.financingTermSelect.value} ${elements.monthlyPaymentEl.textCon
                 
                 // Button clicks
                 elements.showThreeBtn.addEventListener('click', () => { selectedMembership = 'three'; updateCardSelection(); });
-                elements.showAdvancedOptionsBtn.addEventListener('click', () => {
-                    elements.advancedOptionsDiv.classList.toggle('hidden');
-                    elements.showAdvancedOptionsBtn.textContent = elements.advancedOptionsDiv.classList.contains('hidden') ? 'Show Advanced Options' : 'Hide Advanced Options';
-                });
                 elements.vloCallBtn.addEventListener('click', handleVloCall);
                 elements.upgradeOfferBtn.addEventListener('click', handleUpgrade);
+                
+                // New event listener for the advanced options header
+                elements.advancedOptionsHeader.addEventListener('click', toggleOptions);
 
                 // Option changes
-                elements.webinarGiftCheckbox.addEventListener('change', () => {
-                    const isLegacyOrTen = selectedMembership === 'legacy' || selectedMembership === 'ten';
-                    elements.webinarBuybackOptions.classList.toggle('hidden', !(elements.webinarGiftCheckbox.checked && isLegacyOrTen));
-                    calculateTotals();
-                });
                 elements.financingTermSelect.addEventListener('change', updateCardSelection); // Update on term change to recalculate upgrade cost
                 elements.downpaymentInput.addEventListener('input', calculateTotals);
-                elements.annualFeeWaivedCheckbox.addEventListener('change', calculateTotals);
+                elements.cashOutInput.addEventListener('input', calculateTotals);
                 elements.offers.forEach(offer => offer.addEventListener('change', handleGiftSelection));
+                elements.annualFeeWaivedCheckbox.addEventListener('change', calculateTotals);
                 elements.buybackRadios.forEach(radio => radio.addEventListener('change', calculateTotals));
-
+                
                 // Initial calculation on page load
                 updateCardSelection();
             }
