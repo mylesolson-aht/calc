@@ -17,23 +17,34 @@
         .container-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .input-group {
+        .input-tile {
             position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .input-group input {
-            padding-left: 2rem;
-            border-radius: 8px;
+            background-color: #f9f9f9;
             border: 1px solid #d2d2d7;
-            outline: none;
-            transition: border-color 0.2s ease-in-out;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
         }
-        .input-group input:focus {
+        .input-tile.active {
             border-color: #007aff;
             box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+        .input-tile:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .input-tile input {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            width: 100%;
+            text-align: center;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
         }
         .input-error {
             border-color: #ff3b30 !important;
@@ -57,7 +68,7 @@
             color: #004d40;
         }
         .clipboard-message {
-            display: none; /* Hide the clipboard message as it's no longer used */
+            display: none;
         }
     </style>
 </head>
@@ -73,31 +84,37 @@
             <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
         </div>
 
-        <!-- Input Fields Section -->
+        <!-- Input Fields Section - Now using tiles -->
         <div class="space-y-6 mb-8">
-            <!-- Membership & Initial Amount side-by-side -->
-            <div class="flex flex-row space-x-4">
-                 <!-- Membership -->
-                <div class="w-1/2">
-                    <label for="plan" class="block text-sm font-medium text-gray-700">Membership</label>
-                    <div class="mt-1">
-                        <select id="plan" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200">
-                            <option value="">Select Membership</option>
-                            <option value="legacy">Legacy Unlimited</option>
-                            <option value="10year">10 Year Unlimited</option>
-                            <option value="3year">Trial 3 Year</option>
-                        </select>
+            <!-- Membership Tiles -->
+            <div class="space-y-4">
+                <p class="text-sm font-medium text-gray-700">Membership</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="planTilesContainer">
+                    <!-- Tile for Legacy Unlimited -->
+                    <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy">
+                        <span class="text-xl sm:text-2xl font-bold">Legacy</span>
+                        <span class="text-xs text-gray-500">Unlimited</span>
+                    </div>
+                    <!-- Tile for 10 Year Unlimited -->
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="10year">
+                        <span class="text-xl sm:text-2xl font-bold">10 Year</span>
+                        <span class="text-xs text-gray-500">Unlimited</span>
+                    </div>
+                    <!-- Tile for Trial 3 Year -->
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="3year">
+                        <span class="text-xl sm:text-2xl font-bold">Trial</span>
+                        <span class="text-xs text-gray-500">3 Year</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Initial Amount -->
-                <div id="initialAmountSection" class="w-1/2">
-                    <label for="cashDown" class="block text-sm font-medium text-gray-700">Initial Amount</label>
-                    <div class="mt-1">
-                        <input type="number" id="cashDown" step="50" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="0">
-                    </div>
-                    <p id="cashDownError" class="error-message hidden mt-2 text-xs text-red-500 text-center">Initial Amount must be at least 10% of the total Membership value.</p>
+            <!-- Initial Amount Tile -->
+            <div>
+                <p class="text-sm font-medium text-gray-700">Initial Amount</p>
+                <div class="input-tile flex flex-col justify-center items-center mt-1">
+                    <input type="number" id="cashDown" step="50" class="text-gray-900" placeholder="0">
                 </div>
+                <p id="cashDownError" class="error-message hidden mt-2 text-xs text-red-500 text-center">Initial Amount must be at least 10% of the total Membership value.</p>
             </div>
             
             <!-- Your Interest Savings -->
@@ -187,11 +204,12 @@
                     </button>
                 </div>
                 <div id="taCodeSection" class="mt-1 hidden">
-                    <select id="taCode" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200">
+                    <select id="taCode" disabled class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 disabled:bg-gray-200">
                         <option value="no">No</option>
                         <option value="1">1 ($250) (Requires Manager Approval)</option>
                         <option value="2">2 ($500) (Requires Manager Approval)</option>
                     </select>
+                    <p id="taCodeMessage" class="mt-2 text-xs text-gray-500 text-center"></p>
                 </div>
             </div>
         </div>
@@ -209,7 +227,7 @@
 
     <script>
         // Get all input elements
-        const planInput = document.getElementById('plan');
+        const planTilesContainer = document.getElementById('planTilesContainer');
         const taCodeInput = document.getElementById('taCode');
         const cashDownInput = document.getElementById('cashDown');
 
@@ -236,6 +254,7 @@
         const toggleInterestButton = document.getElementById('toggleInterestButton');
         const taCodeSection = document.getElementById('taCodeSection');
         const toggleTaCodeButton = document.getElementById('toggleTaCodeButton');
+        const taCodeMessage = document.getElementById('taCodeMessage');
 
 
         // Constants
@@ -290,10 +309,23 @@
 
         // Main calculation function
         function calculate() {
-            const plan = planInput.value;
-            const taCode = taCodeInput.value;
-            const principal = planPrices[plan] - TA_CODES[taCode];
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const plan = activePlanTile ? activePlanTile.dataset.plan : null;
+            const planPrice = planPrices[plan];
             let cashDown = parseFloat(cashDownInput.value) || 0;
+            
+            // Handle TA-Options based on cashDown amount
+            if (cashDown >= planPrice) {
+                taCodeInput.disabled = false;
+                taCodeMessage.textContent = 'TA-Options available for 100% down payment.';
+            } else {
+                taCodeInput.disabled = true;
+                taCodeInput.value = 'no';
+                taCodeMessage.textContent = 'Requires a 100% down payment to apply discount.';
+            }
+
+            const taCode = taCodeInput.value;
+            const principal = planPrice - TA_CODES[taCode];
             
             const minCashDownFinancing = Math.round(principal * 0.10);
 
@@ -425,22 +457,20 @@
         }
 
         // Function to handle changes to the plan selection
-        function handlePlanChange() {
-            const plan = planInput.value;
-            if (plan) {
-                const defaultCashDown = Math.round(planPrices[plan] * 0.20);
-                cashDownInput.value = defaultCashDown;
-                // Disable TA-Options for 3 year plan
-                taCodeInput.disabled = (plan === '3year');
-                if (plan === '3year') {
-                    taCodeInput.value = 'no';
-                }
-                resultsSection.classList.remove('hidden');
-            } else {
-                resultsSection.classList.add('hidden');
-                cashDownInput.value = '';
-                taCodeInput.disabled = false;
-            }
+        function handlePlanChange(selectedTile) {
+            // Remove active class from all tiles
+            document.querySelectorAll('.input-tile').forEach(tile => tile.classList.remove('active'));
+            // Add active class to the selected tile
+            selectedTile.classList.add('active');
+
+            const plan = selectedTile.dataset.plan;
+            
+            // Set initial cash down and check for TA options
+            const defaultCashDown = Math.round(planPrices[plan] * 0.20);
+            cashDownInput.value = defaultCashDown;
+            
+            resultsSection.classList.remove('hidden');
+
             calculate();
         }
 
@@ -455,7 +485,8 @@
         
         // New event listener for the upgrade button
         upgradeOffer.addEventListener('click', () => {
-            const currentPlan = planInput.value;
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const currentPlan = activePlanTile ? activePlanTile.dataset.plan : null;
             let nextPlan = null;
             if (currentPlan === '3year') {
                 nextPlan = '10year';
@@ -464,22 +495,50 @@
             }
 
             if (nextPlan) {
-                planInput.value = nextPlan;
-                planInput.dispatchEvent(new Event('change'));
+                const nextPlanTile = document.querySelector(`[data-plan="${nextPlan}"]`);
+                if (nextPlanTile) {
+                    handlePlanChange(nextPlanTile);
+                }
             }
         });
 
         // New event listener for the interest savings button
         totalInterestSaved.addEventListener('click', () => {
             let currentCashDown = parseFloat(cashDownInput.value) || 0;
-            const principal = planPrices[planInput.value] - TA_CODES[taCodeInput.value];
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const plan = activePlanTile ? activePlanTile.dataset.plan : 'legacy';
+            const principal = planPrices[plan];
             const newCashDown = Math.min(currentCashDown + 50, principal);
             cashDownInput.value = newCashDown;
             calculate();
         });
         
-        // Add event listeners
-        planInput.addEventListener('change', handlePlanChange);
+        // Add event listeners for the new tiles
+        document.querySelectorAll('[data-plan]').forEach(tile => {
+            tile.addEventListener('click', (e) => {
+                handlePlanChange(e.currentTarget);
+            });
+        });
+
+        // Add custom keydown event listener to handle the final increment to 100%
+        cashDownInput.addEventListener('keydown', (e) => {
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const planPrice = planPrices[activePlanTile.dataset.plan];
+            const taCode = taCodeInput.value;
+            const principal = planPrice - TA_CODES[taCode];
+            const currentValue = parseFloat(e.target.value) || 0;
+            
+            if (e.key === 'ArrowUp') {
+                // If the next increment would go over the principal, set the value to the principal
+                if (currentValue + 50 > principal && currentValue < principal) {
+                    e.preventDefault(); // Prevent default up arrow behavior
+                    e.target.value = principal;
+                    calculate();
+                }
+            }
+        });
+
+        // Add event listeners for the cash down input
         taCodeInput.addEventListener('change', calculate);
         cashDownInput.addEventListener('input', calculate);
         cashDownInput.addEventListener('blur', calculate);
@@ -488,12 +547,14 @@
                 calculate();
             }
         });
+        
 
         // Initial setup on page load
         document.addEventListener('DOMContentLoaded', () => {
-            // Set an initial plan and trigger the calculation
-            planInput.value = "legacy";
-            handlePlanChange();
+            const initialPlanTile = document.querySelector('[data-plan="legacy"]');
+            if (initialPlanTile) {
+                handlePlanChange(initialPlanTile);
+            }
         });
     </script>
 </body>
