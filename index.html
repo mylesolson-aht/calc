@@ -192,10 +192,10 @@
                 </div>
             </div>
             
-            <!-- TA-Options -->
+            <!-- Manage Options -->
             <div class="mt-8">
                 <div class="flex items-center mb-2">
-                    <label for="taCode" class="text-sm font-medium text-gray-700">TA-Options</label>
+                    <label for="taCode" class="text-sm font-medium text-gray-700">Manage Options</label>
                      <button id="toggleTaCodeButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500">
                             <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
@@ -313,22 +313,21 @@
             const plan = activePlanTile ? activePlanTile.dataset.plan : null;
             const planPrice = planPrices[plan];
             let cashDown = parseFloat(cashDownInput.value) || 0;
-            
-            // Handle TA-Options based on cashDown amount
-            if (cashDown >= planPrice) {
-                taCodeInput.disabled = false;
-                taCodeMessage.textContent = 'TA-Options available for 100% down payment.';
-            } else {
-                taCodeInput.disabled = true;
-                taCodeInput.value = 'no';
-                taCodeMessage.textContent = 'Requires a 100% down payment to apply discount.';
-            }
 
             const taCode = taCodeInput.value;
             const principal = planPrice - TA_CODES[taCode];
-            
             const minCashDownFinancing = Math.round(principal * 0.10);
 
+            // Handle TA-Options based on new logic
+            if (cashDown >= principal || cashDown > minCashDownFinancing) {
+                taCodeInput.disabled = false;
+                taCodeMessage.textContent = 'TA-Options available for a full cash payment or a down payment above the minimum.';
+            } else {
+                taCodeInput.disabled = true;
+                taCodeInput.value = 'no';
+                taCodeMessage.textContent = 'Requires a down payment greater than 10% or a full cash payment.';
+            }
+            
             // Set min and max attributes for the input field to constrain arrow keys
             cashDownInput.min = minCashDownFinancing;
             cashDownInput.max = principal;
