@@ -33,14 +33,9 @@
             transform: translateY(-5px);
         }
         .membership-card.selected {
-            border-color: #3B82F6; /* border-blue-500 */
-            box-shadow: 0 0 0 4px #BFDBFE, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* ring-4 ring-blue-200, hover:shadow-xl */
+            border-color: #0d9488; /* A darker shade of teal for emphasis */
+            box-shadow: 0 0 0 4px #99f6e4, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             transform: translateY(-5px);
-        }
-        @media (min-width: 768px) {
-            .membership-card {
-                flex: 1 1 30%; /* Flexible sizing for desktop */
-            }
         }
         .label-best-value {
             background: linear-gradient(145deg, #fef08a, #fcd34d);
@@ -50,8 +45,8 @@
             border-radius: 9999px; /* rounded-full */
         }
         .label-trial {
-            background: linear-gradient(145deg, #fee2e2, #fca5a5);
-            color: #991b1b;
+            background: linear-gradient(145deg, #ffedd5, #fdba74);
+            color: #c2410c;
             font-weight: 600;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px; /* rounded-full */
@@ -60,19 +55,21 @@
 </head>
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
     <div class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl max-w-4xl w-full">
+        <!-- Brand Logo -->
+        <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png/v1/crop/x_0,y_296,w_1129,h_607/fill/w_212,h_114,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Aloha-Hawaii-Tours%26Travel_LOGO2.png" alt="Aloha Hawaii Tours & Travel Logo" class="mx-auto mb-6 w-48 h-auto">
         <h1 class="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-2">Find Your Perfect Membership</h1>
         <p class="text-center text-gray-500 mb-8">Select your membership and special offers to see the total value.</p>
 
         <!-- Podium Speaker Name Input -->
         <div class="mb-4">
             <label for="podium-speaker-name" class="block text-gray-700 font-medium mb-2">Podium Speaker Name</label>
-            <input type="text" id="podium-speaker-name" placeholder="Enter speaker's name" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="podium-speaker-name" placeholder="Enter speaker's name" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
         </div>
 
         <!-- Guest Name Input -->
         <div class="mb-8">
             <label for="guest-name" class="block text-gray-700 font-medium mb-2">Guest Name</label>
-            <input type="text" id="guest-name" placeholder="Enter guest's name" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="guest-name" placeholder="Enter guest's name" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
         </div>
         
         <!-- Membership Selection -->
@@ -98,7 +95,7 @@
                 </div>
                 <!-- 10 Membership -->
                 <div id="ten-card" class="membership-card">
-                    <h3 class="text-xl font-bold text-indigo-600">10-Year Membership</h3>
+                    <h3 class="text-xl font-bold text-cyan-600">10-Year Membership</h3>
                     <p class="text-sm font-semibold text-gray-500 mb-4">Same unlimited access, at a more affordable price.</p>
                     <div class="flex justify-between items-center mb-2">
                         <div>
@@ -113,7 +110,7 @@
                 </div>
                 <!-- Hidden 3 Membership -->
                 <div id="three-card" class="membership-card hidden">
-                    <h3 class="text-xl font-bold text-purple-600">3-Year Membership</h3>
+                    <h3 class="text-xl font-bold text-amber-600">3-Year Membership</h3>
                     <p class="text-sm font-semibold text-gray-500 mb-4">Take it for a Test Drive. Unlimited Access.</p>
                     <div class="flex justify-between items-center mb-2">
                         <div>
@@ -129,7 +126,7 @@
             </div>
             <!-- Upgrade Offer Button -->
             <div class="hidden mt-4 text-center" id="upgrade-offer-container">
-                <button id="upgrade-offer-btn" class="w-full md:w-auto p-4 rounded-xl bg-blue-50 text-blue-700 font-semibold transition-all duration-300 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="upgrade-offer-btn" class="w-full md:w-auto p-4 rounded-xl bg-teal-50 text-teal-700 font-semibold transition-all duration-300 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-teal-500">
                 </button>
             </div>
 
@@ -146,12 +143,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Global Week Stay Offer -->
                 <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
-                    <input type="checkbox" id="global-week-offer" name="ta-offer" value="2000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <input type="checkbox" id="global-week-offer" name="ta-offer" value="2000" class="form-checkbox text-teal-600 h-5 w-5 rounded">
                     <span class="text-gray-700 font-medium">Global Week Stay Certificate ($2,000 value)</span>
                 </label>
                 <!-- Hawaii Certificate Offer -->
                 <label class="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl cursor-pointer shadow transition-all duration-300 hover:shadow-md">
-                    <input type="checkbox" id="hawaii-offer" name="ta-offer" value="1000" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <input type="checkbox" id="hawaii-offer" name="ta-offer" value="1000" class="form-checkbox text-teal-600 h-5 w-5 rounded">
                     <span class="text-gray-700 font-medium">Hawaii Certificate ($1,000 value)</span>
                 </label>
             </div>
@@ -164,7 +161,7 @@
                  <!-- Financing Terms -->
                  <div class="mb-4">
                     <label for="financing-term" class="block text-gray-700 font-medium mb-2">Financing Term</label>
-                    <select id="financing-term" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="financing-term" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
                         <option value="6">6 Months</option>
                         <option value="12">12 Months</option>
                         <option value="18">18 Months</option>
@@ -174,7 +171,7 @@
                  <!-- Downpayment Input -->
                 <div class="mb-4">
                     <label for="downpayment" class="block text-gray-700 font-medium mb-2">Downpayment</label>
-                    <input type="number" id="downpayment" placeholder="Enter amount" min="0" value="0" step="50" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" id="downpayment" placeholder="Enter amount" min="0" value="0" step="50" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
                 </div>
                 <!-- Monthly Payment Display -->
                 <div class="flex justify-between items-center mb-4">
@@ -232,12 +229,22 @@
                 </div>
                 <div class="flex justify-between items-center border-b pb-2 md:col-span-2">
                     <span class="font-medium">Net Savings:</span>
-                    <span id="net-savings" class="font-bold text-blue-600 text-xl md:text-2xl">$0.00</span>
+                    <span id="net-savings" class="font-bold text-teal-600 text-xl md:text-2xl">$0.00</span>
                 </div>
             </div>
             <p id="disclaimer" class="text-center text-sm italic mt-4 text-gray-500">
                 This is for illustration purposes only and does not constitute a formal quote. All figures are estimates.
             </p>
+        </div>
+
+        <!-- Final Membership CTA Section -->
+        <div id="payment-cta-container" class="mt-8 bg-teal-50 p-6 rounded-2xl text-center shadow-lg">
+            <h3 class="text-2xl font-bold text-teal-800 mb-2">Your Travel Program</h3>
+            <p class="text-4xl font-extrabold text-teal-600 mb-6" id="final-price-display">$0.00</p>
+            <button id="payment-page-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                Go to Payment Page
+            </button>
+            <div id="vlo-message" class="mt-4 text-center text-gray-700 font-semibold hidden"></div>
         </div>
 
         <!-- ADVANCED OPTIONS SECTION -->
@@ -250,7 +257,7 @@
                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
                     </svg>
                     <svg id="eye-closed" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zm-1.414 7.07a1 1 0 00-.707 1.414l1.414 1.414a1 1 0 001.414-.707l-1.414-1.414zM10 17a1 1 0 001.414-1.414L10 14.586l-1.414 1.414a1 1 0 001.414 1.414zM14 10a4 4 0 01-6.912 2.768l2.253-2.253a1 1 0 00-1.414-1.414L6.232 9.088a4 4 0 015.656 5.656l-1.414-1.414a1 1 0 00-1.414 1.414z" clip-rule="evenodd"/>
+                        <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zm-1.414 7.07a1 1 0 00-.707 1.414l1.414 1.414a1 1 0 001.414-.707l-1.414-1.414zM10 17a1 1 0 001.414-1.414L10 14.586l-1.414 1.414a1 1 0 001.414 1.414z" clip-rule="evenodd"/>
                         <path d="M16.912 12.232l-2.253 2.253a4 4 0 01-5.656-5.656L9.088 6.232A4 4 0 0116.912 12.232z"/>
                     </svg>
                 </button>
@@ -260,39 +267,30 @@
                 <p class="text-sm italic text-gray-500 mb-4 font-semibold">Note: These options require manager approval.</p>
                 <!-- Waive Annual Fee -->
                 <label class="flex items-center space-x-3 cursor-pointer mb-4">
-                    <input type="checkbox" id="annual-fee-waived" class="form-checkbox text-blue-600 h-5 w-5 rounded">
+                    <input type="checkbox" id="annual-fee-waived" class="form-checkbox text-teal-600 h-5 w-5 rounded">
                     <span class="text-gray-700 font-medium">Waive First Year Annual Fee ($199)</span>
                 </label>
-                <!-- Webinar Participation Buyback -->
+                <!-- Webinar Exclusive Offerings -->
                 <div class="mb-4">
-                    <p class="font-semibold text-gray-700">Webinar Participation Buyback</p>
-                    <div id="webinar-buyback-options" class="mt-2 pl-8 space-y-2 text-sm text-gray-600">
+                    <p class="font-semibold text-gray-700">Webinar Exclusive Offerings</p>
+                    <div id="webinar-exclusive-options" class="mt-2 pl-8 space-y-2 text-sm text-gray-600">
                         <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="buyback-amount" value="250" class="form-radio text-blue-600 h-4 w-4">
-                            <span class="ml-2">$250 Buyback</span>
+                            <input type="radio" name="discount-option" value="250" class="discount-radio form-radio text-teal-600 h-4 w-4">
+                            <span class="ml-2">$250</span>
                         </label>
                         <label class="inline-flex items-center cursor-pointer ml-4">
-                            <input type="radio" name="buyback-amount" value="500" class="form-radio text-blue-600 h-4 w-4">
-                            <span class="ml-2">$500 Buyback</span>
+                            <input type="radio" name="discount-option" value="500" class="discount-radio form-radio text-teal-600 h-4 w-4">
+                            <span class="ml-2">$500</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer mt-4">
+                            <input type="radio" name="discount-option" value="cash-discount" class="discount-radio form-radio text-teal-600 h-4 w-4">
+                            <span class="ml-2">Cash Discount</span>
+                            <input type="number" id="cash-out-input" placeholder="0" min="0" value="0" step="5" class="ml-4 p-2 rounded-xl border border-gray-300 w-24 focus:outline-none focus:ring-2 focus:ring-teal-500" disabled>
                         </label>
                     </div>
                 </div>
-                <!-- Cash Discount -->
-                <div class="mb-4">
-                    <label for="cash-out-input" class="block text-gray-700 font-medium mb-2">Cash Discount</label>
-                    <input type="number" id="cash-out-input" placeholder="0" min="0" value="0" step="1" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
             </div>
         </div>
-        
-        <!-- VLO Call Button & Message -->
-        <div class="mt-8 text-center">
-            <button id="vlo-call-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
-                Call VLO
-            </button>
-            <div id="vlo-message" class="mt-4 text-center text-gray-700 font-semibold hidden"></div>
-        </div>
-
     </div>
     
     <script>
@@ -321,11 +319,10 @@
                 advancedOptionsContent: document.getElementById('advanced-options-content'),
                 eyeOpenIcon: document.getElementById('eye-open'),
                 eyeClosedIcon: document.getElementById('eye-closed'),
-                webinarBuybackOptions: document.getElementById('webinar-buyback-options'),
-                buybackRadios: document.querySelectorAll('input[name="buyback-amount"]'),
+                discountRadios: document.querySelectorAll('.discount-radio'),
                 annualFeeWaivedCheckbox: document.getElementById('annual-fee-waived'),
                 cashOutInput: document.getElementById('cash-out-input'),
-                vloCallBtn: document.getElementById('vlo-call-btn'),
+                paymentPageBtn: document.getElementById('payment-page-btn'),
                 vloMessageDiv: document.getElementById('vlo-message'),
                 guestNameInput: document.getElementById('guest-name'),
                 podiumSpeakerNameInput: document.getElementById('podium-speaker-name'),
@@ -344,6 +341,7 @@
                 interestSavingsEl: document.getElementById('interest-savings'),
                 cashOutDiscountEl: document.getElementById('cash-out-discount'),
                 cashOutLine: document.getElementById('cash-out-line'),
+                finalPriceDisplay: document.getElementById('final-price-display'),
             };
 
             // Global state
@@ -450,23 +448,35 @@
             }
 
             /**
-             * Calculates all applicable discounts based on input state, regardless of visibility.
+             * Calculates all applicable discounts based on input state, enforcing the mutual exclusivity.
              * @param {number} membershipCost
              * @returns {{buybackDiscount: number, cashDiscount: number, totalDiscounts: number, finalCostAfterDiscounts: number}}
              */
             function getDiscounts(membershipCost) {
                 let buybackDiscount = 0;
+                let cashDiscount = 0;
+                let maxCashDiscount = 0;
+
+                const selectedDiscountRadio = document.querySelector('.discount-radio:checked');
                 
-                // Get buyback discount based on selected radio button
-                const selectedBuyback = document.querySelector('input[name="buyback-amount"]:checked');
-                if (selectedBuyback) {
-                    buybackDiscount = parseFloat(selectedBuyback.value);
+                if (selectedDiscountRadio) {
+                    const discountValue = selectedDiscountRadio.value;
+                    if (discountValue === 'cash-discount') {
+                        // Use the specific max cash discount values
+                        if (selectedMembership === 'legacy') {
+                            maxCashDiscount = 450;
+                        } else if (selectedMembership === 'ten') {
+                            maxCashDiscount = 250;
+                        } else if (selectedMembership === 'three') {
+                            maxCashDiscount = 100;
+                        }
+
+                        // Cap the input value at the specific max
+                        cashDiscount = Math.min(parseFloat(elements.cashOutInput.value) || 0, maxCashDiscount);
+                    } else {
+                        buybackDiscount = parseFloat(discountValue);
+                    }
                 }
-                
-                // Get cash discount from input, clamped to max 10% of membership cost
-                const maxCashDiscount = membershipCost * 0.10;
-                let cashDiscount = Math.min(parseFloat(elements.cashOutInput.value) || 0, maxCashDiscount);
-                elements.cashOutInput.value = Math.round(cashDiscount);
                 
                 const totalDiscounts = buybackDiscount + cashDiscount;
                 const finalCostAfterDiscounts = membershipCost - totalDiscounts;
@@ -542,9 +552,19 @@
                     elements.interestSavingsEl.classList.remove('text-green-600', 'font-bold');
                 }
                 
-                // Show/hide and format Cash Out discount
+                // Show/hide and format Cash Discount
                 elements.cashOutLine.classList.toggle('hidden', values.cashDiscount === 0);
                 elements.cashOutDiscountEl.textContent = `-${format(values.cashDiscount)}`;
+
+                // Update Downpayment color if full payment
+                if (values.totalCost > 0 && values.downpayment >= values.totalCost) {
+                    elements.downpaymentValueEl.classList.add('text-teal-600');
+                } else {
+                    elements.downpaymentValueEl.classList.remove('text-teal-600');
+                }
+
+                // Update final price display
+                elements.finalPriceDisplay.textContent = format(values.totalCost);
             }
 
             // --- UI Interaction Logic ---
@@ -619,9 +639,9 @@
             }
 
             /**
-             * Handles VLO call button click and copies data to clipboard.
+             * Handles the Payment CTA button click and copies data to clipboard.
              */
-            function handleVloCall() {
+            function handlePaymentCTA() {
                 const podiumSpeakerName = elements.podiumSpeakerNameInput.value.trim();
                 const guestName = elements.guestNameInput.value.trim();
 
@@ -646,9 +666,9 @@
                 let buybackLine = '';
                 let annualFeeWaivedLine = '';
                 // The visibility check has been removed, as the values should persist.
-                const selectedBuyback = document.querySelector('input[name="buyback-amount"]:checked');
-                if (selectedBuyback) {
-                    buybackLine = `BB: ${selectedBuyback.value}`;
+                const selectedDiscountRadio = document.querySelector('.discount-radio:checked');
+                if (selectedDiscountRadio && selectedDiscountRadio.value !== 'cash-discount') {
+                    buybackLine = `BB: ${selectedDiscountRadio.value}`;
                 }
                 if (elements.annualFeeWaivedCheckbox.checked) {
                     annualFeeWaivedLine = 'AF: Waived';
@@ -695,7 +715,20 @@ ${downpaymentLine}`;
                 elements.eyeOpenIcon.classList.toggle('hidden');
                 elements.eyeClosedIcon.classList.toggle('hidden');
 
-                // Recalculate totals to reflect changes in buyback/annual fee
+                calculateTotals();
+            }
+            
+            /**
+             * Manages the enabled/disabled state of the cash discount input based on radio button selection.
+             */
+            function updateDiscountStates() {
+                const selectedRadio = document.querySelector('input[name="discount-option"]:checked');
+                if (selectedRadio && selectedRadio.value === 'cash-discount') {
+                    elements.cashOutInput.disabled = false;
+                } else {
+                    elements.cashOutInput.disabled = true;
+                    elements.cashOutInput.value = 0;
+                }
                 calculateTotals();
             }
 
@@ -709,7 +742,7 @@ ${downpaymentLine}`;
                 
                 // Button clicks
                 elements.showThreeBtn.addEventListener('click', () => { selectedMembership = 'three'; updateCardSelection(); });
-                elements.vloCallBtn.addEventListener('click', handleVloCall);
+                elements.paymentPageBtn.addEventListener('click', handlePaymentCTA);
                 elements.upgradeOfferBtn.addEventListener('click', handleUpgrade);
                 
                 // New event listener for the advanced options header
@@ -718,10 +751,13 @@ ${downpaymentLine}`;
                 // Option changes
                 elements.financingTermSelect.addEventListener('change', updateCardSelection); // Update on term change to recalculate upgrade cost
                 elements.downpaymentInput.addEventListener('input', calculateTotals);
+                
+                // Event listeners for the new mutual exclusivity rule
+                elements.discountRadios.forEach(radio => radio.addEventListener('change', updateDiscountStates));
                 elements.cashOutInput.addEventListener('input', calculateTotals);
+
                 elements.offers.forEach(offer => offer.addEventListener('change', handleGiftSelection));
                 elements.annualFeeWaivedCheckbox.addEventListener('change', calculateTotals);
-                elements.buybackRadios.forEach(radio => radio.addEventListener('change', calculateTotals));
                 
                 // Initial calculation on page load
                 updateCardSelection();
