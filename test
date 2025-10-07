@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesale Travel Program Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .container-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .input-tile {
+            position: relative;
+            background-color: #f9f9f9;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .input-tile.active {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+        .input-tile:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .input-tile input {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            width: 100%;
+            text-align: center;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        .input-error {
+            border-color: #ff3b30 !important;
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important;
+        }
+        .highlight-monthly {
+            background-color: #f2faff;
+            color: #007aff;
+            font-weight: 600;
+        }
+        .highlight-interest {
+            background-color: #f0fdf4;
+            color: #28a745;
+            font-weight: 600;
+        }
+        .aloha-brand-text {
+            color: #006699;
+        }
+        .upgrade-offer-box {
+            background-color: #e0f2f1;
+            color: #004d40;
+        }
+        .clipboard-message {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+
+    <!-- Main Container -->
+    <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
+
+        <!-- Header -->
+        <div class="flex flex-col items-center mb-8">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-32 sm:w-40 md:w-48 mb-2">
+            <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
+            <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
+        </div>
+
+        <!-- Input Fields Section - Now using tiles -->
+        <div class="space-y-6 mb-8">
+            <!-- Membership Tiles -->
+            <div class="space-y-4">
+                <p class="text-sm font-medium text-gray-700">Membership</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="planTilesContainer">
+                    <!-- Tile for Legacy Unlimited -->
+                    <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy">
+                        <span class="text-xl sm:text-2xl font-bold">Legacy</span>
+                        <span class="text-xs text-gray-500">Unlimited</span>
+                    </div>
+                    <!-- Tile for 10 Year Unlimited -->
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="10year">
+                        <span class="text-xl sm:text-2xl font-bold">10 Year</span>
+                        <span class="text-xs text-gray-500">Unlimited</span>
+                    </div>
+                    <!-- Tile for Trial 3 Year -->
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="3year">
+                        <span class="text-xl sm:text-2xl font-bold">Trial</span>
+                        <span class="text-xs text-gray-500">3 Year</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Initial Amount Tile -->
+            <div>
+                <p class="text-sm font-medium text-gray-700">Initial Amount</p>
+                <div class="input-tile flex flex-col justify-center items-center mt-1">
+                    <input type="number" id="cashDown" step="50" class="text-gray-900" placeholder="0">
+                </div>
+                <p id="cashDownError" class="error-message hidden mt-2 text-xs text-red-500 text-center">Initial Amount must be at least 10% of the total Membership value.</p>
+            </div>
+            
+            <!-- Your Interest Savings -->
+            <div id="totalInterestSavedDiv">
+                <p class="text-sm font-medium text-gray-700">Your Interest Savings</p>
+                <div id="totalInterestSaved" class="p-4 rounded-xl bg-green-50 highlight-interest mt-1 text-center cursor-pointer transition-transform duration-200 transform hover:scale-105">
+                    <p class="text-xl sm:text-3xl font-bold text-green-800">$0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculated Results Section -->
+        <div class="border-t border-gray-200 pt-8">
+            <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
+            
+            <div id="results" class="space-y-6">
+                <!-- Key Numbers -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-center sm:text-left">
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Membership Value</p>
+                        <p id="principalAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Initial Amount</p>
+                        <p id="cashDownAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
+                        <p id="remainingBalanceAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                </div>
+
+                <!-- Cash Options -->
+                <div id="cashResults" class="hidden">
+                    <h3 class="text-lg sm:text-xl font-semibold mb-4">Cash Price</h3>
+                    <div class="p-4 rounded-xl bg-green-50 highlight-interest mb-4">
+                        <p class="text-sm text-gray-700">Total Due</p>
+                        <p id="cashOutTotal" class="text-3xl sm:text-4xl font-bold mt-1">$0</p>
+                    </div>
+                </div>
+                
+                <!-- Financing Options -->
+                <div id="financingResults" class="hidden">
+                    <h3 class="flex items-baseline justify-between text-lg sm:text-xl font-semibold mb-4">
+                        Monthly Amount
+                    </h3>
+                    <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Monthly payments will be inserted here by JavaScript -->
+                    </div>
+
+                    <!-- Daily Upgrade Offer -->
+                    <div id="upgradeOfferContainer" class="mt-6">
+                        <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
+                        <div id="upgradeOffer" class="p-4 rounded-xl upgrade-offer-box mt-1 flex justify-center items-center cursor-pointer">
+                            <p id="upgradeOfferText" class="text-lg font-semibold"></p>
+                        </div>
+                    </div>
+
+                    <!-- Add a new container for the show/hide feature -->
+                    <div id="totalInterestContainer" class="mt-6">
+                        <div class="flex items-center mb-2">
+                            <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
+                            <!-- Button to toggle visibility -->
+                            <button id="toggleInterestButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
+                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500">
+                                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                                    <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.677-7.697a1.5 1.5 0 010-1.058zM12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="totalInterestPaid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden">
+                            <!-- Total interest paid will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Manage Options -->
+            <div class="mt-8">
+                <div class="flex items-center mb-2">
+                    <label for="taCode" class="text-sm font-medium text-gray-700">Manage Options</label>
+                     <button id="toggleTaCodeButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500">
+                            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                            <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.677-7.697a1.5 1.5 0 010-1.058zM12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="taCodeSection" class="mt-1 hidden">
+                    <select id="taCode" disabled class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 disabled:bg-gray-200">
+                        <option value="no">No</option>
+                        <option value="1">1 ($250) (Requires Manager Approval)</option>
+                        <option value="2">2 ($500) (Requires Manager Approval)</option>
+                    </select>
+                    <p id="taCodeMessage" class="mt-2 text-xs text-gray-500 text-center"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legalese Footer -->
+        <div class="mt-8 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
+            <p>All calculations are for illustrative purposes only. This is not a binding quote. Actual terms, conditions, and pricing are subject to the specific membership agreement and credit application approval. All values are subject to change without notice.</p>
+        </div>
+    </div>
+
+    <!-- Confirmation Message -->
+    <div id="clipboard-message" class="clipboard-message">
+        Copied!
+    </div>
+
+    <script>
+        // Get all input elements
+        const planTilesContainer = document.getElementById('planTilesContainer');
+        const taCodeInput = document.getElementById('taCode');
+        const cashDownInput = document.getElementById('cashDown');
+
+        // Get all output elements
+        const principalAmountOutput = document.getElementById('principalAmount');
+        const cashDownAmountOutput = document.getElementById('cashDownAmount');
+        const remainingBalanceAmountOutput = document.getElementById('remainingBalanceAmount');
+        const monthlyPaymentsContainer = document.getElementById('monthlyPayments');
+        const totalInterestPaidContainer = document.getElementById('totalInterestPaid'); 
+        const totalInterestSavedOutputDiv = document.getElementById('totalInterestSavedDiv');
+        const totalInterestSavedOutput = document.getElementById('totalInterestSaved');
+        const cashOutTotalOutput = document.getElementById('cashOutTotal');
+        const financingResultsSection = document.getElementById('financingResults');
+        const cashResultsSection = document.getElementById('cashResults');
+        const cashDownError = document.getElementById('cashDownError');
+        const resultsSection = document.getElementById('results');
+        const upgradeOfferText = document.getElementById('upgradeOfferText');
+        const upgradeOfferContainer = document.getElementById('upgradeOfferContainer');
+        const upgradeOffer = document.getElementById('upgradeOffer');
+
+
+        // New elements for show/hide functionality and clipboard
+        const totalInterestContainer = document.getElementById('totalInterestContainer');
+        const toggleInterestButton = document.getElementById('toggleInterestButton');
+        const taCodeSection = document.getElementById('taCodeSection');
+        const toggleTaCodeButton = document.getElementById('toggleTaCodeButton');
+        const taCodeMessage = document.getElementById('taCodeMessage');
+
+
+        // Constants
+        const interestRate = 0.1799;
+        const terms = [24, 18, 12, 6];
+        const TA_CODES = {
+            'no': 0,
+            '1': 250,
+            '2': 500,
+        };
+        const planPrices = {
+            'legacy': 4499,
+            '10year': 2499,
+            '3year': 999,
+        };
+        const UPGRADE_PATHS = {
+            '3year': {
+                message: 'Travel 10 Years Unlimited for only',
+                price: 2499,
+                nextPlan: '10year'
+            },
+            '10year': {
+                message: 'Never Pay Retail Again for only',
+                price: 4499,
+                nextPlan: 'legacy'
+            }
+        };
+
+        // PMT (Payment) formula implementation
+        function pmt(rate, nper, pv) {
+            const pvif = Math.pow(1 + rate, nper);
+            return (rate * pv * pvif) / (pvif - 1);
+        }
+        
+        // Helper function for currency formatting
+        function formatCurrency(amount, fractionDigits = 0) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: fractionDigits,
+                maximumFractionDigits: fractionDigits
+            }).format(amount);
+        }
+        function formatCurrencyWithCents(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Main calculation function
+        function calculate() {
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const plan = activePlanTile ? activePlanTile.dataset.plan : null;
+            const planPrice = planPrices[plan];
+            let cashDown = parseFloat(cashDownInput.value) || 0;
+
+            const taCode = taCodeInput.value;
+            const principal = planPrice - TA_CODES[taCode];
+            const minCashDownFinancing = Math.round(principal * 0.10);
+
+            // Handle TA-Options based on new logic
+            if (cashDown >= principal || cashDown > minCashDownFinancing) {
+                taCodeInput.disabled = false;
+                taCodeMessage.textContent = 'TA-Options available for a full cash payment or a down payment above the minimum.';
+            } else {
+                taCodeInput.disabled = true;
+                taCodeInput.value = 'no';
+                taCodeMessage.textContent = 'Requires a down payment greater than 10% or a full cash payment.';
+            }
+            
+            // Set min and max attributes for the input field to constrain arrow keys
+            cashDownInput.min = minCashDownFinancing;
+            cashDownInput.max = principal;
+
+            // Enforce minimum and maximum values for manual entry
+            if (cashDown < minCashDownFinancing) {
+                cashDownInput.classList.add('input-error');
+                cashDownError.classList.remove('hidden');
+            } else {
+                cashDownInput.classList.remove('input-error');
+                cashDownError.classList.add('hidden');
+            }
+             if (cashDown > principal) {
+                cashDown = principal;
+                cashDownInput.value = cashDown;
+            }
+            
+            // Update main numbers
+            principalAmountOutput.textContent = formatCurrency(principal);
+            cashDownAmountOutput.textContent = formatCurrency(cashDown);
+            
+            // Always calculate and display interest savings first
+            const minCashDown = Math.round(principal * 0.10);
+            const baseRemainingBalance = principal - minCashDown;
+            const baseMonthlyPayment = pmt(interestRate / 12, 24, baseRemainingBalance);
+            const baseTotalInterest = (baseMonthlyPayment * 24) - baseRemainingBalance;
+            
+            const currentRemainingBalance = principal - cashDown;
+            let currentTotalInterest = 0;
+            if (currentRemainingBalance > 0) {
+                const currentMonthlyPayment = pmt(interestRate / 12, 24, currentRemainingBalance);
+                currentTotalInterest = (currentMonthlyPayment * 24) - currentRemainingBalance;
+            }
+            
+            const interestSaved = baseTotalInterest - currentTotalInterest;
+
+            if (cashDown === minCashDown) {
+                totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
+            } else {
+                totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
+            }
+
+            // Check for cash deal
+            if (cashDown >= principal) {
+                cashResultsSection.classList.remove('hidden');
+                financingResultsSection.classList.add('hidden');
+                upgradeOfferContainer.classList.add('hidden');
+                remainingBalanceAmountOutput.textContent = formatCurrency(0);
+                cashOutTotal.textContent = formatCurrency(cashDown);
+            } else {
+                cashResultsSection.classList.add('hidden');
+                financingResultsSection.classList.remove('hidden');
+                const remainingBalance = principal - cashDown;
+                remainingBalanceAmountOutput.textContent = formatCurrency(remainingBalance);
+
+                // Update monthly payments
+                monthlyPaymentsContainer.innerHTML = '';
+                totalInterestPaidContainer.innerHTML = '';
+                const monthlyRate = interestRate / 12;
+
+                terms.forEach(term => {
+                    const monthlyPayment = pmt(monthlyRate, term, remainingBalance);
+                    const is24Months = term === 24;
+                    
+                    const monthlyDiv = document.createElement('div');
+                    monthlyDiv.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${is24Months ? 'highlight-monthly' : 'bg-gray-50'}`;
+                    monthlyDiv.innerHTML = `
+                        <p class="text-sm text-gray-500">${term} Months</p>
+                        <p class="text-lg font-bold text-gray-900">${formatCurrency(monthlyPayment, 2)}</p>
+                    `;
+                    monthlyPaymentsContainer.appendChild(monthlyDiv);
+                });
+                
+                // Calculate and display upgrade offer
+                upgradeOfferText.textContent = ''; // Clear previous offers
+                const upgradeInfo = UPGRADE_PATHS[plan];
+                if (upgradeInfo) {
+                    upgradeOfferContainer.classList.remove('hidden');
+                    
+                    // --- Upgrade Offer Calculation ---
+                    // 1. Get the percentage of the current principal that the cash down payment represents.
+                    const cashDownRatio = cashDown / principal;
+
+                    // 2. Calculate the next principal amount after applying the TA-Code discount.
+                    const nextPrincipal = upgradeInfo.price - TA_CODES[taCode];
+                    
+                    // 3. Apply the same cash down percentage to the next principal to find the next cash down amount.
+                    const nextCashDown = nextPrincipal * cashDownRatio;
+                    
+                    // 4. Calculate the remaining balance for the upgraded plan.
+                    const nextRemainingBalance = nextPrincipal - nextCashDown;
+                    
+                    // 5. Calculate the new 24-month monthly payment for the upgraded plan.
+                    const nextMonthlyPayment = pmt(monthlyRate, 24, nextRemainingBalance);
+
+                    // 6. Calculate the current 24-month monthly payment.
+                    const currentMonthlyPayment = pmt(monthlyRate, 24, remainingBalance);
+                    
+                    // 7. Find the difference between the two monthly payments.
+                    const monthlyDifference = nextMonthlyPayment - currentMonthlyPayment;
+                    
+                    // 8. Convert the monthly difference to a daily difference for the display text.
+                    const dailyDifference = monthlyDifference / 30.44;
+
+                    // Display the final calculation to the user.
+                    upgradeOfferText.innerHTML = `${upgradeInfo.message} <span class="font-bold">${formatCurrencyWithCents(dailyDifference)}</span> <span class="text-xs">a day.</span>`;
+                } else {
+                    upgradeOfferContainer.classList.add('hidden');
+                }
+
+                // Update total interest paid
+                terms.forEach(term => {
+                    const monthlyPayment = pmt(monthlyRate, term, remainingBalance);
+                    const totalInterest = (monthlyPayment * term) - remainingBalance;
+                    const interestDiv = document.createElement('div');
+                    // Removed `items-center` and `text-center` for a left-aligned look
+                    interestDiv.className = `p-4 rounded-xl shadow-sm bg-gray-50 flex flex-col justify-end`;
+                    interestDiv.innerHTML = `
+                        <p class="text-sm text-gray-500">${term} Months</p>
+                        <p class="text-lg font-bold text-gray-900">${formatCurrency(totalInterest, 2)}</p>
+                        <p class="text-xs text-gray-500 mt-2">Total Interest Paid</p>
+                    `;
+                    totalInterestPaidContainer.appendChild(interestDiv);
+                });
+            }
+        }
+
+        // Function to handle changes to the plan selection
+        function handlePlanChange(selectedTile) {
+            // Remove active class from all tiles
+            document.querySelectorAll('.input-tile').forEach(tile => tile.classList.remove('active'));
+            // Add active class to the selected tile
+            selectedTile.classList.add('active');
+
+            const plan = selectedTile.dataset.plan;
+            
+            // Set initial cash down and check for TA options
+            const defaultCashDown = Math.round(planPrices[plan] * 0.20);
+            cashDownInput.value = defaultCashDown;
+            
+            resultsSection.classList.remove('hidden');
+
+            calculate();
+        }
+
+        // Add event listener for show/hide buttons
+        toggleInterestButton.addEventListener('click', () => {
+            totalInterestPaidContainer.classList.toggle('hidden');
+        });
+
+        toggleTaCodeButton.addEventListener('click', () => {
+            taCodeSection.classList.toggle('hidden');
+        });
+        
+        // New event listener for the upgrade button
+        upgradeOffer.addEventListener('click', () => {
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const currentPlan = activePlanTile ? activePlanTile.dataset.plan : null;
+            let nextPlan = null;
+            if (currentPlan === '3year') {
+                nextPlan = '10year';
+            } else if (currentPlan === '10year') {
+                nextPlan = 'legacy';
+            }
+
+            if (nextPlan) {
+                const nextPlanTile = document.querySelector(`[data-plan="${nextPlan}"]`);
+                if (nextPlanTile) {
+                    handlePlanChange(nextPlanTile);
+                }
+            }
+        });
+
+        // New event listener for the interest savings button
+        totalInterestSaved.addEventListener('click', () => {
+            let currentCashDown = parseFloat(cashDownInput.value) || 0;
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const plan = activePlanTile ? activePlanTile.dataset.plan : 'legacy';
+            const principal = planPrices[plan];
+            const newCashDown = Math.min(currentCashDown + 50, principal);
+            cashDownInput.value = newCashDown;
+            calculate();
+        });
+        
+        // Add event listeners for the new tiles
+        document.querySelectorAll('[data-plan]').forEach(tile => {
+            tile.addEventListener('click', (e) => {
+                handlePlanChange(e.currentTarget);
+            });
+        });
+
+        // Add custom keydown event listener to handle the final increment to 100%
+        cashDownInput.addEventListener('keydown', (e) => {
+            const activePlanTile = document.querySelector('.input-tile.active');
+            const planPrice = planPrices[activePlanTile.dataset.plan];
+            const taCode = taCodeInput.value;
+            const principal = planPrice - TA_CODES[taCode];
+            const currentValue = parseFloat(e.target.value) || 0;
+            
+            if (e.key === 'ArrowUp') {
+                // If the next increment would go over the principal, set the value to the principal
+                if (currentValue + 50 > principal && currentValue < principal) {
+                    e.preventDefault(); // Prevent default up arrow behavior
+                    e.target.value = principal;
+                    calculate();
+                }
+            }
+        });
+
+        // Add event listeners for the cash down input
+        taCodeInput.addEventListener('change', calculate);
+        cashDownInput.addEventListener('input', calculate);
+        cashDownInput.addEventListener('blur', calculate);
+        cashDownInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+        
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialPlanTile = document.querySelector('[data-plan="legacy"]');
+            if (initialPlanTile) {
+                handlePlanChange(initialPlanTile);
+            }
+        });
+    </script>
+</body>
+</html>
