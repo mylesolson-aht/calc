@@ -320,8 +320,8 @@
 
             // Handle TA-Options based on new logic
             if (cashDown >= principal || cashDown >= minCashDownFinancing) {
-                taCodeInput.disabled = false;
-                taCodeMessage.textContent = 'TA-Options available for a full cash payment or a down payment above the minimum.';
+               taCodeInput.disabled = false;
+            taCodeMessage.textContent = 'TA-Options are always available regardless of down payment.';
             } else {
                 taCodeInput.disabled = true;
                 taCodeInput.value = 'no';
