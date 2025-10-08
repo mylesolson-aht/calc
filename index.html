@@ -318,10 +318,23 @@
             const principal = planPrice - TA_CODES[taCode];
             const minCashDownFinancing = Math.round(principal * 0.10);
 
-            // Always allow TA-Options
-            taCodeInput.disabled = false;
-            taCodeMessage.textContent = 'TA-Options are always available regardless of down payment.';
-
+            // Handle TA-Options based on new logic
+            if (
+                cashDown >= principal ||
+                cashDown > minCashDownFinancing ||
+                (
+                    (plan === '10year' || plan === 'legacy') &&
+                    cashDown === minCashDownFinancing
+                )
+            ) {
+                taCodeInput.disabled = false;
+                taCodeMessage.textContent = 'TA-Options available for a full cash payment or a down payment at or above the minimum.';
+            } else {
+                taCodeInput.disabled = true;
+                taCodeInput.value = 'no';
+                taCodeMessage.textContent = 'Requires a down payment at least 10% (minimum) for 10 Year/Legacy, or above minimum for Trial.';
+            }
+            
             // Set min and max attributes for the input field to constrain arrow keys
             cashDownInput.min = minCashDownFinancing;
             cashDownInput.max = principal;
@@ -334,7 +347,7 @@
                 cashDownInput.classList.remove('input-error');
                 cashDownError.classList.add('hidden');
             }
-            if (cashDown > principal) {
+             if (cashDown > principal) {
                 cashDown = principal;
                 cashDownInput.value = cashDown;
             }
