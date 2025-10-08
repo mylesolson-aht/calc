@@ -181,7 +181,7 @@
                             <button id="toggleInterestButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
                                 <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500">
                                     <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                                    <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25[...]
+                                    <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.677-7.697a1.5 1.5 0 010-1.058zM12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" clip-rule="evenodd" />
                                 </svg>
                             </button>
                         </div>
@@ -199,12 +199,12 @@
                      <button id="toggleTaCodeButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500">
                             <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                            <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 [...]
+                            <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.677-7.697a1.5 1.5 0 010-1.058zM12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" clip-rule="evenodd" />
                         </svg>
                     </button>
                 </div>
                 <div id="taCodeSection" class="mt-1 hidden">
-                    <select id="taCode" disabled class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm[...]
+                    <select id="taCode" disabled class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 disabled:bg-gray-200">
                         <option value="no">No</option>
                         <option value="1">1 ($250) (Requires Manager Approval)</option>
                         <option value="2">2 ($500) (Requires Manager Approval)</option>
@@ -216,7 +216,7 @@
 
         <!-- Legalese Footer -->
         <div class="mt-8 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
-            <p>All calculations are for illustrative purposes only. This is not a binding quote. Actual terms, conditions, and pricing are subject to the specific membership agreement and credit appli[...]
+            <p>All calculations are for illustrative purposes only. This is not a binding quote. Actual terms, conditions, and pricing are subject to the specific membership agreement and credit application approval. All values are subject to change without notice.</p>
         </div>
     </div>
 
@@ -319,20 +319,13 @@
             const minCashDownFinancing = Math.round(principal * 0.10);
 
             // Handle TA-Options based on new logic
-            if (
-                cashDown >= principal ||
-                cashDown > minCashDownFinancing ||
-                (
-                    (plan === '10year' || plan === 'legacy') &&
-                    cashDown === minCashDownFinancing
-                )
-            ) {
+            if (cashDown >= principal || cashDown > minCashDownFinancing) {
                 taCodeInput.disabled = false;
-                taCodeMessage.textContent = 'TA-Options available for a full cash payment or a down payment at or above the minimum.';
+                taCodeMessage.textContent = 'TA-Options available for a full cash payment or a down payment above the minimum.';
             } else {
                 taCodeInput.disabled = true;
                 taCodeInput.value = 'no';
-                taCodeMessage.textContent = 'Requires a down payment at least 10% (minimum) for 10 Year/Legacy, or above minimum for Trial.';
+                taCodeMessage.textContent = 'Requires a down payment greater than 10% or a full cash payment.';
             }
             
             // Set min and max attributes for the input field to constrain arrow keys
