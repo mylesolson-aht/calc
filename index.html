@@ -204,7 +204,7 @@
                     </button>
                 </div>
                 <div id="taCodeSection" class="mt-1 hidden">
-                    <select id="taCode" disabled class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 disabled:bg-gray-200">
+                    <select id="taCode" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 disabled:bg-gray-200">
                         <option value="no">No</option>
                         <option value="1">1 ($250) (Requires Manager Approval)</option>
                         <option value="2">2 ($500) (Requires Manager Approval)</option>
@@ -319,7 +319,7 @@
             const minCashDownFinancing = Math.round(principal * 0.10);
 
             // Handle TA-Options based on new logic
-            if (cashDown >= principal || cashDown > minCashDownFinancing) {
+            if (cashDown >= principal || cashDown >= minCashDownFinancing) {
                 taCodeInput.disabled = false;
                 taCodeMessage.textContent = 'TA-Options available for a full cash payment or a down payment above the minimum.';
             } else {
