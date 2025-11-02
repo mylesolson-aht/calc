@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Commission Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f9;
+        }
+        .text-shadow-custom {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* Custom styling for the unselected buttons to ensure consistency */
+        .membership-btn {
+            transition: all 0.15s ease-in-out;
+        }
+        /* Grid adjusts for mobile (1 column) and desktop (3 columns) */
+        #membership-buttons {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        @media (min-width: 640px) {
+            #membership-buttons {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex justify-center min-h-screen">
+
+    <div id="app" class="w-full max-w-xl bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-100">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-700 mb-2 text-shadow-custom">
+                Membership Commission Tracker
+            </h1>
+            <p class="text-gray-500">Calculate your total earnings based on payment method splits.</p>
+        </header>
+
+        <!-- Inputs Section -->
+        <section class="space-y-6">
+
+            <!-- Membership Selection Buttons -->
+            <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                <label class="block text-lg font-semibold text-indigo-700 mb-4">Select Membership Sold</label>
+                <div id="membership-buttons" class="grid gap-3 md:gap-4">
+                    <!-- Legacy: Price $4,499, Default Cash $450 -->
+                    <button type="button" data-price="4499" data-default-cash="450" onclick="selectMembership(this)" 
+                        class="membership-btn bg-indigo-600 text-white p-3 rounded-lg font-bold text-center border-2 border-indigo-700 hover:bg-indigo-700 shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
+                        Legacy<br><span class="text-sm font-normal opacity-90">$4,499</span>
+                    </button>
+                    <!-- 10 Year: Price $2,499, Default Cash $250 -->
+                    <button type="button" data-price="2499" data-default-cash="250" onclick="selectMembership(this)" 
+                        class="membership-btn bg-white text-indigo-600 p-3 rounded-lg font-bold text-center border-2 border-indigo-300 hover:bg-indigo-50 shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
+                        10 Year<br><span class="text-sm font-normal opacity-90">$2,499</span>
+                    </button>
+                    <!-- 3 Year: Price $999, Default Cash $100 -->
+                    <button type="button" data-price="999" data-default-cash="100" onclick="selectMembership(this)" 
+                        class="membership-btn bg-white text-indigo-600 p-3 rounded-lg font-bold text-center border-2 border-indigo-300 hover:bg-indigo-50 shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
+                        3 Year<br><span class="text-sm font-normal opacity-90">$999</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Discount Selection Section -->
+            <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <label class="block text-lg font-semibold text-yellow-800 mb-3">
+                    Select Gift Buyback Discount
+                </label>
+                <div class="flex flex-wrap gap-4" id="discountOptions">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="discountAmount" value="0" checked onchange="calculateCommission()" class="form-radio h-5 w-5 text-yellow-600 focus:ring-yellow-500">
+                        <span class="ml-2 font-semibold text-gray-700">No Discount</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="discountAmount" value="250" onchange="calculateCommission()" class="form-radio h-5 w-5 text-yellow-600 focus:ring-yellow-500">
+                        <!-- Fixed formatting -->
+                        <span class="ml-2 font-semibold text-yellow-700"><span class="font-extrabold">$250</span> Buyback</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="discountAmount" value="500" onchange="calculateCommission()" class="form-radio h-5 w-5 text-yellow-600 focus:ring-yellow-500">
+                        <!-- Fixed formatting -->
+                        <span class="ml-2 font-semibold text-yellow-800"><span class="font-extrabold">$500</span> Buyback</span>
+                    </label>
+                </div>
+                <p class="text-sm text-yellow-700 opacity-90 mt-2">Applies only to Legacy and 10 Year memberships.</p>
+            </div>
+            
+            <!-- Currency Conversion Rate Input (NEW) -->
+            <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <h3 class="text-lg font-semibold text-purple-700 mb-3">Currency Conversion (USD to CAD)</h3>
+                <div class="flex justify-between items-center">
+                    <label for="conversionRate" class="text-md font-medium text-gray-700">
+                        Exchange Rate (1 USD = X CAD):
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="conversionRate" value="1.39" min="1.0" step="0.01" oninput="calculateCommission()"
+                            class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-purple-500 focus:border-purple-500 shadow-sm"
+                            aria-label="USD to CAD exchange rate">
+                        <span class="text-xl font-bold text-purple-600">CAD</span>
+                    </div>
+                </div>
+                <p class="text-sm text-purple-700 opacity-90 mt-2">Update this rate based on current Wise/bank conversion rates.</p>
+            </div>
+
+            <!-- Custom Commission Rates Section -->
+            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Adjust Commission Rates (%)</h3>
+                <div class="space-y-3">
+                    <!-- Cash Commission Rate -->
+                    <div class="flex justify-between items-center">
+                        <label for="cashRate" class="text-md font-medium text-gray-700">
+                            Cash Collected:
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="cashRate" value="25" min="0" max="100" step="0.5" oninput="calculateCommission()"
+                                class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                                aria-label="Cash commission rate percentage">
+                            <span class="text-xl font-bold text-indigo-600">%</span>
+                        </div>
+                    </div>
+                    <!-- ABC Commission Rate -->
+                    <div class="flex justify-between items-center">
+                        <label for="abcRate" class="text-md font-medium text-gray-700">
+                            ABC Credit:
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="abcRate" value="15" min="0" max="100" step="0.5" oninput="calculateCommission()"
+                                class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                                aria-label="ABC Credit commission rate percentage">
+                            <span class="text-xl font-bold text-indigo-600">%</span>
+                        </div>
+                    </div>
+                    <!-- D/SO Commission Rate -->
+                    <div class="flex justify-between items-center">
+                        <label for="dsoRate" class="text-md font-medium text-gray-700">
+                            D/SO Credit:
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="dsoRate" value="7.5" min="0" max="100" step="0.5" oninput="calculateCommission()"
+                                class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                                aria-label="D/SO Credit commission rate percentage">
+                            <span class="text-xl font-bold text-indigo-600">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Collected Amount Input -->
+            <div class="pb-4 border-b border-gray-200">
+                <label for="cashAmount" class="block text-md font-medium text-gray-700 mb-2">
+                    Cash Collected Amount ($)
+                </label>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl font-bold text-gray-600">$</span>
+                    <input type="number" id="cashAmount" value="" min="0" step="1" oninput="calculateCommission()"
+                           class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-bold text-lg"
+                           aria-label="Cash collected dollar amount">
+                </div>
+                <p id="cashValidationMessage" class="text-sm text-red-500 mt-1 h-4"></p>
+                <p class="text-sm text-gray-500 mt-1">Cash down must be between 10% and 100% of the selected membership price.</p>
+            </div>
+
+
+            <!-- Credit Type Selection (Binary) -->
+            <div class="pb-4">
+                <label class="block text-md font-medium text-gray-700 mb-3">
+                    Financed Portion Credit Type:
+                </label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center bg-green-50 p-3 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition duration-150">
+                        <input type="radio" name="creditType" value="ABC" checked onchange="calculateCommission()" class="form-radio h-5 w-5 text-green-600 focus:ring-green-500" aria-label="ABC Credit option">
+                        <span class="ml-2 font-semibold text-green-700">ABC Credit</span>
+                    </label>
+                    <label class="inline-flex items-center bg-red-50 p-3 rounded-lg border border-red-200 cursor-pointer hover:bg-red-100 transition duration-150">
+                        <input type="radio" name="creditType" value="DSO" onchange="calculateCommission()" class="form-radio h-5 w-5 text-red-600 focus:ring-red-500" aria-label="D/SO Credit option">
+                        <span class="ml-2 font-semibold text-red-700">D/SO Credit</span>
+                    </label>
+                </div>
+                <p class="text-sm text-gray-500 mt-1">The entire financed balance goes to one provider.</p>
+            </div>
+        </section>
+
+        <!-- Results Section (UPDATED) -->
+        <section class="mt-8 pt-6 border-t border-indigo-200">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">Commission Breakdown</h2>
+            <div id="results" class="space-y-3">
+                <!-- GROSS Commission (Total before holdback) -->
+                <div class="bg-indigo-50 p-4 rounded-lg flex justify-between items-center shadow-md border-l-4 border-indigo-500">
+                    <span class="text-lg font-medium text-indigo-800">GROSS COMMISSION (USD):</span>
+                    <span id="totalCommission" class="text-2xl font-extrabold text-indigo-700">$0.00</span>
+                </div>
+
+                <!-- HOLDBACK Amount (10%) -->
+                <div class="flex justify-between items-center px-1">
+                    <span class="font-medium text-red-600">Chargeback Holdback (10%):</span>
+                    <span id="holdbackAmount" class="font-bold text-red-700">-$0.00</span>
+                </div>
+
+                <!-- NET Commission (After Holdback) USD -->
+                <div class="bg-green-50 p-4 rounded-lg flex justify-between items-center shadow-md border-l-4 border-green-500 mt-4">
+                    <span class="text-lg font-medium text-green-800">NET COMMISSION (USD Take-Home):</span>
+                    <span id="netCommission" class="text-2xl font-extrabold text-green-700">$0.00</span>
+                </div>
+                
+                <!-- NET Commission (After Holdback) CAD (NEW) -->
+                <div class="bg-blue-50 p-4 rounded-lg flex justify-between items-center shadow-md border-l-4 border-blue-500 mt-2">
+                    <span class="text-lg font-medium text-blue-800">NET COMMISSION (CAD Equivalent):</span>
+                    <span id="netCommissionCAD" class="text-2xl font-extrabold text-blue-700">C$0.00</span>
+                </div>
+
+
+                <p class="text-sm text-gray-500 pt-2 font-semibold">Earnings By Payment Type (Gross):</p>
+
+                <div class="flex justify-between items-center">
+                    <span class="font-medium text-gray-600">Cash Collected Commission:</span>
+                    <span id="cashCommission" class="font-bold text-gray-800">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="font-medium text-gray-600">ABC Credit Commission:</span>
+                    <span id="abcCommission" class="font-bold text-gray-800">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="font-medium text-gray-600">D/SO Credit Commission:</span>
+                    <span id="dsoCommission" class="font-bold text-gray-800">$0.00</span>
+                </div>
+            </div>
+
+            <div class="mt-6 border-t pt-4 border-gray-200">
+                <p class="text-sm text-gray-500 font-semibold mb-2">Total Membership Value:</p>
+                <div class="flex justify-between items-center text-md">
+                    <span class="font-medium text-gray-600">Membership Price:</span>
+                    <span id="membershipPriceDisplay" class="font-bold text-indigo-600">$4,499.00</span>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Global state to track selected membership and its attributes
+        // These store the BASE, non-discounted values from the buttons
+        let selectedBasePrice = 4499; // Default to Legacy base price
+        let selectedDefaultCash = 450; // Default cash for Legacy
+
+        /**
+         * Converts a number to a dollar string format (USD).
+         * @param {number} amount - The amount to format.
+         * @returns {string} - The formatted dollar string.
+         */
+        function formatCurrency(amount) {
+            // Ensure negative amounts are formatted correctly
+            const sign = amount < 0 ? '-' : '';
+            const absoluteAmount = Math.abs(amount);
+
+            return sign + '$' + (Math.round(absoluteAmount * 100) / 100).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        /**
+         * Converts a number to a Canadian dollar string format (CAD).
+         * @param {number} amount - The amount to format.
+         * @returns {string} - The formatted Canadian dollar string.
+         */
+        function formatCAD(amount) {
+            const sign = amount < 0 ? '-' : '';
+            const absoluteAmount = Math.abs(amount);
+
+            return sign + 'C$' + (Math.round(absoluteAmount * 100) / 100).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+
+        /**
+         * Handles selecting a membership button, updating UI, and setting defaults.
+         * @param {HTMLElement} element - The clicked button element.
+         */
+        function selectMembership(element) {
+            // 1. Update selection state and visual
+            const buttons = document.querySelectorAll('.membership-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-700');
+                btn.classList.add('bg-white', 'text-indigo-600', 'border-indigo-300');
+            });
+
+            element.classList.remove('bg-white', 'text-indigo-600', 'border-indigo-300');
+            element.classList.add('bg-indigo-600', 'text-white', 'border-indigo-700');
+
+
+            // 2. Update global state using base prices
+            selectedBasePrice = parseFloat(element.getAttribute('data-price'));
+            selectedDefaultCash = parseFloat(element.getAttribute('data-default-cash'));
+
+            // 3. Set the Cash Amount input field to the new default
+            document.getElementById('cashAmount').value = selectedDefaultCash;
+
+            // 4. Recalculate commissions
+            calculateCommission();
+        }
+
+
+        /**
+         * Performs the main commission calculation logic.
+         */
+        function calculateCommission() {
+            try {
+                // Determine the discount amount selected (0, 250, or 500)
+                const selectedDiscountElement = document.querySelector('input[name="discountAmount"]:checked');
+                const discountAmount = parseFloat(selectedDiscountElement ? selectedDiscountElement.value : 0) || 0;
+
+                // Determine the effective price based on selection and discount
+                let effectivePrice = selectedBasePrice;
+                
+                // Only apply the discount if Legacy (4499) or 10 Year (2499) are selected
+                const isLegacyOr10Year = selectedBasePrice === 4499 || selectedBasePrice === 2499;
+
+                if (isLegacyOr10Year) {
+                    effectivePrice -= discountAmount;
+                }
+
+                // 1. Display the (potentially discounted) effective price
+                document.getElementById('membershipPriceDisplay').textContent = formatCurrency(effectivePrice);
+                
+                // 2. Get All Input Values
+                const cashRatePct = parseFloat(document.getElementById('cashRate').value) / 100;
+                const abcRatePct = parseFloat(document.getElementById('abcRate').value) / 100;
+                const dsoRatePct = parseFloat(document.getElementById('dsoRate').value) / 100;
+
+                let cashAmount = parseFloat(document.getElementById('cashAmount').value) || 0; // Default to 0 if NaN
+                const creditType = document.querySelector('input[name="creditType"]:checked').value;
+                const validationMessage = document.getElementById('cashValidationMessage');
+
+                // --- VALIDATION (Minimum 10% Cash, Maximum 100% Cash) ---
+                const minCash = effectivePrice * 0.10;
+                const maxCash = effectivePrice;
+                
+                if (cashAmount < minCash) {
+                    validationMessage.textContent = `Minimum cash required is ${formatCurrency(minCash)}.`;
+                    document.getElementById('cashAmount').classList.add('border-red-500');
+                } else if (cashAmount > maxCash) {
+                    validationMessage.textContent = `Cash cannot exceed ${formatCurrency(maxCash)}.`;
+                    document.getElementById('cashAmount').classList.add('border-red-500');
+                } else {
+                    validationMessage.textContent = ''; // Clear message
+                    document.getElementById('cashAmount').classList.remove('border-red-500');
+                }
+                
+                // Use a clamped value for calculation to ensure commissions are based on valid figures
+                const clampedCashAmount = Math.max(minCash, Math.min(maxCash, cashAmount));
+
+
+                // --- CALCULATION STEPS ---
+
+                // A. Cash Portion Calculation
+                const cashCommission = clampedCashAmount * cashRatePct;
+                
+                // B. Credit Portion Calculation
+                const remainingCredit = effectivePrice - clampedCashAmount;
+
+                let abcCommission = 0;
+                let dsoCommission = 0;
+
+                // C. Binary Credit Commission Calculation (using dynamic rates)
+                if (remainingCredit > 0) {
+                    // Entire remaining balance goes to one credit type
+                    if (creditType === 'ABC') {
+                        abcCommission = remainingCredit * abcRatePct;
+                    } else if (creditType === 'DSO') {
+                        dsoCommission = remainingCredit * dsoRatePct;
+                    }
+                }
+                // If remainingCredit is 0 or less (100% cash), credit commissions remain 0.
+
+                // D. Gross Commission (Total before holdback)
+                const totalCommission = cashCommission + abcCommission + dsoCommission;
+
+                // E. Holdback and Net Commission Calculation
+                const HOLDBACK_RATE = 0.10; // 10% for chargebacks
+                const holdbackAmount = totalCommission * HOLDBACK_RATE;
+                const netCommission = totalCommission - holdbackAmount;
+                
+                // F. Currency Conversion (NEW)
+                const conversionRate = parseFloat(document.getElementById('conversionRate').value) || 1.0;
+                const netCommissionCAD = netCommission * conversionRate;
+
+
+                // --- DISPLAY RESULTS ---
+                document.getElementById('cashCommission').textContent = formatCurrency(cashCommission);
+                document.getElementById('abcCommission').textContent = formatCurrency(abcCommission);
+                document.getElementById('dsoCommission').textContent = formatCurrency(dsoCommission);
+
+                // Update Gross Commission
+                document.getElementById('totalCommission').textContent = formatCurrency(totalCommission);
+
+                // Update Holdback and Net Commission (USD)
+                // The holdback is displayed as a positive value, but the negative context is in the label
+                document.getElementById('holdbackAmount').textContent = formatCurrency(holdbackAmount); 
+                document.getElementById('netCommission').textContent = formatCurrency(netCommission);
+                
+                // Update Net Commission (CAD)
+                document.getElementById('netCommissionCAD').textContent = formatCAD(netCommissionCAD);
+
+
+            } catch (e) {
+                console.error("Calculation error:", e);
+                // Reset displays on error
+                document.getElementById('totalCommission').textContent = "$0.00";
+                document.getElementById('cashCommission').textContent = "$0.00";
+                document.getElementById('abcCommission').textContent = "$0.00";
+                document.getElementById('dsoCommission').textContent = "$0.00";
+                document.getElementById('holdbackAmount').textContent = "$0.00";
+                document.getElementById('netCommission').textContent = "$0.00";
+                document.getElementById('netCommissionCAD').textContent = "C$0.00";
+            }
+        }
+
+        // Initialize display and calculate on load: select the default Legacy button
+        window.onload = function() {
+            // Find the Legacy button which is the first one with data-price="4499"
+            const defaultButton = document.querySelector('[data-price="4499"]');
+            if (defaultButton) {
+                selectMembership(defaultButton);
+            } else {
+                 calculateCommission(); // Fallback
+            }
+        };
+    </script>
+</body>
+</html>
