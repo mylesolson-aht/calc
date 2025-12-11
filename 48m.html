@@ -91,8 +91,9 @@
 
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
-            <!-- Embedded SVG logo to avoid external missing JPEG issues -->
-            <svg role="img" aria-label="Aloha Hawaii Tours & Travel Logo" class="w-32 sm:w-40 md:w-48 mb-2" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Try the external image first; fall back to embedded SVG if it fails -->
+            <img id="logoImg" src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-32 sm:w-40 md:w-48 mb-2" onerror="this.style.display='none';document.getElementById('svgLogo').style.display='block'">
+            <svg id="svgLogo" role="img" aria-label="Aloha Hawaii Tours & Travel Logo" style="display:none" class="w-32 sm:w-40 md:w-48 mb-2" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
                         <stop offset="0%" stop-color="#00a3cc" />
@@ -153,12 +154,13 @@
                 <p id="cashDownError" class="error-message hidden mt-2 text-xs text-red-500 text-center">Initial Amount must be at least 10% of the total Membership value.</p>
             </div>
 
-            <!-- Amortization Period "Wheel" -->
+            <!-- Financing Terms (combined wheel & monthly amount) -->
             <div>
-                <p class="text-sm font-medium text-gray-700">Amortization Period (months)</p>
+                <p class="text-sm font-medium text-gray-700">Financing Terms</p>
                 <div class="input-tile flex flex-col justify-center items-center mt-1">
-                    <div class="w-full">
-                        <!-- A range "wheel" to select available terms. Steps map to the terms array in JS -->
+                    <p id="monthlyPreviewAmount" class="text-2xl font-bold text-gray-900">$0</p>
+                    <p id="selectedAmortization" class="text-sm text-gray-500 mt-1">24 Months</p>
+                    <div class="w-full mt-4">
                         <input id="amortizationRange" type="range" min="0" max="5" step="1" value="3" class="w-full slider-track">
                         <div class="flex justify-between text-xs text-gray-500 mt-2">
                             <span>6</span>
@@ -168,20 +170,10 @@
                             <span>36</span>
                             <span>48</span>
                         </div>
-                        <p id="selectedAmortization" class="mt-3 text-lg font-semibold">24 Months</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Monthly Amount preview (moved above interest savings) -->
-            <div id="monthlyPreviewDiv">
-                <p class="text-sm font-medium text-gray-700">Monthly Amount</p>
-                <div id="monthlyPreview" class="p-4 rounded-xl bg-gray-50 highlight-monthly mt-1 text-center">
-                    <p id="monthlyPreviewAmount" class="text-xl sm:text-2xl font-bold text-gray-900">$0</p>
-                    <p id="monthlyPreviewTerm" class="text-xs text-gray-500 mt-1">24 months</p>
-                </div>
-            </div>
-            
             <!-- Your Interest Savings -->
             <div id="totalInterestSavedDiv">
                 <p class="text-sm font-medium text-gray-700">Your Interest Savings</p>
@@ -293,14 +285,10 @@
         const cashDownRangeMinLabel = document.getElementById('cashDownRangeMinLabel');
         const cashDownRangeMaxLabel = document.getElementById('cashDownRangeMaxLabel');
 
-        // Amortization controls
+        // Amortization & monthly preview controls
         const amortizationRange = document.getElementById('amortizationRange');
-        const selectedAmortizationLabel = document.getElementById('selectedAmortization');
-
-        // Monthly preview elements
-        const monthlyPreview = document.getElementById('monthlyPreview');
+        const selectedAmortization = document.getElementById('selectedAmortization');
         const monthlyPreviewAmount = document.getElementById('monthlyPreviewAmount');
-        const monthlyPreviewTerm = document.getElementById('monthlyPreviewTerm');
 
         // Get all output elements
         const principalAmountOutput = document.getElementById('principalAmount');
@@ -452,7 +440,7 @@
             // Selected amortization months (wheel)
             const amortIndex = parseInt(amortizationRange.value, 10);
             const amortMonths = amortizationIndexToMonths(amortIndex);
-            selectedAmortizationLabel.textContent = `${amortMonths} Months`;
+            selectedAmortization.textContent = `${amortMonths} Months`;
 
             // Always calculate and display interest savings first using the selected amortization period
             const minCashDown = Math.round(principal * 0.10);
@@ -478,13 +466,11 @@
                 totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
             }
 
-            // Update monthly preview (the small "Monthly Amount" moved above the interest savings)
+            // Update monthly preview (now inside Financing Terms wheel)
             if (cashDown >= principal || currentRemainingBalance <= 0) {
                 monthlyPreviewAmount.textContent = formatCurrency(0, 2);
-                monthlyPreviewTerm.textContent = `${amortMonths} months`;
             } else {
                 monthlyPreviewAmount.textContent = formatCurrency(currentMonthlyForSelected, 2);
-                monthlyPreviewTerm.textContent = `${amortMonths} months`;
             }
 
             // Check for cash deal
@@ -660,11 +646,11 @@
             calculate();
         });
 
-        // Amortization range change
+        // Amortization range change (combined wheel)
         amortizationRange.addEventListener('input', () => {
             const index = parseInt(amortizationRange.value, 10);
             const months = amortizationIndexToMonths(index);
-            selectedAmortizationLabel.textContent = `${months} Months`;
+            selectedAmortization.textContent = `${months} Months`;
             calculate();
         });
 
@@ -704,7 +690,7 @@
             const initialPlanTile = document.querySelector('[data-plan="legacy"]');
             // Set amortization default to 24 months (index 3 in our mapping)
             amortizationRange.value = terms.indexOf(24);
-            selectedAmortizationLabel.textContent = `24 Months`;
+            selectedAmortization.textContent = `24 Months`;
 
             // Initialize toggle icons based on hidden state
             setInterestIcon(!totalInterestPaidContainer.classList.contains('hidden'));
