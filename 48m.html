@@ -70,6 +70,18 @@
         .clipboard-message {
             display: none;
         }
+
+        /* Small styling for the slider/wheel controls */
+        .slider-track { height: 6px; border-radius: 999px; background: #e5e7eb; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #007aff;
+            border-radius: 999px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -79,7 +91,22 @@
 
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
-            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-32 sm:w-40 md:w-48 mb-2">
+            <!-- Embedded SVG logo to avoid external missing JPEG issues -->
+            <svg role="img" aria-label="Aloha Hawaii Tours & Travel Logo" class="w-32 sm:w-40 md:w-48 mb-2" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#00a3cc" />
+                        <stop offset="100%" stop-color="#006699" />
+                    </linearGradient>
+                </defs>
+                <rect width="300" height="80" rx="12" fill="none" />
+                <g transform="translate(12,12)">
+                    <circle cx="28" cy="28" r="22" fill="url(#g1)" />
+                    <path d="M20 28c5-8 20-8 25 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" />
+                    <text x="66" y="34" font-family="Inter, sans-serif" font-weight="700" font-size="20" fill="#006699">Aloha Hawaii</text>
+                    <text x="66" y="54" font-family="Inter, sans-serif" font-weight="500" font-size="12" fill="#4b5563">Tours & Travel</text>
+                </g>
+            </svg>
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
         </div>
@@ -108,13 +135,51 @@
                 </div>
             </div>
 
-            <!-- Initial Amount Tile -->
+            <!-- Initial Amount Tile + Slider -->
             <div>
                 <p class="text-sm font-medium text-gray-700">Initial Amount</p>
                 <div class="input-tile flex flex-col justify-center items-center mt-1">
-                    <input type="number" id="cashDown" step="50" class="text-gray-900" placeholder="0">
+                    <!-- Number input -->
+                    <input type="number" id="cashDown" step="50" class="text-gray-900" placeholder="0" min="0">
+                    <!-- Range slider (cash down slider / "wheel") -->
+                    <div class="w-full mt-4">
+                        <input id="cashDownRange" type="range" min="0" max="5000" step="50" value="0" class="w-full slider-track">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span id="cashDownRangeMinLabel">$0</span>
+                            <span id="cashDownRangeMaxLabel">$5,000+</span>
+                        </div>
+                    </div>
                 </div>
                 <p id="cashDownError" class="error-message hidden mt-2 text-xs text-red-500 text-center">Initial Amount must be at least 10% of the total Membership value.</p>
+            </div>
+
+            <!-- Amortization Period "Wheel" -->
+            <div>
+                <p class="text-sm font-medium text-gray-700">Amortization Period (months)</p>
+                <div class="input-tile flex flex-col justify-center items-center mt-1">
+                    <div class="w-full">
+                        <!-- A range "wheel" to select available terms. Steps map to the terms array in JS -->
+                        <input id="amortizationRange" type="range" min="0" max="5" step="1" value="3" class="w-full slider-track">
+                        <div class="flex justify-between text-xs text-gray-500 mt-2">
+                            <span>6</span>
+                            <span>12</span>
+                            <span>18</span>
+                            <span>24</span>
+                            <span>36</span>
+                            <span>48</span>
+                        </div>
+                        <p id="selectedAmortization" class="mt-3 text-lg font-semibold">24 Months</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Amount preview (moved above interest savings) -->
+            <div id="monthlyPreviewDiv">
+                <p class="text-sm font-medium text-gray-700">Monthly Amount</p>
+                <div id="monthlyPreview" class="p-4 rounded-xl bg-gray-50 highlight-monthly mt-1 text-center">
+                    <p id="monthlyPreviewAmount" class="text-xl sm:text-2xl font-bold text-gray-900">$0</p>
+                    <p id="monthlyPreviewTerm" class="text-xs text-gray-500 mt-1">24 months</p>
+                </div>
             </div>
             
             <!-- Your Interest Savings -->
@@ -178,11 +243,8 @@
                         <div class="flex items-center mb-2">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
                             <!-- Button to toggle visibility -->
-                            <button id="toggleInterestButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
-                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500">
-                                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                                    <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.678-7.697a1.5 1.5 0 010-1.058z"/>
-                                </svg>
+                            <button id="toggleInterestButton" aria-expanded="false" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
+                                <span id="interestToggleIcon" aria-hidden="true"></span>
                             </button>
                         </div>
                         <div id="totalInterestPaid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden">
@@ -196,15 +258,12 @@
             <div class="mt-8">
                 <div class="flex items-center mb-2">
                     <label for="taCode" class="text-sm font-medium text-gray-700">Manage Options</label>
-                     <button id="toggleTaCodeButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500">
-                            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                            <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.678-7.697a1.5 1.5 0 010-1.058z"/>
-                        </svg>
+                     <button id="toggleTaCodeButton" aria-expanded="false" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700 focus:outline-none">
+                        <span id="taToggleIcon" aria-hidden="true"></span>
                     </button>
                 </div>
                 <div id="taCodeSection" class="mt-1 hidden">
-                    <select id="taCode" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition">
+                    <select id="taCode" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors">
                         <option value="no">No</option>
                         <option value="1">1 ($250) (Requires Manager Approval)</option>
                         <option value="2">2 ($500) (Requires Manager Approval)</option>
@@ -230,6 +289,18 @@
         const planTilesContainer = document.getElementById('planTilesContainer');
         const taCodeInput = document.getElementById('taCode');
         const cashDownInput = document.getElementById('cashDown');
+        const cashDownRange = document.getElementById('cashDownRange');
+        const cashDownRangeMinLabel = document.getElementById('cashDownRangeMinLabel');
+        const cashDownRangeMaxLabel = document.getElementById('cashDownRangeMaxLabel');
+
+        // Amortization controls
+        const amortizationRange = document.getElementById('amortizationRange');
+        const selectedAmortizationLabel = document.getElementById('selectedAmortization');
+
+        // Monthly preview elements
+        const monthlyPreview = document.getElementById('monthlyPreview');
+        const monthlyPreviewAmount = document.getElementById('monthlyPreviewAmount');
+        const monthlyPreviewTerm = document.getElementById('monthlyPreviewTerm');
 
         // Get all output elements
         const principalAmountOutput = document.getElementById('principalAmount');
@@ -248,14 +319,14 @@
         const upgradeOfferContainer = document.getElementById('upgradeOfferContainer');
         const upgradeOffer = document.getElementById('upgradeOffer');
 
-
         // New elements for show/hide functionality and clipboard
         const totalInterestContainer = document.getElementById('totalInterestContainer');
         const toggleInterestButton = document.getElementById('toggleInterestButton');
+        const interestToggleIcon = document.getElementById('interestToggleIcon');
         const taCodeSection = document.getElementById('taCodeSection');
         const toggleTaCodeButton = document.getElementById('toggleTaCodeButton');
+        const taToggleIcon = document.getElementById('taToggleIcon');
         const taCodeMessage = document.getElementById('taCodeMessage');
-
 
         // Constants
         const interestRate = 0.1799;
@@ -284,6 +355,15 @@
             }
         };
 
+        // SVG icon strings for toggles
+        const eyeSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500"><path d="M12 5c4.971 0 9.188 3.225 10.676 7.697a1.5 1.5 0 0 1 0 1.106C21.188 18.775 16.971 22 12 22S2.812 18.775 1.324 14.803a1.5 1.5 0 0 1 0-1.106C2.812 8.225 7.029 5 12 5zm0 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>`;
+        const eyeOffSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-500"><path d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l2.06 2.06A19.06 19.06 0 0 0 1.32 11.7a1.5 1.5 0 0 0 0 1.1C2.81 17.02 7.03 20.25 12 20.25c1.9 0 3.71-.4 5.33-1.12l2.06 2.06a.75.75 0 1 0 1.06-1.06L4.34 2.22a.75.75 0 0 0-1.06 0zM9.88 11.06a3 3 0 0 0 3.06 3.06l-3.06-3.06z" /></svg>`;
+
+        // Map amortizationRange values (0..5) to terms array.
+        function amortizationIndexToMonths(index) {
+            return terms[index] || 24;
+        }
+
         // PMT (Payment) formula implementation
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
@@ -309,6 +389,16 @@
             }).format(amount);
         }
 
+        // Toggle icon helpers
+        function setInterestIcon(expanded) {
+            interestToggleIcon.innerHTML = expanded ? eyeOffSVG : eyeSVG;
+            toggleInterestButton.setAttribute('aria-expanded', expanded);
+        }
+        function setTaIcon(expanded) {
+            taToggleIcon.innerHTML = expanded ? eyeOffSVG : eyeSVG;
+            toggleTaCodeButton.setAttribute('aria-expanded', expanded);
+        }
+
         // Main calculation function
         function calculate() {
             const activePlanTile = document.querySelector('.input-tile.active');
@@ -323,16 +413,19 @@
             // Handle TA-Options based on new logic
             if (cashDown >= principal || cashDown >= minCashDownFinancing) {
                taCodeInput.disabled = false;
-            taCodeMessage.textContent = 'TA-Options are always available regardless of down payment.';
+               taCodeMessage.textContent = 'TA-Options are always available regardless of down payment.';
             } else {
                 taCodeInput.disabled = true;
                 taCodeInput.value = 'no';
                 taCodeMessage.textContent = 'Requires a down payment greater than 10% or a full cash payment.';
             }
             
-            // Set min and max attributes for the input field to constrain arrow keys
+            // Set min and max attributes for the input field to constrain arrow keys and slider
             cashDownInput.min = minCashDownFinancing;
             cashDownInput.max = principal;
+            cashDownRange.min = 0;
+            cashDownRange.max = principal;
+            cashDownRange.step = 50;
 
             // Enforce minimum and maximum values for manual entry
             if (cashDown < minCashDownFinancing) {
@@ -342,26 +435,39 @@
                 cashDownInput.classList.remove('input-error');
                 cashDownError.classList.add('hidden');
             }
-             if (cashDown > principal) {
+            if (cashDown > principal) {
                 cashDown = principal;
                 cashDownInput.value = cashDown;
             }
-            
+
+            // Sync range with number input
+            cashDownRange.value = cashDown;
+            cashDownRangeMinLabel.textContent = formatCurrency(0);
+            cashDownRangeMaxLabel.textContent = formatCurrency(principal);
+
             // Update main numbers
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
-            
-            // Always calculate and display interest savings first
+
+            // Selected amortization months (wheel)
+            const amortIndex = parseInt(amortizationRange.value, 10);
+            const amortMonths = amortizationIndexToMonths(amortIndex);
+            selectedAmortizationLabel.textContent = `${amortMonths} Months`;
+
+            // Always calculate and display interest savings first using the selected amortization period
             const minCashDown = Math.round(principal * 0.10);
             const baseRemainingBalance = principal - minCashDown;
-            const baseMonthlyPayment = pmt(interestRate / 12, 24, baseRemainingBalance);
-            const baseTotalInterest = (baseMonthlyPayment * 24) - baseRemainingBalance;
+            const monthlyRate = interestRate / 12;
+            const baseMonthlyPayment = pmt(monthlyRate, amortMonths, baseRemainingBalance);
+            const baseTotalInterest = (baseMonthlyPayment * amortMonths) - baseRemainingBalance;
             
             const currentRemainingBalance = principal - cashDown;
             let currentTotalInterest = 0;
+            let currentMonthlyForSelected = 0;
             if (currentRemainingBalance > 0) {
-                const currentMonthlyPayment = pmt(interestRate / 12, 24, currentRemainingBalance);
-                currentTotalInterest = (currentMonthlyPayment * 24) - currentRemainingBalance;
+                const currentMonthlyPayment = pmt(monthlyRate, amortMonths, currentRemainingBalance);
+                currentTotalInterest = (currentMonthlyPayment * amortMonths) - currentRemainingBalance;
+                currentMonthlyForSelected = currentMonthlyPayment;
             }
             
             const interestSaved = baseTotalInterest - currentTotalInterest;
@@ -370,6 +476,15 @@
                 totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
             } else {
                 totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
+            }
+
+            // Update monthly preview (the small "Monthly Amount" moved above the interest savings)
+            if (cashDown >= principal || currentRemainingBalance <= 0) {
+                monthlyPreviewAmount.textContent = formatCurrency(0, 2);
+                monthlyPreviewTerm.textContent = `${amortMonths} months`;
+            } else {
+                monthlyPreviewAmount.textContent = formatCurrency(currentMonthlyForSelected, 2);
+                monthlyPreviewTerm.textContent = `${amortMonths} months`;
             }
 
             // Check for cash deal
@@ -388,14 +503,13 @@
                 // Update monthly payments
                 monthlyPaymentsContainer.innerHTML = '';
                 totalInterestPaidContainer.innerHTML = '';
-                const monthlyRate = interestRate / 12;
 
                 terms.forEach(term => {
                     const monthlyPayment = pmt(monthlyRate, term, remainingBalance);
-                    const is24Months = term === 24;
+                    const isSelected = term === amortMonths;
                     
                     const monthlyDiv = document.createElement('div');
-                    monthlyDiv.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${is24Months ? 'highlight-monthly' : 'bg-gray-50'}`;
+                    monthlyDiv.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${isSelected ? 'highlight-monthly' : 'bg-gray-50'}`;
                     monthlyDiv.innerHTML = `
                         <p class="text-sm text-gray-500">${term} Months</p>
                         <p class="text-lg font-bold text-gray-900">${formatCurrency(monthlyPayment, 2)}</p>
@@ -411,7 +525,7 @@
                     
                     // --- Upgrade Offer Calculation ---
                     // 1. Get the percentage of the current principal that the cash down payment represents.
-                    const cashDownRatio = cashDown / principal || 0;
+                    const cashDownRatio = (principal > 0) ? (cashDown / principal) : 0;
 
                     // 2. Calculate the next principal amount after applying the TA-Code discount.
                     const nextPrincipal = upgradeInfo.price - TA_CODES[taCode];
@@ -422,11 +536,11 @@
                     // 4. Calculate the remaining balance for the upgraded plan.
                     const nextRemainingBalance = nextPrincipal - nextCashDown;
                     
-                    // 5. Calculate the new 24-month monthly payment for the upgraded plan.
-                    const nextMonthlyPayment = pmt(monthlyRate, 24, nextRemainingBalance);
+                    // 5. Calculate the new monthly payment for the upgraded plan using selected amortization.
+                    const nextMonthlyPayment = pmt(monthlyRate, amortMonths, nextRemainingBalance);
 
-                    // 6. Calculate the current 24-month monthly payment.
-                    const currentMonthlyPayment = pmt(monthlyRate, 24, remainingBalance);
+                    // 6. Calculate the current monthly payment (selected amortization).
+                    const currentMonthlyPayment = pmt(monthlyRate, amortMonths, remainingBalance);
                     
                     // 7. Find the difference between the two monthly payments.
                     const monthlyDifference = nextMonthlyPayment - currentMonthlyPayment;
@@ -445,7 +559,6 @@
                     const monthlyPayment = pmt(monthlyRate, term, remainingBalance);
                     const totalInterest = (monthlyPayment * term) - remainingBalance;
                     const interestDiv = document.createElement('div');
-                    // Removed `items-center` and `text-center` for a left-aligned look
                     interestDiv.className = `p-4 rounded-xl shadow-sm bg-gray-50 flex flex-col justify-end`;
                     interestDiv.innerHTML = `
                         <p class="text-sm text-gray-500">${term} Months</p>
@@ -467,8 +580,15 @@
             const plan = selectedTile.dataset.plan;
             
             // Set initial cash down and check for TA options
-            const defaultCashDown = Math.round(planPrices[plan] * 0.20);
+            // Legacy default cash is to be $500 same as 10-year per request
+            let defaultCashDown;
+            if (plan === 'legacy' || plan === '10year') {
+                defaultCashDown = 500;
+            } else {
+                defaultCashDown = Math.round(planPrices[plan] * 0.20);
+            }
             cashDownInput.value = defaultCashDown;
+            cashDownRange.value = defaultCashDown;
             
             resultsSection.classList.remove('hidden');
 
@@ -478,10 +598,14 @@
         // Add event listener for show/hide buttons
         toggleInterestButton.addEventListener('click', () => {
             totalInterestPaidContainer.classList.toggle('hidden');
+            const expanded = !totalInterestPaidContainer.classList.contains('hidden');
+            setInterestIcon(expanded);
         });
 
         toggleTaCodeButton.addEventListener('click', () => {
             taCodeSection.classList.toggle('hidden');
+            const expanded = !taCodeSection.classList.contains('hidden');
+            setTaIcon(expanded);
         });
         
         // New event listener for the upgrade button
@@ -511,6 +635,7 @@
             const principal = planPrices[plan];
             const newCashDown = Math.min(currentCashDown + 50, principal);
             cashDownInput.value = newCashDown;
+            cashDownRange.value = newCashDown;
             calculate();
         });
         
@@ -519,6 +644,28 @@
             tile.addEventListener('click', (e) => {
                 handlePlanChange(e.currentTarget);
             });
+        });
+
+        // Sync number input and range slider for cash down
+        cashDownInput.addEventListener('input', () => {
+            // Round to nearest 50
+            const raw = parseFloat(cashDownInput.value) || 0;
+            const rounded = Math.round(raw / 50) * 50;
+            cashDownInput.value = rounded;
+            cashDownRange.value = rounded;
+            calculate();
+        });
+        cashDownRange.addEventListener('input', () => {
+            cashDownInput.value = parseFloat(cashDownRange.value);
+            calculate();
+        });
+
+        // Amortization range change
+        amortizationRange.addEventListener('input', () => {
+            const index = parseInt(amortizationRange.value, 10);
+            const months = amortizationIndexToMonths(index);
+            selectedAmortizationLabel.textContent = `${months} Months`;
+            calculate();
         });
 
         // Add custom keydown event listener to handle the final increment to 100%
@@ -534,27 +681,39 @@
                 if (currentValue + 50 > principal && currentValue < principal) {
                     e.preventDefault(); // Prevent default up arrow behavior
                     e.target.value = principal;
+                    cashDownRange.value = principal;
                     calculate();
                 }
             }
         });
 
         // Add event listeners for the cash down input
-        taCodeInput.addEventListener('change', calculate);
-        cashDownInput.addEventListener('input', calculate);
+        taCodeInput.addEventListener('change', () => {
+            // Ensure slider max updates to reflect TA code change
+            calculate();
+        });
         cashDownInput.addEventListener('blur', calculate);
         cashDownInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 calculate();
             }
         });
-        
 
         // Initial setup on page load
         document.addEventListener('DOMContentLoaded', () => {
             const initialPlanTile = document.querySelector('[data-plan="legacy"]');
+            // Set amortization default to 24 months (index 3 in our mapping)
+            amortizationRange.value = terms.indexOf(24);
+            selectedAmortizationLabel.textContent = `24 Months`;
+
+            // Initialize toggle icons based on hidden state
+            setInterestIcon(!totalInterestPaidContainer.classList.contains('hidden'));
+            setTaIcon(!taCodeSection.classList.contains('hidden'));
+
             if (initialPlanTile) {
                 handlePlanChange(initialPlanTile);
+            } else {
+                calculate();
             }
         });
     </script>
