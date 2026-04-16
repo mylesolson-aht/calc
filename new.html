@@ -16,7 +16,7 @@
             padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s;
         }
         .input-tile.active { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,0.2); }
-        .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .input-tile:hover { transform: scale(1.02); }
         .input-tile input { background: transparent; border: none; outline: none; font-size: 1.5rem; font-weight: 700; width: 100%; text-align: center; }
         .highlight-monthly { background-color: #f2faff; color: #007aff; font-weight: 600; border: 2px solid #007aff; }
         .upgrade-comparison {
@@ -25,10 +25,10 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+<body class="flex items-center justify-center min-h-screen p-4">
 
     <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
-        <!-- Header -->
+        <!-- Header with logo -->
         <div class="flex flex-col items-center mb-8">
             <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d\~mv2.png" 
                  alt="Aloha Hawaii Tours & Travel Logo" 
@@ -202,7 +202,7 @@
                 let comparisonHTML = '';
 
                 if (plan === '3year') {
-                    // 3 Year → 10 Year (36 months)
+                    // 3 Year → 10 Year 36 months
                     const nextPrincipal = 2999 - discount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.round(nextPrincipal * ratio);
