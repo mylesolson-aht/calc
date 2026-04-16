@@ -67,12 +67,13 @@
             background-color: #e0f2f1;
             color: #004d40;
         }
-        .clipboard-message {
-            display: none;
-        }
         /* Custom Range Slider */
         input[type="range"] {
             accent-color: #007aff;
+        }
+        input[type="range"]:disabled {
+            accent-color: #9ca3af;
+            opacity: 0.6;
         }
         .slider-label {
             font-size: 0.875rem;
@@ -134,7 +135,7 @@
                     <span>$750</span>
                     <span>$1,000</span>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buy</p>
+                <p id="discountHelperText" class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buy</p>
             </div>
 
             <!-- Interest Savings -->
@@ -222,6 +223,7 @@
         const cashDownInput = document.getElementById('cashDown');
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
+        const discountHelperText = document.getElementById('discountHelperText');
 
         const principalAmountOutput = document.getElementById('principalAmount');
         const cashDownAmountOutput = document.getElementById('cashDownAmount');
@@ -240,7 +242,6 @@
 
         // Constants
         const interestRate = 0.1799;
-        const TA_DISCOUNTS = [0, 250, 500, 750, 1000];
 
         const planPrices = {
             'legacy': 4999,
@@ -277,13 +278,35 @@
             }).format(amount);
         }
 
+        function updateDiscountUI(plan) {
+            const is3Year = plan === '3year';
+            
+            if (is3Year) {
+                discountSlider.disabled = true;
+                discountSlider.value = 0;
+                discountValue.textContent = '$0';
+                discountValue.classList.add('text-gray-400');
+                discountHelperText.textContent = 'No discount available on Trial 3 Year plan';
+            } else {
+                discountSlider.disabled = false;
+                discountValue.classList.remove('text-gray-400');
+                discountHelperText.textContent = 'Max $750 cash out • Max $1,000 buy';
+            }
+        }
+
         function calculate() {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
             const basePrice = planPrices[plan];
-            const discount = parseInt(discountSlider.value);
-            const principal = Math.max(0, basePrice - discount);
+            let discount = parseInt(discountSlider.value);
 
+            // Force discount to 0 for 3-year plan
+            if (plan === '3year') {
+                discount = 0;
+                discountSlider.value = 0;
+            }
+
+            const principal = Math.max(0, basePrice - discount);
             let cashDown = parseFloat(cashDownInput.value) || 0;
             if (cashDown > principal) cashDown = principal;
 
@@ -302,7 +325,7 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
-            // Interest Savings (based on 10% down baseline)
+            // Interest Savings
             const baseRemaining = principal - minCashDownFinancing;
             const baseMonthly = pmt(interestRate / 12, 24, baseRemaining);
             const baseInterest = (baseMonthly * 24) - baseRemaining;
@@ -335,7 +358,6 @@
                 const remainingBalance = principal - cashDown;
                 const monthlyRate = interestRate / 12;
 
-                // Determine terms
                 let terms = [36, 24, 18, 12];
                 if (plan === '3year') {
                     terms = [12, 18, 24];
@@ -356,7 +378,7 @@
                     monthlyPaymentsContainer.appendChild(div);
                 });
 
-                // Total Interest
+                // Total Interest with penalties for 3-year
                 totalInterestPaidContainer.innerHTML = '';
                 terms.forEach(term => {
                     const payment = pmt(monthlyRate, term, remainingBalance);
@@ -404,6 +426,7 @@
             const defaultDown = Math.round(planPrices[plan] * 0.20);
             cashDownInput.value = defaultDown;
 
+            updateDiscountUI(plan);
             calculate();
         }
 
@@ -413,8 +436,10 @@
         });
 
         discountSlider.addEventListener('input', () => {
-            discountValue.textContent = '$' + discountSlider.value;
-            calculate();
+            if (!discountSlider.disabled) {
+                discountValue.textContent = '$' + discountSlider.value;
+                calculate();
+            }
         });
 
         cashDownInput.addEventListener('input', calculate);
