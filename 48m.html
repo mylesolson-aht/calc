@@ -237,6 +237,12 @@
             '3year': 999,
         };
 
+        const MIN_DEPOSIT = {
+            '3year': 99,
+            '10year': 399,
+            'legacy': 399
+        };
+
         const UPGRADE_PATHS = {
             '3year': { message: 'Travel 10 Years Unlimited for only', price: 2999, nextPlan: '10year' },
             '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
@@ -280,11 +286,6 @@
             }
         }
 
-        function getMinCashDown(principal) {
-            // New rule: 10% of principal minus $1
-            return Math.max(0, Math.floor(principal * 0.10) - 1);
-        }
-
         function calculate() {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
@@ -294,21 +295,24 @@
             if (plan === '3year') discount = 0;
 
             const principal = Math.max(0, basePrice - discount);
+            const minDeposit = MIN_DEPOSIT[plan];
+
             let cashDown = parseFloat(cashDownInput.value) || 0;
 
-            const minCashDown = getMinCashDown(principal);
-
-            // Cap cashDown
-            if (cashDown > principal) cashDown = principal;
-            if (cashDown < minCashDown && cashDown < principal) {
-                cashDown = minCashDown;   // auto-correct to minimum
+            // Enforce minimum and maximum
+            if (cashDown < minDeposit) {
+                cashDown = minDeposit;
+                cashDownInput.value = cashDown;
+            }
+            if (cashDown > principal) {
+                cashDown = principal;
                 cashDownInput.value = cashDown;
             }
 
-            // Error handling
-            if (cashDown < minCashDown && cashDown < principal) {
+            // Error display
+            if (cashDown < minDeposit) {
                 cashDownInput.classList.add('input-error');
-                cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minCashDown)}`;
+                cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minDeposit)}`;
                 cashDownError.classList.remove('hidden');
             } else {
                 cashDownInput.classList.remove('input-error');
@@ -319,8 +323,8 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
-            // Interest Savings Calculation (using 24-month baseline)
-            const baseRemaining = principal - minCashDown;
+            // Interest Savings (baseline uses minimum deposit)
+            const baseRemaining = principal - minDeposit;
             const baseMonthly = pmt(interestRate / 12, 24, baseRemaining);
             const baseInterest = (baseMonthly * 24) - baseRemaining;
 
@@ -332,7 +336,7 @@
             }
             const interestSaved = baseInterest - currentInterest;
 
-            if (cashDown <= minCashDown) {
+            if (cashDown <= minDeposit) {
                 totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
             } else {
                 totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
@@ -369,7 +373,7 @@
                     monthlyPaymentsContainer.appendChild(div);
                 });
 
-                // Total Interest + Penalties
+                // Total Interest with penalties
                 totalInterestPaidContainer.innerHTML = '';
                 terms.forEach(term => {
                     const payment = pmt(monthlyRate, term, remainingBalance);
@@ -417,9 +421,9 @@
             const basePrice = planPrices[plan];
             const discount = (plan === '3year') ? 0 : parseInt(discountSlider.value) || 0;
             const principal = basePrice - discount;
-            const minDown = getMinCashDown(principal);
+            const minDeposit = MIN_DEPOSIT[plan];
 
-            cashDownInput.value = minDown;   // start at minimum
+            cashDownInput.value = minDeposit;   // Start at minimum
 
             updateDiscountUI(plan);
             calculate();
@@ -438,15 +442,16 @@
         });
 
         cashDownInput.addEventListener('input', calculate);
+
         cashDownInput.addEventListener('blur', () => {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
             const discount = (plan === '3year') ? 0 : parseInt(discountSlider.value) || 0;
             const principal = planPrices[plan] - discount;
-            const minDown = getMinCashDown(principal);
+            const minDeposit = MIN_DEPOSIT[plan];
 
             let cashDown = parseFloat(cashDownInput.value) || 0;
-            if (cashDown < minDown) cashDown = minDown;
+            if (cashDown < minDeposit) cashDown = minDeposit;
             if (cashDown > principal) cashDown = principal;
             cashDownInput.value = cashDown;
             calculate();
