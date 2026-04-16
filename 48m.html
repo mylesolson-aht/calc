@@ -3,92 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Pricing Calculator</title>
+    <title>Wholesale Travel Program Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; }
-        input[type='number'], select { margin: 10px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .container-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .input-tile {
+            position: relative;
+            background-color: #f9f9f9;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .input-tile.active {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+        .input-tile:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .input-tile input {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            width: 100%;
+            text-align: center;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        .input-error {
+            border-color: #ff3b30 !important;
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important;
+        }
+        .highlight-monthly {
+            background-color: #f2faff;
+            color: #007aff;
+            font-weight: 600;
+        }
+        .highlight-interest {
+            background-color: #f0fdf4;
+            color: #28a745;
+            font-weight: 600;
+        }
+        .aloha-brand-text {
+            color: #006699;
+        }
+        .upgrade-offer-box {
+            background-color: #e0f2f1;
+            color: #004d40;
+        }
+        .clipboard-message {
+            display: none;
+        }
+        /* Custom Range Slider */
+        input[type="range"] {
+            accent-color: #007aff;
+        }
+        .slider-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
     </style>
 </head>
-<body>
-    <h1>Pricing Calculator</h1>
-    <h2>Choose your plan:</h2>
-    <select id="plan-selector">
-        <option value="3year">3 Year Plan ($999)</option>
-        <option value="10year">10 Year Plan ($2999)</option>
-        <option value="legacy">Legacy Plan ($4999)</option>
-    </select>
-    
-    <div id="calculator">
-        <h3 id="plan-title">3 Year Plan</h3>
-        <p id="plan-price">Price: $999</p>
-        <div id="discount-section">
-            <label for="discount">Cash Discount:</label>
-            <input type="number" id="discount" value="0" min="0" max="750"> (Max $750 for 10 Year Plan)
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+    <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col items-center mb-8">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-32 sm:w-40 md:w-48 mb-2">
+            <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
+            <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
         </div>
-        <div>
-            <label for="financing">Financing Terms:</label>
-            <select id="financing">
-                <option value="6">6 Months</option>
-                <option value="12" selected>12 Months</option>
-                <option value="18">18 Months</option>
-                <option value="24">24 Months</option>
-                <option value="36">36 Months</option>
-                <option value="48">48 Months</option>
-            </select>
+
+        <!-- Input Fields -->
+        <div class="space-y-6 mb-8">
+            <!-- Membership Tiles -->
+            <div class="space-y-4">
+                <p class="text-sm font-medium text-gray-700">Membership</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="planTilesContainer">
+                    <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy">
+                        <span class="text-xl sm:text-2xl font-bold">Legacy</span>
+                        <span class="text-xs text-gray-500">Unlimited</span>
+                    </div>
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="10year">
+                        <span class="text-xl sm:text-2xl font-bold">10 Year</span>
+                        <span class="text-xs text-gray-500">Unlimited</span>
+                    </div>
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="3year">
+                        <span class="text-xl sm:text-2xl font-bold">Trial</span>
+                        <span class="text-xs text-gray-500">3 Year</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Initial Amount -->
+            <div>
+                <p class="text-sm font-medium text-gray-700">Initial Amount</p>
+                <div class="input-tile flex flex-col justify-center items-center mt-1">
+                    <input type="number" id="cashDown" step="50" class="text-gray-900" placeholder="0">
+                </div>
+                <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center">Initial Amount must be at least 10% of the total Membership value.</p>
+            </div>
+
+            <!-- Discount Slider -->
+            <div>
+                <div class="flex justify-between items-baseline mb-1">
+                    <p class="text-sm font-medium text-gray-700">Manager Discount</p>
+                    <p id="discountValue" class="text-lg font-semibold text-blue-600">$0</p>
+                </div>
+                <input type="range" id="discountSlider" min="0" max="1000" step="250" value="0" 
+                       class="w-full accent-blue-600">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>$0</span>
+                    <span>$250</span>
+                    <span>$500</span>
+                    <span>$750</span>
+                    <span>$1,000</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buy</p>
+            </div>
+
+            <!-- Interest Savings -->
+            <div id="totalInterestSavedDiv">
+                <p class="text-sm font-medium text-gray-700">Your Interest Savings</p>
+                <div id="totalInterestSaved" class="p-4 rounded-xl bg-green-50 highlight-interest mt-1 text-center cursor-pointer transition-transform duration-200 transform hover:scale-105">
+                    <p class="text-xl sm:text-3xl font-bold text-green-800">$0</p>
+                </div>
+            </div>
         </div>
-        <div id="warning" style="color: red; display: none;"></div>
-        <h3>Calculation</h3>
-        <p id="monthly-payment"><strong>Monthly Payment: </strong>$<span>0.00</span></p>
-        <p id="total-cost"><strong>Total Cost: </strong>$<span>0.00</span></p>
+
+        <!-- Results -->
+        <div class="border-t border-gray-200 pt-8">
+            <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
+           
+            <div id="results" class="space-y-6">
+                <!-- Key Numbers -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-center sm:text-left">
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Membership Value</p>
+                        <p id="principalAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Initial Amount</p>
+                        <p id="cashDownAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
+                        <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
+                        <p id="remainingBalanceAmount" class="text-2xl font-bold mt-1">$0</p>
+                    </div>
+                </div>
+
+                <!-- Cash Price -->
+                <div id="cashResults" class="hidden">
+                    <h3 class="text-lg sm:text-xl font-semibold mb-4">Cash Price</h3>
+                    <div class="p-4 rounded-xl bg-green-50 highlight-interest mb-4">
+                        <p class="text-sm text-gray-700">Total Due</p>
+                        <p id="cashOutTotal" class="text-3xl sm:text-4xl font-bold mt-1">$0</p>
+                    </div>
+                </div>
+               
+                <!-- Financing -->
+                <div id="financingResults" class="hidden">
+                    <h3 class="text-lg sm:text-xl font-semibold mb-4">Monthly Amount</h3>
+                    <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Upgrade Offer -->
+                    <div id="upgradeOfferContainer" class="mt-6">
+                        <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
+                        <div id="upgradeOffer" class="p-4 rounded-xl upgrade-offer-box mt-1 flex justify-center items-center cursor-pointer">
+                            <p id="upgradeOfferText" class="text-lg font-semibold"></p>
+                        </div>
+                    </div>
+
+                    <!-- Financing Details -->
+                    <div id="totalInterestContainer" class="mt-6">
+                        <div class="flex items-center mb-2">
+                            <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
+                            <button id="toggleInterestButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700">
+                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+                                    <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.677-7.697a1.5 1.5 0 010-1.058zM12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="totalInterestPaid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legalese -->
+        <div class="mt-8 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
+            <p>All calculations are for illustrative purposes only. This is not a binding quote. Actual terms, conditions, and pricing are subject to the specific membership agreement and credit application approval. All values are subject to change without notice.</p>
+        </div>
     </div>
 
     <script>
-        const plans = {
-            "3year": { basePrice: 999, discount: 0, financing: 12, warning: '35% penalty on 24 month and 25% penalty on 18 month.' },
-            "10year": { basePrice: 2999, maxDiscount: 750, financing: 36 },
-            "legacy": { basePrice: 4999, maxDiscount: 750, financing: 36 }
+        // DOM Elements
+        const planTilesContainer = document.getElementById('planTilesContainer');
+        const cashDownInput = document.getElementById('cashDown');
+        const discountSlider = document.getElementById('discountSlider');
+        const discountValue = document.getElementById('discountValue');
+
+        const principalAmountOutput = document.getElementById('principalAmount');
+        const cashDownAmountOutput = document.getElementById('cashDownAmount');
+        const remainingBalanceAmountOutput = document.getElementById('remainingBalanceAmount');
+        const monthlyPaymentsContainer = document.getElementById('monthlyPayments');
+        const totalInterestPaidContainer = document.getElementById('totalInterestPaid');
+        const totalInterestSavedOutput = document.getElementById('totalInterestSaved');
+        const cashOutTotalOutput = document.getElementById('cashOutTotal');
+        const cashResultsSection = document.getElementById('cashResults');
+        const financingResultsSection = document.getElementById('financingResults');
+        const cashDownError = document.getElementById('cashDownError');
+        const upgradeOfferContainer = document.getElementById('upgradeOfferContainer');
+        const upgradeOfferText = document.getElementById('upgradeOfferText');
+        const upgradeOffer = document.getElementById('upgradeOffer');
+        const toggleInterestButton = document.getElementById('toggleInterestButton');
+
+        // Constants
+        const interestRate = 0.1799;
+        const TA_DISCOUNTS = [0, 250, 500, 750, 1000];
+
+        const planPrices = {
+            'legacy': 4999,
+            '10year': 2999,
+            '3year': 999,
         };
 
-        const planSelector = document.getElementById('plan-selector');
-        const planTitle = document.getElementById('plan-title');
-        const planPrice = document.getElementById('plan-price');
-        const discountInput = document.getElementById('discount');
-        const financingSelect = document.getElementById('financing');
-        const monthlyPaymentDisplay = document.getElementById('monthly-payment').querySelector('span');
-        const totalCostDisplay = document.getElementById('total-cost').querySelector('span');
-        const warning = document.getElementById('warning');
-        
-        function updateCalculator() {
-            const selectedPlan = planSelector.value;
-            const plan = plans[selectedPlan];
-            planTitle.innerText = `${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1).replace('year', ' Year Plan')}`;
-            planPrice.innerText = `Price: $${plan.basePrice}`;
-            
-            let discount = Number(discountInput.value);
-            if (selectedPlan === '10year' && discount > plan.maxDiscount) {
-                discount = plan.maxDiscount;
-                discountInput.value = discount;
-            }
-            if (selectedPlan === '3year' && discount > 0) {
-                warning.innerText = plan.warning;
-                warning.style.display = 'block';
-            } else {
-                warning.style.display = 'none';
-            }
+        const UPGRADE_PATHS = {
+            '3year': { message: 'Travel 10 Years Unlimited for only', price: 2999, nextPlan: '10year' },
+            '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
+        };
 
-            const financingMonths = Number(financingSelect.value);
-            const totalCost = plan.basePrice - discount;
-            const monthlyPayment = (totalCost / financingMonths).toFixed(2);
-            monthlyPaymentDisplay.innerText = monthlyPayment;
-            totalCostDisplay.innerText = totalCost.toFixed(2);
+        // PMT formula
+        function pmt(rate, nper, pv) {
+            if (rate === 0) return pv / nper;
+            const pvif = Math.pow(1 + rate, nper);
+            return (rate * pv * pvif) / (pvif - 1);
         }
 
-        planSelector.addEventListener('change', updateCalculator);
-        discountInput.addEventListener('input', updateCalculator);
-        financingSelect.addEventListener('change', updateCalculator);
+        function formatCurrency(amount, fractionDigits = 0) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: fractionDigits,
+                maximumFractionDigits: fractionDigits
+            }).format(Math.round(amount));
+        }
 
-        // Initialize calculator
-        updateCalculator();
+        function formatCurrencyWithCents(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function calculate() {
+            const activeTile = document.querySelector('.input-tile.active');
+            const plan = activeTile.dataset.plan;
+            const basePrice = planPrices[plan];
+            const discount = parseInt(discountSlider.value);
+            const principal = Math.max(0, basePrice - discount);
+
+            let cashDown = parseFloat(cashDownInput.value) || 0;
+            if (cashDown > principal) cashDown = principal;
+
+            const minCashDownFinancing = Math.round(principal * 0.10);
+
+            // Enforce min down payment
+            if (cashDown < minCashDownFinancing && cashDown < principal) {
+                cashDownInput.classList.add('input-error');
+                cashDownError.classList.remove('hidden');
+            } else {
+                cashDownInput.classList.remove('input-error');
+                cashDownError.classList.add('hidden');
+            }
+
+            principalAmountOutput.textContent = formatCurrency(principal);
+            cashDownAmountOutput.textContent = formatCurrency(cashDown);
+            remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
+
+            // Interest Savings (based on 10% down baseline)
+            const baseRemaining = principal - minCashDownFinancing;
+            const baseMonthly = pmt(interestRate / 12, 24, baseRemaining);
+            const baseInterest = (baseMonthly * 24) - baseRemaining;
+
+            const currentRemaining = principal - cashDown;
+            let currentInterest = 0;
+            if (currentRemaining > 0) {
+                const currentMonthly = pmt(interestRate / 12, 24, currentRemaining);
+                currentInterest = (currentMonthly * 24) - currentRemaining;
+            }
+            const interestSaved = baseInterest - currentInterest;
+
+            if (cashDown === minCashDownFinancing) {
+                totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
+            } else {
+                totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
+            }
+
+            // Cash vs Financing
+            if (cashDown >= principal) {
+                cashResultsSection.classList.remove('hidden');
+                financingResultsSection.classList.add('hidden');
+                upgradeOfferContainer.classList.add('hidden');
+                cashOutTotalOutput.textContent = formatCurrency(cashDown);
+            } else {
+                cashResultsSection.classList.add('hidden');
+                financingResultsSection.classList.remove('hidden');
+                upgradeOfferContainer.classList.remove('hidden');
+
+                const remainingBalance = principal - cashDown;
+                const monthlyRate = interestRate / 12;
+
+                // Determine terms
+                let terms = [36, 24, 18, 12];
+                if (plan === '3year') {
+                    terms = [12, 18, 24];
+                }
+
+                // Monthly Payments
+                monthlyPaymentsContainer.innerHTML = '';
+                terms.forEach(term => {
+                    const payment = pmt(monthlyRate, term, remainingBalance);
+                    const isDefault = (plan === '3year' && term === 12) || (term === 36);
+
+                    const div = document.createElement('div');
+                    div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${isDefault ? 'highlight-monthly' : 'bg-gray-50'}`;
+                    div.innerHTML = `
+                        <p class="text-sm text-gray-500">${term} Months</p>
+                        <p class="text-lg font-bold">${formatCurrency(payment, 2)}</p>
+                    `;
+                    monthlyPaymentsContainer.appendChild(div);
+                });
+
+                // Total Interest
+                totalInterestPaidContainer.innerHTML = '';
+                terms.forEach(term => {
+                    const payment = pmt(monthlyRate, term, remainingBalance);
+                    const totalInterest = (payment * term) - remainingBalance;
+
+                    let warning = '';
+                    if (plan === '3year') {
+                        if (term === 18) warning = `<p class="text-xs text-amber-600 mt-1">25% commission penalty</p>`;
+                        if (term === 24) warning = `<p class="text-xs text-red-600 mt-1">35% commission penalty</p>`;
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = `p-4 rounded-xl shadow-sm bg-gray-50 flex flex-col justify-end`;
+                    div.innerHTML = `
+                        <p class="text-sm text-gray-500">${term} Months</p>
+                        <p class="text-lg font-bold">${formatCurrency(totalInterest, 2)}</p>
+                        <p class="text-xs text-gray-500 mt-1">Total Interest</p>
+                        ${warning}
+                    `;
+                    totalInterestPaidContainer.appendChild(div);
+                });
+
+                // Upgrade Offer
+                const upgradeInfo = UPGRADE_PATHS[plan];
+                if (upgradeInfo) {
+                    const cashDownRatio = principal > 0 ? cashDown / principal : 0;
+                    const nextPrincipal = upgradeInfo.price - discount;
+                    const nextCashDown = Math.round(nextPrincipal * cashDownRatio);
+                    const nextRemaining = nextPrincipal - nextCashDown;
+                    const nextMonthly = pmt(monthlyRate, 24, nextRemaining);
+                    const currentMonthly = pmt(monthlyRate, 24, remainingBalance);
+                    const monthlyDiff = nextMonthly - currentMonthly;
+                    const dailyDiff = monthlyDiff / 30.44;
+
+                    upgradeOfferText.innerHTML = `${upgradeInfo.message} <span class="font-bold">${formatCurrencyWithCents(dailyDiff)}</span> <span class="text-xs">a day</span>`;
+                }
+            }
+        }
+
+        function handlePlanChange(selectedTile) {
+            document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
+            selectedTile.classList.add('active');
+
+            const plan = selectedTile.dataset.plan;
+            const defaultDown = Math.round(planPrices[plan] * 0.20);
+            cashDownInput.value = defaultDown;
+
+            calculate();
+        }
+
+        // Event Listeners
+        document.querySelectorAll('[data-plan]').forEach(tile => {
+            tile.addEventListener('click', () => handlePlanChange(tile));
+        });
+
+        discountSlider.addEventListener('input', () => {
+            discountValue.textContent = '$' + discountSlider.value;
+            calculate();
+        });
+
+        cashDownInput.addEventListener('input', calculate);
+        cashDownInput.addEventListener('blur', calculate);
+
+        toggleInterestButton.addEventListener('click', () => {
+            totalInterestPaidContainer.classList.toggle('hidden');
+        });
+
+        upgradeOffer.addEventListener('click', () => {
+            const currentPlan = document.querySelector('.input-tile.active').dataset.plan;
+            const nextPlan = currentPlan === '3year' ? '10year' : currentPlan === '10year' ? 'legacy' : null;
+            if (nextPlan) {
+                const nextTile = document.querySelector(`[data-plan="${nextPlan}"]`);
+                if (nextTile) handlePlanChange(nextTile);
+            }
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialTile = document.querySelector('[data-plan="legacy"]');
+            handlePlanChange(initialTile);
+        });
     </script>
 </body>
 </html>
