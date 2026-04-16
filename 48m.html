@@ -67,17 +67,12 @@
             background-color: #e0f2f1;
             color: #004d40;
         }
-        /* Custom Range Slider */
         input[type="range"] {
             accent-color: #007aff;
         }
         input[type="range"]:disabled {
             accent-color: #9ca3af;
             opacity: 0.6;
-        }
-        .slider-label {
-            font-size: 0.875rem;
-            color: #6b7280;
         }
     </style>
 </head>
@@ -115,9 +110,9 @@
             <div>
                 <p class="text-sm font-medium text-gray-700">Initial Amount</p>
                 <div class="input-tile flex flex-col justify-center items-center mt-1">
-                    <input type="number" id="cashDown" step="50" class="text-gray-900" placeholder="0">
+                    <input type="number" id="cashDown" step="1" class="text-gray-900" placeholder="0">
                 </div>
-                <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center">Initial Amount must be at least 10% of the total Membership value.</p>
+                <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
             </div>
 
             <!-- Discount Slider -->
@@ -152,7 +147,6 @@
             <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
            
             <div id="results" class="space-y-6">
-                <!-- Key Numbers -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-center sm:text-left">
                     <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
                         <p class="text-sm font-medium text-gray-500">Membership Value</p>
@@ -180,9 +174,7 @@
                 <!-- Financing -->
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg sm:text-xl font-semibold mb-4">Monthly Amount</h3>
-                    <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 
                     <!-- Upgrade Offer -->
                     <div id="upgradeOfferContainer" class="mt-6">
@@ -197,15 +189,13 @@
                         <div class="flex items-center mb-2">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
                             <button id="toggleInterestButton" class="ml-2 text-xs font-semibold text-blue-500 hover:text-blue-700">
-                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
                                     <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.027 3.75 12.001 3.75c4.975 0 9.19 3.226 10.678 7.697a1.5 1.5 0 010 1.058C21.19 17.024 16.974 20.25 12 20.25c-4.974 0-9.19-3.226-10.677-7.697a1.5 1.5 0 010-1.058zM12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" clip-rule="evenodd"/>
                                 </svg>
                             </button>
                         </div>
-                        <div id="totalInterestPaid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden">
-                            <!-- Populated by JS -->
-                        </div>
+                        <div id="totalInterestPaid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden"></div>
                     </div>
                 </div>
             </div>
@@ -213,17 +203,17 @@
 
         <!-- Legalese -->
         <div class="mt-8 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
-            <p>All calculations are for illustrative purposes only. This is not a binding quote. Actual terms, conditions, and pricing are subject to the specific membership agreement and credit application approval. All values are subject to change without notice.</p>
+            <p>All calculations are for illustrative purposes only. This is not a binding quote. Actual terms, conditions, and pricing are subject to the specific membership agreement and credit application approval.</p>
         </div>
     </div>
 
     <script>
         // DOM Elements
-        const planTilesContainer = document.getElementById('planTilesContainer');
         const cashDownInput = document.getElementById('cashDown');
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
         const discountHelperText = document.getElementById('discountHelperText');
+        const cashDownError = document.getElementById('cashDownError');
 
         const principalAmountOutput = document.getElementById('principalAmount');
         const cashDownAmountOutput = document.getElementById('cashDownAmount');
@@ -234,13 +224,11 @@
         const cashOutTotalOutput = document.getElementById('cashOutTotal');
         const cashResultsSection = document.getElementById('cashResults');
         const financingResultsSection = document.getElementById('financingResults');
-        const cashDownError = document.getElementById('cashDownError');
         const upgradeOfferContainer = document.getElementById('upgradeOfferContainer');
         const upgradeOfferText = document.getElementById('upgradeOfferText');
         const upgradeOffer = document.getElementById('upgradeOffer');
         const toggleInterestButton = document.getElementById('toggleInterestButton');
 
-        // Constants
         const interestRate = 0.1799;
 
         const planPrices = {
@@ -254,7 +242,6 @@
             '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
         };
 
-        // PMT formula
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
             const pvif = Math.pow(1 + rate, nper);
@@ -280,7 +267,6 @@
 
         function updateDiscountUI(plan) {
             const is3Year = plan === '3year';
-            
             if (is3Year) {
                 discountSlider.disabled = true;
                 discountSlider.value = 0;
@@ -294,27 +280,35 @@
             }
         }
 
+        function getMinCashDown(principal) {
+            // New rule: 10% of principal minus $1
+            return Math.max(0, Math.floor(principal * 0.10) - 1);
+        }
+
         function calculate() {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
             const basePrice = planPrices[plan];
-            let discount = parseInt(discountSlider.value);
+            let discount = parseInt(discountSlider.value) || 0;
 
-            // Force discount to 0 for 3-year plan
-            if (plan === '3year') {
-                discount = 0;
-                discountSlider.value = 0;
-            }
+            if (plan === '3year') discount = 0;
 
             const principal = Math.max(0, basePrice - discount);
             let cashDown = parseFloat(cashDownInput.value) || 0;
+
+            const minCashDown = getMinCashDown(principal);
+
+            // Cap cashDown
             if (cashDown > principal) cashDown = principal;
+            if (cashDown < minCashDown && cashDown < principal) {
+                cashDown = minCashDown;   // auto-correct to minimum
+                cashDownInput.value = cashDown;
+            }
 
-            const minCashDownFinancing = Math.round(principal * 0.10);
-
-            // Enforce min down payment
-            if (cashDown < minCashDownFinancing && cashDown < principal) {
+            // Error handling
+            if (cashDown < minCashDown && cashDown < principal) {
                 cashDownInput.classList.add('input-error');
+                cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minCashDown)}`;
                 cashDownError.classList.remove('hidden');
             } else {
                 cashDownInput.classList.remove('input-error');
@@ -325,8 +319,8 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
-            // Interest Savings
-            const baseRemaining = principal - minCashDownFinancing;
+            // Interest Savings Calculation (using 24-month baseline)
+            const baseRemaining = principal - minCashDown;
             const baseMonthly = pmt(interestRate / 12, 24, baseRemaining);
             const baseInterest = (baseMonthly * 24) - baseRemaining;
 
@@ -338,7 +332,7 @@
             }
             const interestSaved = baseInterest - currentInterest;
 
-            if (cashDown === minCashDownFinancing) {
+            if (cashDown <= minCashDown) {
                 totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
             } else {
                 totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
@@ -358,10 +352,7 @@
                 const remainingBalance = principal - cashDown;
                 const monthlyRate = interestRate / 12;
 
-                let terms = [36, 24, 18, 12];
-                if (plan === '3year') {
-                    terms = [12, 18, 24];
-                }
+                let terms = plan === '3year' ? [12, 18, 24] : [36, 24, 18, 12];
 
                 // Monthly Payments
                 monthlyPaymentsContainer.innerHTML = '';
@@ -378,7 +369,7 @@
                     monthlyPaymentsContainer.appendChild(div);
                 });
 
-                // Total Interest with penalties for 3-year
+                // Total Interest + Penalties
                 totalInterestPaidContainer.innerHTML = '';
                 terms.forEach(term => {
                     const payment = pmt(monthlyRate, term, remainingBalance);
@@ -423,8 +414,12 @@
             selectedTile.classList.add('active');
 
             const plan = selectedTile.dataset.plan;
-            const defaultDown = Math.round(planPrices[plan] * 0.20);
-            cashDownInput.value = defaultDown;
+            const basePrice = planPrices[plan];
+            const discount = (plan === '3year') ? 0 : parseInt(discountSlider.value) || 0;
+            const principal = basePrice - discount;
+            const minDown = getMinCashDown(principal);
+
+            cashDownInput.value = minDown;   // start at minimum
 
             updateDiscountUI(plan);
             calculate();
@@ -443,7 +438,19 @@
         });
 
         cashDownInput.addEventListener('input', calculate);
-        cashDownInput.addEventListener('blur', calculate);
+        cashDownInput.addEventListener('blur', () => {
+            const activeTile = document.querySelector('.input-tile.active');
+            const plan = activeTile.dataset.plan;
+            const discount = (plan === '3year') ? 0 : parseInt(discountSlider.value) || 0;
+            const principal = planPrices[plan] - discount;
+            const minDown = getMinCashDown(principal);
+
+            let cashDown = parseFloat(cashDownInput.value) || 0;
+            if (cashDown < minDown) cashDown = minDown;
+            if (cashDown > principal) cashDown = principal;
+            cashDownInput.value = cashDown;
+            calculate();
+        });
 
         toggleInterestButton.addEventListener('click', () => {
             totalInterestPaidContainer.classList.toggle('hidden');
@@ -458,10 +465,9 @@
             }
         });
 
-        // Initial load
+        // Initial Load
         document.addEventListener('DOMContentLoaded', () => {
-            const initialTile = document.querySelector('[data-plan="legacy"]');
-            handlePlanChange(initialTile);
+            handlePlanChange(document.querySelector('[data-plan="legacy"]'));
         });
     </script>
 </body>
