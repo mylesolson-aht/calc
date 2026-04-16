@@ -30,9 +30,9 @@
     <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
-            <img src="https://www.alohahawaiitours.com/wp-content/uploads/2023/05/Aloha-Hawaii-Tours-Logo.png" 
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d\~mv2.png" 
                  alt="Aloha Hawaii Tours & Travel Logo" 
-                 class="w-32 sm:w-40 md:w-48 mb-3" onerror="this.src='https://via.placeholder.com/200x80?text=Aloha+Logo'">
+                 class="w-32 sm:w-40 md:w-48 mb-3">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-1">Eliminate the Retail Markup on Your Travel</p>
         </div>
@@ -118,7 +118,6 @@
     </div>
 
     <script>
-        // Core variables
         const cashDownInput = document.getElementById('cashDown');
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
@@ -217,7 +216,7 @@
                         </div>`;
                 } 
                 else if (plan === '10year') {
-                    // 10 Year → Legacy (same term)
+                    // 10 Year → Legacy on same term
                     const nextPrincipal = 4999 - discount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.round(nextPrincipal * ratio);
@@ -275,7 +274,6 @@
         cashDownInput.addEventListener('input', calculate);
         cashDownInput.addEventListener('blur', calculate);
 
-        // Initial load
         document.addEventListener('DOMContentLoaded', () => {
             handlePlanChange(document.querySelector('[data-plan="legacy"]'));
         });
