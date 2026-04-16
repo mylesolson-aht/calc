@@ -1,27 +1,36 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Calc</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plans and Pricing</title>
 </head>
 <body>
-    <h1>Pricing</h1>
-    <p>Legacy Price: $4999</p>
-    <p>10 Year Price: $2999</p>
-    <form>
-        <h2>Manage Options</h2>
-        <label><input type='checkbox' name='option1' value='250'> Option 1 ($250)</label><br>
-        <label><input type='checkbox' name='option2' value='500'> Option 2 ($500)</label><br>
-        <label>Custom Discount: <input type='text' name='custom_discount' maxlength='4' placeholder='max $1000'></label><br>
-        <h2>Financing</h2>
-        <label>3-Year Financing:</label>
-        <input type='text' value='24 months' readonly>
-    </form>
-    <h2>Initial Amounts</h2>
-    <p>Legacy: $4999</p>
-    <p>10 Year: $2999</p>
-    <h2>UPGRADE_PATHS</h2>
-    <p>3 year to 10 year: $2999</p>
-    <p>10 year to Legacy: $4999</p>
-    <h2>Discounts</h2>
-    <p>Discounts apply to Legacy and 10 Year memberships only.</p>
+    <h1>Pricing Plans</h1>
+    <div id="three-year-plan">
+        <h2>3 Year Plan</h2>
+        <p>Price: $999</p>
+        <p>Discount: 10% cash discount applied</p>
+        <p>Financing: Default 12 month financing</p>
+        <p>Warning: 35% commission penalty on 24 month and 25% penalty on 18 month selection</p>
+    </div>
+    <div id="ten-year-plan">
+        <h2>10 Year Plan</h2>
+        <p>Price: $2999</p>
+        <p>Discount Slider: Max $1000 in $250 increments</p>
+        <p>Max Cash Discount: $750</p>
+        <p>Condition: If $1000 discount selected, it must be a gift buyback</p>
+        <p>Financing: Default 36 month financing</p>
+    </div>
+    <div id="legacy-plan">
+        <h2>Legacy Plan</h2>
+        <p>Price: $4999</p>
+        <p>Same buyback and discount logic as 10 Year.</p>
+        <p>Financing: Default 36 month financing</p>
+    </div>
+    <div id="financing-terms">
+        <h2>Financing Terms</h2>
+        <p>Options include: 6, 12, 18, 24, 36, 48 months</p>
+    </div>
 </body>
 </html>
