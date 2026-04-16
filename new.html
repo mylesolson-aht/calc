@@ -205,11 +205,7 @@
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', { 
-                style: 'currency', 
-                currency: 'USD',
-                minimumFractionDigits: 0 
-            }).format(Math.round(amount));
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.round(amount));
         }
 
         function getMinDeposit(principal, plan) {
