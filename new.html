@@ -34,6 +34,19 @@
             transform: scale(1.02);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+        .input-tile input {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            width: 100%;
+            text-align: center;
+        }
+        .input-error {
+            border-color: #ff3b30 !important;
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important;
+        }
         .highlight-monthly {
             background-color: #f2faff;
             color: #007aff;
@@ -44,11 +57,11 @@
             margin-top: 8px;
             padding: 8px;
             background-color: #ecfdf5;
+            border: 1px solid #86efac;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             font-weight: 600;
             color: #166534;
-            border: 1px solid #86efac;
         }
     </style>
 </head>
@@ -64,6 +77,7 @@
 
         <!-- Inputs -->
         <div class="space-y-6 mb-8">
+            <!-- Membership Tiles -->
             <div class="space-y-4">
                 <p class="text-sm font-medium text-gray-700">Membership</p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="planTilesContainer">
@@ -82,6 +96,7 @@
                 </div>
             </div>
 
+            <!-- Initial Amount -->
             <div>
                 <p class="text-sm font-medium text-gray-700">Initial Amount</p>
                 <div class="input-tile flex flex-col justify-center items-center mt-1">
@@ -90,6 +105,7 @@
                 <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
             </div>
 
+            <!-- Discount Slider -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Manager Discount</p>
@@ -106,19 +122,19 @@
         <!-- Results -->
         <div class="border-t border-gray-200 pt-8">
             <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
-
+           
             <div id="results" class="space-y-6">
                 <!-- Key Numbers -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div class="p-4 rounded-xl bg-gray-50">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-center sm:text-left">
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
                         <p class="text-sm font-medium text-gray-500">Membership Value</p>
                         <p id="principalAmount" class="text-2xl font-bold mt-1">$0</p>
                     </div>
-                    <div class="p-4 rounded-xl bg-gray-50">
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
                         <p class="text-sm font-medium text-gray-500">Initial Amount</p>
                         <p id="cashDownAmount" class="text-2xl font-bold mt-1">$0</p>
                     </div>
-                    <div class="p-4 rounded-xl bg-gray-50">
+                    <div class="p-4 rounded-xl bg-gray-50 flex flex-col justify-between">
                         <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
                         <p id="remainingBalanceAmount" class="text-2xl font-bold mt-1">$0</p>
                     </div>
@@ -126,13 +142,13 @@
 
                 <!-- Cash Price -->
                 <div id="cashResults" class="hidden">
-                    <h3 class="text-lg font-semibold mb-4">Cash Price</h3>
-                    <div class="p-4 rounded-xl bg-green-50 highlight-interest">
+                    <h3 class="text-lg sm:text-xl font-semibold mb-4">Cash Price</h3>
+                    <div class="p-4 rounded-xl bg-green-50 highlight-interest mb-4">
                         <p class="text-sm text-gray-700">Total Due</p>
-                        <p id="cashOutTotal" class="text-3xl font-bold mt-1">$0</p>
+                        <p id="cashOutTotal" class="text-3xl sm:text-4xl font-bold mt-1">$0</p>
                     </div>
                 </div>
-
+               
                 <!-- Financing -->
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg sm:text-xl font-semibold mb-4">Monthly Amount</h3>
@@ -158,6 +174,7 @@
             </div>
         </div>
 
+        <!-- Legalese -->
         <div class="mt-8 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
             <p>All calculations are for illustrative purposes only. This is not a binding quote.</p>
         </div>
@@ -199,7 +216,12 @@
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.round(amount));
+            return new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0 
+            }).format(Math.round(amount));
         }
 
         function getMinDeposit(principal, plan) {
@@ -233,6 +255,7 @@
             cashDown = Math.max(minDeposit, Math.min(cashDown, principal));
             cashDownInput.value = cashDown;
 
+            // Update key numbers
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
@@ -274,7 +297,6 @@
                         const nextCashDown = Math.round(nextPrincipal * ratio);
                         const nextRemaining = nextPrincipal - nextCashDown;
                         const upgradePayment = pmt(monthlyRate, term, nextRemaining);
-
                         const savings = currentPayment - upgradePayment;
 
                         if (savings > 3) {
@@ -336,7 +358,9 @@
         }
 
         // Event Listeners
-        document.querySelectorAll('[data-plan]').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
+        document.querySelectorAll('[data-plan]').forEach(tile => {
+            tile.addEventListener('click', () => handlePlanChange(tile));
+        });
 
         discountSlider.addEventListener('input', () => {
             if (!discountSlider.disabled) {
@@ -348,7 +372,9 @@
         cashDownInput.addEventListener('input', calculate);
         cashDownInput.addEventListener('blur', calculate);
 
-        toggleInterestButton.addEventListener('click', () => totalInterestPaidContainer.classList.toggle('hidden'));
+        toggleInterestButton.addEventListener('click', () => {
+            totalInterestPaidContainer.classList.toggle('hidden');
+        });
 
         // Initial load
         document.addEventListener('DOMContentLoaded', () => {
