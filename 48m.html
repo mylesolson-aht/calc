@@ -3,34 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plans and Pricing</title>
+    <title>Interactive Pricing Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        input[type='number'], select { margin: 10px; }
+    </style>
 </head>
 <body>
-    <h1>Pricing Plans</h1>
-    <div id="three-year-plan">
-        <h2>3 Year Plan</h2>
-        <p>Price: $999</p>
-        <p>Discount: 10% cash discount applied</p>
-        <p>Financing: Default 12 month financing</p>
-        <p>Warning: 35% commission penalty on 24 month and 25% penalty on 18 month selection</p>
+    <h1>Pricing Calculator</h1>
+    <h2>Choose your plan:</h2>
+    <select id="plan-selector">
+        <option value="3year">3 Year Plan ($999)</option>
+        <option value="10year">10 Year Plan ($2999)</option>
+        <option value="legacy">Legacy Plan ($4999)</option>
+    </select>
+    
+    <div id="calculator">
+        <h3 id="plan-title">3 Year Plan</h3>
+        <p id="plan-price">Price: $999</p>
+        <div id="discount-section">
+            <label for="discount">Cash Discount:</label>
+            <input type="number" id="discount" value="0" min="0" max="750"> (Max $750 for 10 Year Plan)
+        </div>
+        <div>
+            <label for="financing">Financing Terms:</label>
+            <select id="financing">
+                <option value="6">6 Months</option>
+                <option value="12" selected>12 Months</option>
+                <option value="18">18 Months</option>
+                <option value="24">24 Months</option>
+                <option value="36">36 Months</option>
+                <option value="48">48 Months</option>
+            </select>
+        </div>
+        <div id="warning" style="color: red; display: none;"></div>
+        <h3>Calculation</h3>
+        <p id="monthly-payment"><strong>Monthly Payment: </strong>$<span>0.00</span></p>
+        <p id="total-cost"><strong>Total Cost: </strong>$<span>0.00</span></p>
     </div>
-    <div id="ten-year-plan">
-        <h2>10 Year Plan</h2>
-        <p>Price: $2999</p>
-        <p>Discount Slider: Max $1000 in $250 increments</p>
-        <p>Max Cash Discount: $750</p>
-        <p>Condition: If $1000 discount selected, it must be a gift buyback</p>
-        <p>Financing: Default 36 month financing</p>
-    </div>
-    <div id="legacy-plan">
-        <h2>Legacy Plan</h2>
-        <p>Price: $4999</p>
-        <p>Same buyback and discount logic as 10 Year.</p>
-        <p>Financing: Default 36 month financing</p>
-    </div>
-    <div id="financing-terms">
-        <h2>Financing Terms</h2>
-        <p>Options include: 6, 12, 18, 24, 36, 48 months</p>
-    </div>
+
+    <script>
+        const plans = {
+            "3year": { basePrice: 999, discount: 0, financing: 12, warning: '35% penalty on 24 month and 25% penalty on 18 month.' },
+            "10year": { basePrice: 2999, maxDiscount: 750, financing: 36 },
+            "legacy": { basePrice: 4999, maxDiscount: 750, financing: 36 }
+        };
+
+        const planSelector = document.getElementById('plan-selector');
+        const planTitle = document.getElementById('plan-title');
+        const planPrice = document.getElementById('plan-price');
+        const discountInput = document.getElementById('discount');
+        const financingSelect = document.getElementById('financing');
+        const monthlyPaymentDisplay = document.getElementById('monthly-payment').querySelector('span');
+        const totalCostDisplay = document.getElementById('total-cost').querySelector('span');
+        const warning = document.getElementById('warning');
+        
+        function updateCalculator() {
+            const selectedPlan = planSelector.value;
+            const plan = plans[selectedPlan];
+            planTitle.innerText = `${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1).replace('year', ' Year Plan')}`;
+            planPrice.innerText = `Price: $${plan.basePrice}`;
+            
+            let discount = Number(discountInput.value);
+            if (selectedPlan === '10year' && discount > plan.maxDiscount) {
+                discount = plan.maxDiscount;
+                discountInput.value = discount;
+            }
+            if (selectedPlan === '3year' && discount > 0) {
+                warning.innerText = plan.warning;
+                warning.style.display = 'block';
+            } else {
+                warning.style.display = 'none';
+            }
+
+            const financingMonths = Number(financingSelect.value);
+            const totalCost = plan.basePrice - discount;
+            const monthlyPayment = (totalCost / financingMonths).toFixed(2);
+            monthlyPaymentDisplay.innerText = monthlyPayment;
+            totalCostDisplay.innerText = totalCost.toFixed(2);
+        }
+
+        planSelector.addEventListener('change', updateCalculator);
+        discountInput.addEventListener('input', updateCalculator);
+        financingSelect.addEventListener('change', updateCalculator);
+
+        // Initialize calculator
+        updateCalculator();
+    </script>
 </body>
 </html>
