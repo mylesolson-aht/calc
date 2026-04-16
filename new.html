@@ -51,6 +51,7 @@
             background-color: #f2faff;
             color: #007aff;
             font-weight: 600;
+            border: 2px solid #007aff;
         }
         .highlight-interest {
             background-color: #f0fdf4;
@@ -63,6 +64,12 @@
         .upgrade-offer-box {
             background-color: #e0f2f1;
             color: #004d40;
+        }
+        .upgrade-comparison {
+            font-size: 0.75rem;
+            color: #16a34a;
+            font-weight: 500;
+            margin-top: 4px;
         }
         input[type="range"] {
             accent-color: #007aff;
@@ -84,7 +91,6 @@
 
         <!-- Inputs -->
         <div class="space-y-6 mb-8">
-            <!-- Membership Tiles -->
             <div class="space-y-4">
                 <p class="text-sm font-medium text-gray-700">Membership</p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="planTilesContainer">
@@ -103,7 +109,6 @@
                 </div>
             </div>
 
-            <!-- Initial Amount -->
             <div>
                 <p class="text-sm font-medium text-gray-700">Initial Amount</p>
                 <div class="input-tile flex flex-col justify-center items-center mt-1">
@@ -124,7 +129,6 @@
                 </div>
                 <p id="discountHelperText" class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buy</p>
             </div>
-
         </div>
 
         <!-- Results -->
@@ -157,7 +161,7 @@
                     </div>
                 </div>
                
-                <!-- Financing -->
+                <!-- Financing Section -->
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg sm:text-xl font-semibold mb-4">Monthly Amount</h3>
                     <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
@@ -170,7 +174,7 @@
                         </div>
                     </div>
 
-                    <!-- Interest Savings - MOVED HERE -->
+                    <!-- Interest Savings (moved below Monthly Amount) -->
                     <div id="totalInterestSavedDiv" class="mt-8">
                         <p class="text-sm font-medium text-gray-700">Your Interest Savings</p>
                         <div id="totalInterestSaved" class="p-4 rounded-xl bg-green-50 highlight-interest mt-1 text-center cursor-pointer transition-transform duration-200 transform hover:scale-105">
@@ -202,7 +206,6 @@
     </div>
 
     <script>
-        // DOM Elements (same as before)
         const cashDownInput = document.getElementById('cashDown');
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
@@ -238,8 +241,8 @@
         };
 
         const UPGRADE_PATHS = {
-            '3year': { message: 'Travel 10 Years Unlimited for only', price: 2999, nextPlan: '10year' },
-            '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
+            '3year': { message: 'Travel 10 Years Unlimited for only', price: 2999, nextPlan: '10year', nextName: '10 Year' },
+            '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy', nextName: 'Legacy' }
         };
 
         function pmt(rate, nper, pv) {
@@ -291,8 +294,7 @@
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
             const basePrice = planPrices[plan];
-            let discount = parseInt(discountSlider.value) || 0;
-            if (plan === '3year') discount = 0;
+            let discount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
 
             const principal = Math.max(0, basePrice - discount);
             const minDeposit = getMinDeposit(principal, plan);
@@ -301,7 +303,6 @@
             cashDown = Math.max(minDeposit, Math.min(cashDown, principal));
             cashDownInput.value = cashDown;
 
-            // Error handling
             if (cashDown < minDeposit) {
                 cashDownInput.classList.add('input-error');
                 cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minDeposit)}`;
@@ -328,11 +329,9 @@
             }
             const interestSaved = baseInterest - currentInterest;
 
-            if (cashDown <= minDeposit) {
-                totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`;
-            } else {
-                totalInterestSavedOutput.innerHTML = `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
-            }
+            totalInterestSavedOutput.innerHTML = cashDown <= minDeposit 
+                ? `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`
+                : `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved, 2)}</p>`;
 
             if (cashDown >= principal) {
                 cashResultsSection.classList.remove('hidden');
@@ -346,42 +345,47 @@
 
                 const remainingBalance = principal - cashDown;
                 const monthlyRate = interestRate / 12;
+                const terms = plan === '3year' ? [12, 18, 24] : [36, 24, 18, 12];
 
-                let terms = plan === '3year' ? [12, 18, 24] : [36, 24, 18, 12];
-
-                // === MONTHLY PAYMENTS WITH UPGRADE COMPARISON ===
                 monthlyPaymentsContainer.innerHTML = '';
                 const upgradeInfo = UPGRADE_PATHS[plan];
 
                 terms.forEach(term => {
                     const currentPayment = pmt(monthlyRate, term, remainingBalance);
-                    let upgradeHTML = '';
+
+                    let comparisonHTML = '';
 
                     if (upgradeInfo) {
                         const nextPrincipal = upgradeInfo.price - discount;
-                        const nextCashDownRatio = principal > 0 ? cashDown / principal : 0;
-                        const nextCashDown = Math.round(nextPrincipal * nextCashDownRatio);
+                        const ratio = principal > 0 ? cashDown / principal : 0;
+                        const nextCashDown = Math.round(nextPrincipal * ratio);
                         const nextRemaining = nextPrincipal - nextCashDown;
                         const upgradePayment = pmt(monthlyRate, term, nextRemaining);
-                        const savings = currentPayment - upgradePayment;
 
-                        if (savings > 0) {
-                            upgradeHTML = `<p class="text-xs text-green-600 mt-1">Upgrade to ${upgradeInfo.nextPlan === 'legacy' ? 'Legacy' : '10 Year'}: only ${formatCurrency(upgradePayment, 2)}/mo</p>`;
+                        const monthlySavings = currentPayment - upgradePayment;
+
+                        if (monthlySavings > 5) {  // Only show if meaningful savings
+                            comparisonHTML = `
+                                <div class="upgrade-comparison">
+                                    Upgrade to ${upgradeInfo.nextName}: <span class="font-bold">${formatCurrency(upgradePayment, 2)}</span> 
+                                    <span class="text-green-700">(save $${monthlySavings.toFixed(0)}/mo)</span>
+                                </div>`;
                         }
                     }
 
                     const isDefault = (plan === '3year' && term === 12) || (term === 36);
+
                     const div = document.createElement('div');
                     div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${isDefault ? 'highlight-monthly' : 'bg-gray-50'}`;
                     div.innerHTML = `
                         <p class="text-sm text-gray-500">${term} Months</p>
                         <p class="text-lg font-bold">${formatCurrency(currentPayment, 2)}</p>
-                        ${upgradeHTML}
+                        ${comparisonHTML}
                     `;
                     monthlyPaymentsContainer.appendChild(div);
                 });
 
-                // Total Interest + Penalties (unchanged)
+                // Total Interest with penalties
                 totalInterestPaidContainer.innerHTML = '';
                 terms.forEach(term => {
                     const payment = pmt(monthlyRate, term, remainingBalance);
@@ -402,11 +406,11 @@
                     totalInterestPaidContainer.appendChild(div);
                 });
 
-                // Upgrade Offer (daily difference)
+                // Upgrade Offer (daily)
                 if (upgradeInfo) {
-                    const cashDownRatio = principal > 0 ? cashDown / principal : 0;
+                    const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextPrincipal = upgradeInfo.price - discount;
-                    const nextCashDown = Math.round(nextPrincipal * cashDownRatio);
+                    const nextCashDown = Math.round(nextPrincipal * ratio);
                     const nextRemaining = nextPrincipal - nextCashDown;
                     const nextMonthly = pmt(monthlyRate, 24, nextRemaining);
                     const currentMonthly = pmt(monthlyRate, 24, remainingBalance);
@@ -428,7 +432,6 @@
             const minDeposit = getMinDeposit(principal, plan);
 
             cashDownInput.value = minDeposit;
-
             updateDiscountUI(plan);
             calculate();
         }
@@ -461,7 +464,6 @@
             }
         });
 
-        // Initial Load
         document.addEventListener('DOMContentLoaded', () => {
             handlePlanChange(document.querySelector('[data-plan="legacy"]'));
         });
