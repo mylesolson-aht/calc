@@ -40,30 +40,20 @@
             font-weight: 600;
             border: 2px solid #007aff;
         }
-        .highlight-interest {
-            background-color: #f0fdf4;
-            color: #28a745;
-            font-weight: 600;
-        }
         .upgrade-comparison {
             margin-top: 8px;
-            padding: 6px 10px;
-            background-color: #f0fdf4;
+            padding: 8px;
+            background-color: #ecfdf5;
             border-radius: 8px;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            color: #15803d;
-        }
-        input[type="range"] {
-            accent-color: #007aff;
-        }
-        input[type="range"]:disabled {
-            accent-color: #9ca3af;
-            opacity: 0.6;
+            color: #166534;
+            border: 1px solid #86efac;
         }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+
     <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
         <!-- Header -->
         <div class="flex flex-col items-center mb-8">
@@ -116,7 +106,7 @@
         <!-- Results -->
         <div class="border-t border-gray-200 pt-8">
             <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
-           
+
             <div id="results" class="space-y-6">
                 <!-- Key Numbers -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -147,14 +137,6 @@
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg sm:text-xl font-semibold mb-4">Monthly Amount</h3>
                     <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-
-                    <!-- Simple Upgrade Offer (Monthly) -->
-                    <div id="upgradeOfferContainer" class="mt-6">
-                        <p class="text-sm font-medium text-gray-700">Quick Upgrade Suggestion</p>
-                        <div id="upgradeOffer" class="p-4 rounded-xl upgrade-offer-box mt-1 text-center cursor-pointer">
-                            <p id="upgradeOfferText" class="text-lg font-semibold"></p>
-                        </div>
-                    </div>
 
                     <!-- Interest Savings -->
                     <div id="totalInterestSavedDiv" class="mt-8">
@@ -196,7 +178,6 @@
         const cashOutTotalOutput = document.getElementById('cashOutTotal');
         const cashResultsSection = document.getElementById('cashResults');
         const financingResultsSection = document.getElementById('financingResults');
-        const upgradeOfferText = document.getElementById('upgradeOfferText');
         const toggleInterestButton = document.getElementById('toggleInterestButton');
         const totalInterestPaidContainer = document.getElementById('totalInterestPaid');
 
@@ -207,8 +188,8 @@
         const ABSOLUTE_MIN_DEPOSIT = { '3year': 99, '10year': 399, 'legacy': 399 };
 
         const UPGRADE_PATHS = {
-            '3year': { nextName: '10 Year', price: 2999, nextPlan: '10year' },
-            '10year': { nextName: 'Legacy', price: 4999, nextPlan: 'legacy' }
+            '3year': { nextName: '10 Year', price: 2999 },
+            '10year': { nextName: 'Legacy', price: 4999 }
         };
 
         function pmt(rate, nper, pv) {
@@ -217,13 +198,8 @@
             return (rate * pv * pvif) / (pvif - 1);
         }
 
-        function formatCurrency(amount, fractionDigits = 0) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: fractionDigits,
-                maximumFractionDigits: fractionDigits
-            }).format(Math.round(amount));
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Math.round(amount));
         }
 
         function getMinDeposit(principal, plan) {
@@ -305,7 +281,7 @@
                             comparisonHTML = `
                                 <div class="upgrade-comparison">
                                     ↑ Upgrade to <strong>${upgradeInfo.nextName}</strong><br>
-                                    <strong>${formatCurrency(upgradePayment, 2)}</strong> 
+                                    <strong>${formatCurrency(upgradePayment)}</strong> 
                                     <span class="text-green-700">(save $${Math.round(savings)}/mo)</span>
                                 </div>`;
                         }
@@ -317,29 +293,13 @@
                     div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${isDefault ? 'highlight-monthly' : 'bg-gray-50'}`;
                     div.innerHTML = `
                         <p class="text-sm text-gray-500">${term} Months</p>
-                        <p class="text-2xl font-bold">${formatCurrency(currentPayment, 2)}</p>
+                        <p class="text-2xl font-bold">${formatCurrency(currentPayment)}</p>
                         ${comparisonHTML}
                     `;
                     monthlyPaymentsContainer.appendChild(div);
                 });
 
-                // Simple Monthly Upgrade Offer
-                if (upgradeInfo) {
-                    const ratio = principal > 0 ? cashDown / principal : 0;
-                    const nextPrincipal = upgradeInfo.price - discount;
-                    const nextCashDown = Math.round(nextPrincipal * ratio);
-                    const nextMonthly = pmt(monthlyRate, 24, nextPrincipal - nextCashDown);
-                    const currentMonthly = pmt(monthlyRate, 24, remainingBalance);
-                    const savings = currentMonthly - nextMonthly;
-
-                    upgradeOfferText.innerHTML = `
-                        Upgrade to <strong>${upgradeInfo.nextName}</strong> for only 
-                        <strong>${formatCurrency(nextMonthly, 2)}</strong>/mo 
-                        <span class="text-green-700">(save $${Math.round(savings)}/mo)</span>
-                    `;
-                }
-
-                // Total Interest (optional)
+                // Total Interest
                 totalInterestPaidContainer.innerHTML = '';
                 terms.forEach(term => {
                     const payment = pmt(monthlyRate, term, remainingBalance);
@@ -353,7 +313,7 @@
                     div.className = `p-4 rounded-xl shadow-sm bg-gray-50`;
                     div.innerHTML = `
                         <p class="text-sm text-gray-500">${term} Months</p>
-                        <p class="text-lg font-bold">${formatCurrency(totalInterest, 2)}</p>
+                        <p class="text-lg font-bold">${formatCurrency(totalInterest)}</p>
                         <p class="text-xs text-gray-500">Total Interest</p>
                         ${warning}
                     `;
@@ -376,9 +336,7 @@
         }
 
         // Event Listeners
-        document.querySelectorAll('[data-plan]').forEach(tile => {
-            tile.addEventListener('click', () => handlePlanChange(tile));
-        });
+        document.querySelectorAll('[data-plan]').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
 
         discountSlider.addEventListener('input', () => {
             if (!discountSlider.disabled) {
@@ -390,19 +348,9 @@
         cashDownInput.addEventListener('input', calculate);
         cashDownInput.addEventListener('blur', calculate);
 
-        toggleInterestButton.addEventListener('click', () => {
-            totalInterestPaidContainer.classList.toggle('hidden');
-        });
+        toggleInterestButton.addEventListener('click', () => totalInterestPaidContainer.classList.toggle('hidden'));
 
-        upgradeOffer.addEventListener('click', () => {
-            const currentPlan = document.querySelector('.input-tile.active').dataset.plan;
-            const nextPlan = currentPlan === '3year' ? '10year' : currentPlan === '10year' ? 'legacy' : null;
-            if (nextPlan) {
-                const nextTile = document.querySelector(`[data-plan="${nextPlan}"]`);
-                if (nextTile) handlePlanChange(nextTile);
-            }
-        });
-
+        // Initial load
         document.addEventListener('DOMContentLoaded', () => {
             handlePlanChange(document.querySelector('[data-plan="legacy"]'));
         });
