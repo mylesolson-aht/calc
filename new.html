@@ -109,7 +109,7 @@
         const interestRate = 0.1799;
 
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
-        const ABSOLUTE_MIN_DEPOSIT = { '3year': 99, '10year': 299, 'legacy': 499 };
+        const ABSOLUTE_MIN_DEPOSIT = { '3year': 99, '10year': 299, 'legacy': 399 };
 
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
@@ -156,17 +156,6 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
-            // Interest Savings
-            const baseRemaining = principal - minDeposit;
-            const baseInterest = (pmt(interestRate/12, 24, baseRemaining) * 24) - baseRemaining;
-            const currentRemaining = principal - cashDown;
-            const currentInterest = currentRemaining > 0 ? (pmt(interestRate/12, 24, currentRemaining) * 24 - currentRemaining) : 0;
-            const interestSaved = baseInterest - currentInterest;
-
-            totalInterestSavedOutput.innerHTML = cashDown <= minDeposit 
-                ? `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`
-                : `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved)}</p>`;
-
             const remainingBalance = principal - cashDown;
             const monthlyRate = interestRate / 12;
             const terms = plan === '3year' ? [12, 18, 24] : [36, 24, 18, 12];
@@ -178,7 +167,6 @@
                 let comparisonHTML = '';
 
                 if (plan === '3year') {
-                    // 3 Year → 10 Year 36 months
                     const nextPrincipal = 2999 - discount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.round(nextPrincipal * ratio);
@@ -187,12 +175,11 @@
 
                     comparisonHTML = `
                         <div class="upgrade-comparison">
-                            ↑ Upgrade to <strong>10 Year</strong> 36 mo:<br>
+                            ↑ Upgrade to <strong>10 Year</strong> 36 mo for only<br>
                             <strong>${formatCurrency(upgradePayment)}</strong>
                         </div>`;
                 } 
                 else if (plan === '10year') {
-                    // 10 Year → Legacy (same term)
                     const nextPrincipal = 4999 - discount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.round(nextPrincipal * ratio);
@@ -204,7 +191,7 @@
                         <div class="upgrade-comparison">
                             ↑ Upgrade to <strong>Legacy</strong> for only<br>
                             <strong>${formatCurrency(upgradePayment)}</strong>
-                            ${savings > 3 ? `<span class="text-green-700"> (save $${Math.round(savings)}/mo)</span>` : ''}
+                            ${savings > 2 ? `<span class="text-green-700"> (save $${Math.round(savings)}/mo)</span>` : ''}
                         </div>`;
                 }
 
