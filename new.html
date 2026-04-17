@@ -109,17 +109,23 @@
 
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-4">Monthly Amount</h3>
-                    <div id="monthlyPayments" class="grid grid-cols-1 gap-4"></div>
-
-                    <!-- Upgrade Offer -->
-                    <div id="upgradeOfferContainer" class="mt-6">
-                        <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
-                        <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 mt-1 cursor-pointer hover:border-blue-400 transition-colors">
-                            <p id="upgradeOfferText" class="text-lg font-semibold"></p>
+                    
+                    <!-- TWO TILES SIDE-BY-SIDE -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Monthly Amount Tile -->
+                        <div id="monthlyPayments" class="grid grid-cols-1 gap-4"></div>
+                        
+                        <!-- Upgrade Offer Tile (now beside it) -->
+                        <div id="upgradeOfferContainer">
+                            <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
+                            <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 mt-1 cursor-pointer hover:border-blue-400 transition-colors h-full">
+                                <p id="upgradeOfferText" class="text-lg font-semibold"></p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Financing Details – hidden by default -->
+                    <!-- Financing Details – still hidden by default -->
                     <div id="totalInterestContainer" class="mt-8">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
@@ -167,7 +173,6 @@
             '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
         };
 
-        // Variables to store the exact upgrade values shown in the offer
         let upgradeTargetPlan = null;
         let upgradeTargetDiscount = 0;
         let upgradeTargetCashDown = 0;
@@ -244,7 +249,7 @@
                 const currentTerm = PLAN_TERMS[plan];
                 const payment = pmt(monthlyRate, currentTerm, remaining);
 
-                // Monthly Amount
+                // Monthly Amount Tile
                 monthlyPaymentsContainer.innerHTML = '';
                 const div = document.createElement('div');
                 div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between highlight-monthly`;
@@ -268,14 +273,14 @@
                     </div>
                 `;
 
-                // Upgrade Offer – always uses MAX $1,000 buyback on next plan
+                // Upgrade Offer Tile
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
                 if (upgradeInfo) {
                     const nextPlan = upgradeInfo.nextPlan;
                     const nextTerm = PLAN_TERMS[nextPlan];
-                    const nextDiscount = 1000;                     // MAX buyback as requested
+                    const nextDiscount = 1000;
                     const nextPrincipal = upgradeInfo.price - nextDiscount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.max(getMinDeposit(nextPrincipal, nextPlan), Math.round(nextPrincipal * ratio));
@@ -300,7 +305,6 @@
                         <span class="text-xs text-gray-500 block mt-1">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
                     `;
 
-                    // Store the exact values shown so the click handler can apply them
                     upgradeTargetPlan = nextPlan;
                     upgradeTargetDiscount = nextDiscount;
                     upgradeTargetCashDown = nextCashDown;
@@ -341,19 +345,16 @@
                 : `👁 <span class="text-xs">Show Details</span>`;
         });
 
-        // UPGRADE CLICK – now applies the EXACT numbers shown in the offer
+        // Upgrade click – applies exact numbers shown
         upgradeOffer.addEventListener('click', () => {
             if (upgradeTargetPlan) {
                 const nextTile = document.querySelector(`[data-plan="${upgradeTargetPlan}"]`);
                 if (nextTile) {
                     document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
                     nextTile.classList.add('active');
-
-                    // Apply the exact discount + down payment shown in the offer
                     discountSlider.value = upgradeTargetDiscount;
                     discountValue.textContent = '$' + upgradeTargetDiscount;
                     cashDownInput.value = upgradeTargetCashDown;
-
                     updateDiscountUI(upgradeTargetPlan);
                     calculate();
                 }
