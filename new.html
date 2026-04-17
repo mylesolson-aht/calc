@@ -27,7 +27,18 @@
         }
         .input-tile.active { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); }
         .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .input-tile input { background: transparent; border: none; outline: none; font-size: 1.5rem; font-weight: 700; width: 100%; text-align: center; }
+
+        .input-tile input {
+            background: transparent; 
+            border: none; 
+            outline: none; 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            width: 100%; 
+            text-align: center;
+            padding: 0;
+            pointer-events: auto; /* Ensures typing works */
+        }
 
         .input-error { border-color: #ff3b30 !important; box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important; }
         .highlight-monthly { background-color: #f2faff; color: #007aff; font-weight: 600; }
@@ -83,10 +94,10 @@
                 </div>
             </div>
 
-            <!-- Initial Amount -->
+            <!-- Initial Amount – FIXED for typing -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700">Initial Amount</p>
-                <div class="input-tile flex flex-col justify-center items-center" style="min-height: 74px;">
+                <div class="input-tile">
                     <input type="number" id="cashDown" step="5" class="text-gray-900" placeholder="0">
                 </div>
                 <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
@@ -131,7 +142,7 @@
                         </div>
                     </div>
 
-                    <!-- Your Wholesale Travel Membership heading + cards (now below Upgrade Offer) -->
+                    <!-- Your Wholesale Travel Membership heading + cards -->
                     <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <div class="summary-card p-4 rounded-xl bg-gray-50">
