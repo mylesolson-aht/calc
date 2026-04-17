@@ -11,21 +11,36 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f5f5f7; color: #1d1d1f; }
         .container-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        
         .input-tile {
-            background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px;
-            padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s;
+            background-color: #f9f9f9; 
+            border: 1px solid #d2d2d7; 
+            border-radius: 12px;
+            padding: 1.25rem; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 74px;
         }
         .input-tile.active { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); }
         .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .input-tile input { background: transparent; border: none; outline: none; font-size: 1.5rem; font-weight: 700; width: 100%; text-align: center; }
+
         .input-error { border-color: #ff3b30 !important; box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important; }
         .highlight-monthly { background-color: #f2faff; color: #007aff; font-weight: 600; }
         .aloha-brand-text { color: #006699; }
         input[type="range"] { accent-color: #007aff; }
         input[type="range"]:disabled { accent-color: #9ca3af; opacity: 0.6; }
+        
         .upgrade-delta { font-weight: 700; }
         .upgrade-delta-positive { color: #28a745; }
         .upgrade-delta-negative { color: #ff3b30; }
+
+        /* Clean section spacing */
+        .section-label { margin-bottom: 0.5rem; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -37,10 +52,10 @@
             <p class="text-center text-gray-500 mt-2">Eliminate the Retail Markup on Your Travel</p>
         </div>
 
-        <div class="space-y-6 mb-8">
+        <div class="space-y-8 mb-8">
             <!-- Membership Tiles -->
-            <div class="space-y-4">
-                <p class="text-sm font-medium text-gray-700">Membership</p>
+            <div>
+                <p class="section-label text-sm font-medium text-gray-700">Membership</p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="planTilesContainer">
                     <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy">
                         <span class="text-xl sm:text-2xl font-bold">Legacy</span>
@@ -59,8 +74,8 @@
 
             <!-- Initial Amount -->
             <div>
-                <p class="text-sm font-medium text-gray-700">Initial Amount</p>
-                <div class="input-tile flex flex-col justify-center items-center mt-1">
+                <p class="section-label text-sm font-medium text-gray-700">Initial Amount</p>
+                <div class="input-tile flex flex-col justify-center items-center" style="min-height: 74px;">
                     <input type="number" id="cashDown" step="5" class="text-gray-900" placeholder="0">
                 </div>
                 <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
@@ -68,7 +83,7 @@
 
             <!-- Discount Slider -->
             <div>
-                <div class="flex justify-between items-baseline mb-1">
+                <div class="flex justify-between items-baseline mb-2">
                     <p class="text-sm font-medium text-gray-700">Manager Discount</p>
                     <p id="discountValue" class="text-lg font-semibold text-blue-600">$0</p>
                 </div>
@@ -84,6 +99,7 @@
         <div class="border-t border-gray-200 pt-8">
             <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
             <div id="results" class="space-y-6">
+                <!-- Value cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <div class="p-4 rounded-xl bg-gray-50">
                         <p class="text-sm font-medium text-gray-500">Membership Value</p>
@@ -110,22 +126,22 @@
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-4">Monthly Amount</h3>
                     
-                    <!-- TWO TILES SIDE-BY-SIDE -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Clean side-by-side tiles with perfect alignment -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         
-                        <!-- Monthly Amount Tile -->
+                        <!-- Monthly Amount -->
                         <div id="monthlyPayments" class="grid grid-cols-1 gap-4"></div>
                         
-                        <!-- Upgrade Offer Tile (now beside it) -->
-                        <div id="upgradeOfferContainer">
-                            <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
-                            <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 mt-1 cursor-pointer hover:border-blue-400 transition-colors h-full">
+                        <!-- Upgrade Offer (perfectly aligned height) -->
+                        <div id="upgradeOfferContainer" class="flex flex-col">
+                            <p class="section-label text-sm font-medium text-gray-700 mb-2">Upgrade Offer</p>
+                            <div id="upgradeOffer" class="flex-1 p-4 rounded-xl bg-blue-50 border border-blue-200 cursor-pointer hover:border-blue-400 transition-colors flex flex-col justify-center">
                                 <p id="upgradeOfferText" class="text-lg font-semibold"></p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Financing Details – still hidden by default -->
+                    <!-- Financing Details -->
                     <div id="totalInterestContainer" class="mt-8">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
@@ -249,7 +265,7 @@
                 const currentTerm = PLAN_TERMS[plan];
                 const payment = pmt(monthlyRate, currentTerm, remaining);
 
-                // Monthly Amount Tile
+                // Monthly Amount
                 monthlyPaymentsContainer.innerHTML = '';
                 const div = document.createElement('div');
                 div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between highlight-monthly`;
@@ -273,7 +289,7 @@
                     </div>
                 `;
 
-                // Upgrade Offer Tile
+                // Upgrade Offer
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
@@ -345,7 +361,7 @@
                 : `👁 <span class="text-xs">Show Details</span>`;
         });
 
-        // Upgrade click – applies exact numbers shown
+        // Upgrade click
         upgradeOffer.addEventListener('click', () => {
             if (upgradeTargetPlan) {
                 const nextTile = document.querySelector(`[data-plan="${upgradeTargetPlan}"]`);
