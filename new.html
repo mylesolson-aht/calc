@@ -20,12 +20,12 @@
         .input-tile input { background: transparent; border: none; outline: none; font-size: 1.5rem; font-weight: 700; width: 100%; text-align: center; }
         .input-error { border-color: #ff3b30 !important; box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important; }
         .highlight-monthly { background-color: #f2faff; color: #007aff; font-weight: 600; }
-        .highlight-interest { background-color: #f0fdf4; color: #28a745; font-weight: 600; }
         .aloha-brand-text { color: #006699; }
         input[type="range"] { accent-color: #007aff; }
         input[type="range"]:disabled { accent-color: #9ca3af; opacity: 0.6; }
-        .upgrade-delta-positive { color: #28a745; font-weight: 700; }
-        .upgrade-delta-negative { color: #ff3b30; font-weight: 700; }
+        .upgrade-delta { font-weight: 700; }
+        .upgrade-delta-positive { color: #28a745; }
+        .upgrade-delta-negative { color: #ff3b30; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -61,7 +61,7 @@
             <div>
                 <p class="text-sm font-medium text-gray-700">Initial Amount</p>
                 <div class="input-tile flex flex-col justify-center items-center mt-1">
-                    <input type="number" id="cashDown" step="1" class="text-gray-900" placeholder="0">
+                    <input type="number" id="cashDown" step="5" class="text-gray-900" placeholder="0">
                 </div>
                 <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
             </div>
@@ -111,7 +111,7 @@
                     <h3 class="text-lg font-semibold mb-4">Monthly Amount</h3>
                     <div id="monthlyPayments" class="grid grid-cols-1 gap-4"></div>
 
-                    <!-- UPGRADE OFFER – now shows next plan monthly + delta -->
+                    <!-- Upgrade Offer -->
                     <div id="upgradeOfferContainer" class="mt-6">
                         <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
                         <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 mt-1 cursor-pointer hover:border-blue-400 transition-colors">
@@ -119,13 +119,15 @@
                         </div>
                     </div>
 
-                    <!-- Financing Details (total interest) -->
-                    <div id="totalInterestContainer" class="mt-6">
-                        <div class="flex items-center mb-2">
+                    <!-- Financing Details – remains hidden by default (toggle) but shows Total Interest + Total Cost -->
+                    <div id="totalInterestContainer" class="mt-8">
+                        <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
-                            <button id="toggleInterestButton" class="ml-2 text-xs font-semibold text-blue-500">👁</button>
+                            <button id="toggleInterestButton" class="text-xs font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1">
+                                👁 <span class="text-xs">Show Details</span>
+                            </button>
                         </div>
-                        <div id="totalInterestPaid" class="grid grid-cols-1 gap-4 hidden"></div>
+                        <div id="totalInterestPaid" class="hidden"></div>
                     </div>
                 </div>
             </div>
@@ -158,7 +160,6 @@
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
         const ABSOLUTE_MIN = { '3year': 99, '10year': 199, 'legacy': 299 };
-
         const PLAN_TERMS = { 'legacy': 36, '10year': 24, '3year': 12 };
 
         const UPGRADE_PATHS = {
@@ -211,7 +212,6 @@
             cashDown = Math.max(minDeposit, Math.min(cashDown, principal));
             cashDownInput.value = cashDown;
 
-            // Error handling
             if (cashDown < minDeposit) {
                 cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minDeposit)}`;
                 cashDownError.classList.remove('hidden');
@@ -225,7 +225,6 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
-            // Cash vs Finance
             if (cashDown >= principal) {
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
@@ -238,44 +237,53 @@
                 const remaining = principal - cashDown;
                 const monthlyRate = interestRate / 12;
                 const currentTerm = PLAN_TERMS[plan];
-
-                // MONTHLY PAYMENTS – only the official term per plan (exactly as in the PDF)
-                monthlyPaymentsContainer.innerHTML = '';
                 const payment = pmt(monthlyRate, currentTerm, remaining);
+
+                // Monthly Amount
+                monthlyPaymentsContainer.innerHTML = '';
                 const div = document.createElement('div');
                 div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between highlight-monthly`;
                 div.innerHTML = `<p class="text-sm text-gray-500">${currentTerm} Months</p><p class="text-3xl font-bold">${formatCurrency(payment)}</p>`;
                 monthlyPaymentsContainer.appendChild(div);
 
-                // TOTAL INTEREST
-                totalInterestPaidContainer.innerHTML = '';
-                const totalInt = (payment * currentTerm) - remaining;
-                const intDiv = document.createElement('div');
-                intDiv.className = `p-4 rounded-xl shadow-sm bg-gray-50 flex flex-col justify-end`;
-                intDiv.innerHTML = `<p class="text-sm text-gray-500">${currentTerm} Months</p><p class="text-lg font-bold">${formatCurrency(totalInt)}</p><p class="text-xs text-gray-500 mt-1">Total Interest</p>`;
-                totalInterestPaidContainer.appendChild(intDiv);
+                // Total Interest + Total Cost (for Financing Details)
+                const totalInterest = (payment * currentTerm) - remaining;
+                const totalCost = cashDown + (payment * currentTerm);
 
-                // UPGRADE OFFER – new design with monthly delta
+                totalInterestPaidContainer.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-gray-50 rounded-xl text-center">
+                            <p class="text-xs text-gray-500">Total Interest</p>
+                            <p class="text-2xl font-semibold">${formatCurrency(totalInterest)}</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-xl text-center">
+                            <p class="text-xs text-gray-500">Total Cost</p>
+                            <p class="text-2xl font-semibold">${formatCurrency(totalCost)}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Upgrade Offer – now uses MAX $1,000 buyback on the next plan (matches your example)
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
                 if (upgradeInfo) {
                     const nextPlan = upgradeInfo.nextPlan;
                     const nextTerm = PLAN_TERMS[nextPlan];
-                    const nextPrincipal = upgradeInfo.price - discount;
+                    const nextDiscount = 1000; // always show the best possible upgrade price
+                    const nextPrincipal = upgradeInfo.price - nextDiscount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
-                    const nextCashDown = Math.round(nextPrincipal * ratio);
+                    const nextCashDown = Math.max(getMinDeposit(nextPrincipal, nextPlan), Math.round(nextPrincipal * ratio));
                     const nextRemaining = nextPrincipal - nextCashDown;
 
-                    const currentMonthly = payment; // already calculated above
                     const nextMonthly = pmt(monthlyRate, nextTerm, nextRemaining);
-                    const delta = currentMonthly - nextMonthly; // positive = you save money
+                    const delta = payment - nextMonthly;
 
                     let deltaHTML = '';
                     if (delta > 0) {
-                        deltaHTML = `<span class="upgrade-delta-positive">Save ${formatCurrency(delta)}/mo</span>`;
+                        deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
                     } else if (delta < 0) {
-                        deltaHTML = `<span class="upgrade-delta-negative">+${formatCurrency(Math.abs(delta))}/mo</span>`;
+                        deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
                     } else {
                         deltaHTML = `<span class="text-gray-500">Same monthly</span>`;
                     }
@@ -284,7 +292,7 @@
                         ${upgradeInfo.message}<br>
                         <span class="text-2xl font-bold">${formatCurrency(nextMonthly)}</span> per month<br>
                         ${deltaHTML}
-                        <span class="text-xs text-gray-500 block mt-1">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo term)</span>
+                        <span class="text-xs text-gray-500 block mt-1">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
                     `;
                 }
             }
@@ -312,7 +320,17 @@
         });
         cashDownInput.addEventListener('input', calculate);
         cashDownInput.addEventListener('blur', calculate);
-        toggleInterestButton.addEventListener('click', () => totalInterestPaidContainer.classList.toggle('hidden'));
+
+        // Financing Details toggle (remains hidden by default)
+        let detailsVisible = false;
+        toggleInterestButton.addEventListener('click', () => {
+            detailsVisible = !detailsVisible;
+            totalInterestPaidContainer.classList.toggle('hidden', !detailsVisible);
+            toggleInterestButton.innerHTML = detailsVisible 
+                ? `👁 <span class="text-xs">Hide Details</span>` 
+                : `👁 <span class="text-xs">Show Details</span>`;
+        });
+
         upgradeOffer.addEventListener('click', () => {
             const current = document.querySelector('.input-tile.active').dataset.plan;
             const next = current === '3year' ? '10year' : current === '10year' ? 'legacy' : null;
