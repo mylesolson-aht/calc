@@ -28,29 +28,32 @@
         .input-tile.active { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); }
         .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-        /* FIXED Initial Amount Input - completely clean wrapper */
-        #initialAmountWrapper {
-            background-color: #f9f9f9; 
-            border: 1px solid #d2d2d7; 
+        /* ULTRA CLEAN INITIAL AMOUNT INPUT - NO FLEX, NO POINTER BLOCKING */
+        #initialAmountContainer {
+            background-color: #f9f9f9;
+            border: 1px solid #d2d2d7;
             border-radius: 12px;
-            padding: 1.25rem;
+            padding: 1.25rem 1rem;
             min-height: 74px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100%;
         }
         #cashDown {
-            background: transparent; 
-            border: none; 
-            outline: none; 
-            font-size: 1.75rem; 
-            font-weight: 700; 
-            width: 100%; 
-            text-align: center;
-            color: #1d1d1f;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            font-size: 1.75rem !important;
+            font-weight: 700 !important;
+            width: 100% !important;
+            text-align: center !important;
+            color: #1d1d1f !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            pointer-events: auto !important;
         }
         #cashDown:focus {
-            outline: none;
+            outline: none !important;
+            box-shadow: none !important;
         }
 
         .input-error { border-color: #ff3b30 !important; box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important; }
@@ -107,10 +110,10 @@
                 </div>
             </div>
 
-            <!-- Initial Amount – FIXED with dedicated clean wrapper -->
+            <!-- Initial Amount – ULTRA CLEAN (no flex, direct input) -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700">Initial Amount</p>
-                <div id="initialAmountWrapper">
+                <div id="initialAmountContainer">
                     <input type="number" id="cashDown" step="5" placeholder="0">
                 </div>
                 <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
@@ -143,11 +146,8 @@
 
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-4">Monthly Amount</h3>
-                    
-                    <!-- Monthly Amount Tile -->
                     <div id="monthlyPayments" class="grid grid-cols-1 gap-4 mb-6"></div>
 
-                    <!-- Upgrade Offer Tile -->
                     <div id="upgradeOfferContainer" class="mb-8">
                         <p class="section-label text-sm font-medium text-gray-700 mb-2">Upgrade Offer</p>
                         <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 cursor-pointer hover:border-blue-400 transition-colors">
@@ -155,7 +155,6 @@
                         </div>
                     </div>
 
-                    <!-- Your Wholesale Travel Membership heading + cards -->
                     <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <div class="summary-card p-4 rounded-xl bg-gray-50">
@@ -172,7 +171,6 @@
                         </div>
                     </div>
 
-                    <!-- Financing Details -->
                     <div id="totalInterestContainer" class="mt-8">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
@@ -272,12 +270,10 @@
             if (cashDown < minDeposit) {
                 cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minDeposit)}`;
                 cashDownError.classList.remove('hidden');
-                cashDownInput.classList.add('input-error');
-                document.getElementById('initialAmountWrapper').classList.add('input-error');
+                document.getElementById('initialAmountContainer').classList.add('input-error');
             } else {
                 cashDownError.classList.add('hidden');
-                cashDownInput.classList.remove('input-error');
-                document.getElementById('initialAmountWrapper').classList.remove('input-error');
+                document.getElementById('initialAmountContainer').classList.remove('input-error');
             }
 
             principalAmountOutput.textContent = formatCurrency(principal);
@@ -336,13 +332,9 @@
                     const delta = payment - nextMonthly;
 
                     let deltaHTML = '';
-                    if (delta > 0) {
-                        deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
-                    } else if (delta < 0) {
-                        deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
-                    } else {
-                        deltaHTML = `<span class="text-gray-500">Same monthly</span>`;
-                    }
+                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
+                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
+                    else deltaHTML = `<span class="text-gray-500">Same monthly</span>`;
 
                     upgradeOfferText.innerHTML = `
                         ${upgradeInfo.message}<br>
