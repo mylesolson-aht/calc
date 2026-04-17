@@ -119,7 +119,7 @@
                         </div>
                     </div>
 
-                    <!-- Financing Details – remains hidden by default (toggle) but shows Total Interest + Total Cost -->
+                    <!-- Financing Details – hidden by default -->
                     <div id="totalInterestContainer" class="mt-8">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
@@ -166,6 +166,11 @@
             '3year': { message: 'Travel 10 Years Unlimited for only', price: 2999, nextPlan: '10year' },
             '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
         };
+
+        // Variables to store the exact upgrade values shown in the offer
+        let upgradeTargetPlan = null;
+        let upgradeTargetDiscount = 0;
+        let upgradeTargetCashDown = 0;
 
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
@@ -246,7 +251,7 @@
                 div.innerHTML = `<p class="text-sm text-gray-500">${currentTerm} Months</p><p class="text-3xl font-bold">${formatCurrency(payment)}</p>`;
                 monthlyPaymentsContainer.appendChild(div);
 
-                // Total Interest + Total Cost (for Financing Details)
+                // Total Interest + Total Cost
                 const totalInterest = (payment * currentTerm) - remaining;
                 const totalCost = cashDown + (payment * currentTerm);
 
@@ -263,14 +268,14 @@
                     </div>
                 `;
 
-                // Upgrade Offer – now uses MAX $1,000 buyback on the next plan (matches your example)
+                // Upgrade Offer – always uses MAX $1,000 buyback on next plan
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
                 if (upgradeInfo) {
                     const nextPlan = upgradeInfo.nextPlan;
                     const nextTerm = PLAN_TERMS[nextPlan];
-                    const nextDiscount = 1000; // always show the best possible upgrade price
+                    const nextDiscount = 1000;                     // MAX buyback as requested
                     const nextPrincipal = upgradeInfo.price - nextDiscount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.max(getMinDeposit(nextPrincipal, nextPlan), Math.round(nextPrincipal * ratio));
@@ -294,6 +299,11 @@
                         ${deltaHTML}
                         <span class="text-xs text-gray-500 block mt-1">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
                     `;
+
+                    // Store the exact values shown so the click handler can apply them
+                    upgradeTargetPlan = nextPlan;
+                    upgradeTargetDiscount = nextDiscount;
+                    upgradeTargetCashDown = nextCashDown;
                 }
             }
         }
@@ -321,7 +331,7 @@
         cashDownInput.addEventListener('input', calculate);
         cashDownInput.addEventListener('blur', calculate);
 
-        // Financing Details toggle (remains hidden by default)
+        // Financing Details toggle
         let detailsVisible = false;
         toggleInterestButton.addEventListener('click', () => {
             detailsVisible = !detailsVisible;
@@ -331,12 +341,22 @@
                 : `👁 <span class="text-xs">Show Details</span>`;
         });
 
+        // UPGRADE CLICK – now applies the EXACT numbers shown in the offer
         upgradeOffer.addEventListener('click', () => {
-            const current = document.querySelector('.input-tile.active').dataset.plan;
-            const next = current === '3year' ? '10year' : current === '10year' ? 'legacy' : null;
-            if (next) {
-                const nextTile = document.querySelector(`[data-plan="${next}"]`);
-                if (nextTile) handlePlanChange(nextTile);
+            if (upgradeTargetPlan) {
+                const nextTile = document.querySelector(`[data-plan="${upgradeTargetPlan}"]`);
+                if (nextTile) {
+                    document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
+                    nextTile.classList.add('active');
+
+                    // Apply the exact discount + down payment shown in the offer
+                    discountSlider.value = upgradeTargetDiscount;
+                    discountValue.textContent = '$' + upgradeTargetDiscount;
+                    cashDownInput.value = upgradeTargetCashDown;
+
+                    updateDiscountUI(upgradeTargetPlan);
+                    calculate();
+                }
             }
         });
 
