@@ -81,7 +81,7 @@
                 </div>
             </div>
         </div>
-        <!-- Results Section (same as before) -->
+        <!-- Results Section -->
         <div class="border-t border-gray-200 pt-8">
             <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
             <div id="results" class="space-y-6">
@@ -108,7 +108,7 @@
                 </div>
                 <div id="financingResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-4">Monthly Amount</h3>
-                    <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                    <div id="monthlyPayments" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
                     <div id="upgradeOfferContainer" class="mt-6">
                         <p class="text-sm font-medium text-gray-700">Upgrade Offer</p>
                         <div id="upgradeOffer" class="p-4 rounded-xl upgrade-offer-box mt-1 cursor-pointer">
@@ -120,7 +120,7 @@
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
                             <button id="toggleInterestButton" class="ml-2 text-xs font-semibold text-blue-500">👁</button>
                         </div>
-                        <div id="totalInterestPaid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden"></div>
+                        <div id="totalInterestPaid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
                     </div>
                 </div>
             </div>
@@ -129,6 +129,7 @@
             <p>All calculations are for illustrative purposes only. This is not a binding quote.</p>
         </div>
     </div>
+
     <script>
         const cashDownInput = document.getElementById('cashDown');
         const discountSlider = document.getElementById('discountSlider');
@@ -148,30 +149,37 @@
         const upgradeOfferText = document.getElementById('upgradeOfferText');
         const upgradeOffer = document.getElementById('upgradeOffer');
         const toggleInterestButton = document.getElementById('toggleInterestButton');
+
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
         const ABSOLUTE_MIN = { '3year': 99, '10year': 199, 'legacy': 299 };
+
         const UPGRADE_PATHS = {
             '3year': { message: 'Travel 10 Years Unlimited for only', price: 2999, nextPlan: '10year' },
             '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
         };
+
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
             const pvif = Math.pow(1 + rate, nper);
             return (rate * pv * pvif) / (pvif - 1);
         }
+
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.round(amount));
         }
+
         function formatCurrencyWithCents(amount) {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(amount);
         }
+
         function getMinDeposit(principal, plan) {
             if (principal <= 0) return ABSOLUTE_MIN[plan];
             const tenPercent = principal * 0.10;
-            const calculatedMin = Math.ceil(tenPercent) - 1; // This avoids ending in 98
+            const calculatedMin = Math.ceil(tenPercent) - 1;
             return Math.max(calculatedMin, ABSOLUTE_MIN[plan]);
         }
+
         function updateDiscountUI(plan) {
             if (plan === '3year') {
                 discountSlider.disabled = true;
@@ -185,6 +193,7 @@
                 discountHelperText.textContent = 'Max $750 cash out • Max $1,000 buyback';
             }
         }
+
         function calculate() {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
@@ -194,7 +203,8 @@
             let cashDown = parseFloat(cashDownInput.value) || minDeposit;
             cashDown = Math.max(minDeposit, Math.min(cashDown, principal));
             cashDownInput.value = cashDown;
-            // Error
+
+            // Error handling
             if (cashDown < minDeposit) {
                 cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minDeposit)}`;
                 cashDownError.classList.remove('hidden');
@@ -203,20 +213,24 @@
                 cashDownError.classList.add('hidden');
                 cashDownInput.classList.remove('input-error');
             }
+
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
-            // Interest Savings
+
+            // Interest Savings (still uses 24-month base for consistency with previous logic)
             const baseRemaining = principal - minDeposit;
             const baseMonthly = pmt(interestRate / 12, 24, baseRemaining);
             const baseInterest = (baseMonthly * 24) - baseRemaining;
             const currentRemaining = principal - cashDown;
             let currentInterest = currentRemaining > 0 ? (pmt(interestRate / 12, 24, currentRemaining) * 24 - currentRemaining) : 0;
             const interestSaved = baseInterest - currentInterest;
+
             totalInterestSavedOutput.innerHTML = cashDown <= minDeposit
                 ? `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`
                 : `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved)}</p>`;
-            // Cash or Finance logic (rest remains the same as previous version)
+
+            // Cash vs Finance
             if (cashDown >= principal) {
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
@@ -226,35 +240,38 @@
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
                 upgradeOfferContainer.classList.remove('hidden');
+
                 const remaining = principal - cashDown;
                 const monthlyRate = interestRate / 12;
-                const terms = plan === '3year' ? [12, 18, 24] : [36, 24, 18, 12];
-                // Monthly payments
+
+                // UPDATED: Plan-specific terms exactly as shown in the PDF (4.16.26)
+                let terms = [];
+                if (plan === 'legacy') terms = [36];
+                else if (plan === '10year') terms = [24];
+                else if (plan === '3year') terms = [12];
+
+                // Monthly payments (now only shows the single official term per plan)
                 monthlyPaymentsContainer.innerHTML = '';
                 terms.forEach(term => {
                     const payment = pmt(monthlyRate, term, remaining);
-                    const isDefault = (plan === '3year' && term === 12) || term === 36;
                     const div = document.createElement('div');
-                    div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between ${isDefault ? 'highlight-monthly' : 'bg-gray-50'}`;
+                    div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between highlight-monthly`;
                     div.innerHTML = `<p class="text-sm text-gray-500">${term} Months</p><p class="text-lg font-bold">${formatCurrency(payment)}</p>`;
                     monthlyPaymentsContainer.appendChild(div);
                 });
+
                 // Total Interest
                 totalInterestPaidContainer.innerHTML = '';
                 terms.forEach(term => {
                     const payment = pmt(monthlyRate, term, remaining);
                     const totalInt = (payment * term) - remaining;
-                    let warning = '';
-                    if (plan === '3year') {
-                        if (term === 18) warning = `<p class="text-xs text-amber-600 mt-1">25% commission penalty</p>`;
-                        if (term === 24) warning = `<p class="text-xs text-red-600 mt-1">35% commission penalty</p>`;
-                    }
                     const div = document.createElement('div');
                     div.className = `p-4 rounded-xl shadow-sm bg-gray-50 flex flex-col justify-end`;
-                    div.innerHTML = `<p class="text-sm text-gray-500">${term} Months</p><p class="text-lg font-bold">${formatCurrency(totalInt)}</p><p class="text-xs text-gray-500 mt-1">Total Interest</p>${warning}`;
+                    div.innerHTML = `<p class="text-sm text-gray-500">${term} Months</p><p class="text-lg font-bold">${formatCurrency(totalInt)}</p><p class="text-xs text-gray-500 mt-1">Total Interest</p>`;
                     totalInterestPaidContainer.appendChild(div);
                 });
-                // Upgrade Offer
+
+                // Upgrade Offer (still compares using 24-month term for consistency)
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 if (upgradeInfo) {
                     const ratio = principal > 0 ? cashDown / principal : 0;
@@ -268,6 +285,7 @@
                 }
             }
         }
+
         function handlePlanChange(tile) {
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
@@ -279,6 +297,7 @@
             updateDiscountUI(plan);
             calculate();
         }
+
         // Event listeners
         document.querySelectorAll('[data-plan]').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
         discountSlider.addEventListener('input', () => {
@@ -298,6 +317,7 @@
                 if (nextTile) handlePlanChange(nextTile);
             }
         });
+
         // Start
         document.addEventListener('DOMContentLoaded', () => {
             handlePlanChange(document.querySelector('[data-plan="legacy"]'));
