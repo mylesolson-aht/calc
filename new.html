@@ -19,7 +19,7 @@
         .input-tile:hover { transform: scale(1.02); }
         .input-tile input { background: transparent; border: none; outline: none; font-size: 1.5rem; font-weight: 700; width: 100%; text-align: center; }
         .highlight-monthly { background-color: #f2faff; color: #007aff; font-weight: 600; border: 2px solid #007aff; }
-        .upgrade-recommendation {
+        .upgrade-comparison {
             margin-top: 10px; padding: 10px; background-color: #ecfdf5; border: 1px solid #86efac;
             border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: #166534;
         }
@@ -28,13 +28,17 @@
 <body class="flex items-center justify-center min-h-screen p-4">
 
     <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
+        <!-- Header -->
         <div class="flex flex-col items-center mb-8">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" 
+                 alt="Aloha Hawaii Tours & Travel Logo" 
+                 class="w-32 sm:w-40 md:w-48 mb-3">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-1">Eliminate the Retail Markup on Your Travel</p>
         </div>
 
+        <!-- Inputs -->
         <div class="space-y-6 mb-8">
-            <!-- Membership Tiles -->
             <div class="space-y-4">
                 <p class="text-sm font-medium text-gray-700">Membership</p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="planTilesContainer">
@@ -53,36 +57,30 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <p class="text-sm font-medium text-gray-700">Initial Amount</p>
-                    <div class="input-tile flex flex-col justify-center items-center mt-1">
-                        <input type="number" id="cashDown" step="1" class="text-gray-900" placeholder="0">
-                    </div>
+            <div>
+                <p class="text-sm font-medium text-gray-700">Initial Amount</p>
+                <div class="input-tile flex flex-col justify-center items-center mt-1">
+                    <input type="number" id="cashDown" step="1" class="text-gray-900" placeholder="0">
                 </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-700">Desired Monthly Payment</p>
-                    <div class="input-tile flex flex-col justify-center items-center mt-1">
-                        <input type="number" id="desiredMonthly" step="1" class="text-gray-900" placeholder="0" value="100">
-                    </div>
-                </div>
+                <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
             </div>
 
             <div>
                 <div class="flex justify-between items-baseline mb-1">
-                    <p class="text-sm font-medium text-gray-700">Manager Discount</p>
+                    <p class="text-sm font-medium text-gray-700">Manager Discount (Gift Buyback)</p>
                     <p id="discountValue" class="text-lg font-semibold text-blue-600">$0</p>
                 </div>
                 <input type="range" id="discountSlider" min="0" max="1000" step="250" value="0" class="w-full accent-blue-600">
                 <div class="flex justify-between text-xs text-gray-500 mt-1">
                     <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span>$1,000</span>
                 </div>
-                <p id="discountHelperText" class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buy</p>
+                <p id="discountHelperText" class="text-xs text-gray-500 mt-2 text-center">Max $1,000 buy back</p>
             </div>
         </div>
 
+        <!-- Results -->
         <div class="border-t border-gray-200 pt-8">
-            <h2 class="text-xl sm:text-2xl font-semibold mb-6">Recommended Monthly Payments</h2>
+            <h2 class="text-xl sm:text-2xl font-semibold mb-6">Monthly Amount</h2>
             <div id="monthlyPayments" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 
             <div id="totalInterestSavedDiv" class="mt-8">
@@ -100,7 +98,6 @@
 
     <script>
         const cashDownInput = document.getElementById('cashDown');
-        const desiredMonthlyInput = document.getElementById('desiredMonthly');
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
         const discountHelperText = document.getElementById('discountHelperText');
@@ -115,7 +112,7 @@
         const interestRate = 0.1799;
 
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
-        const ABSOLUTE_MIN_DEPOSIT = { '3year': 99, '10year': 299, 'legacy': 499 };   // Fixed 10% for 10 Year
+        const ABSOLUTE_MIN_DEPOSIT = { '3year': 99, '10year': 299, 'legacy': 399 };
 
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
@@ -142,7 +139,7 @@
                 discountHelperText.textContent = 'No discount available on Trial 3 Year plan';
             } else {
                 discountValue.classList.remove('text-gray-400');
-                discountHelperText.textContent = 'Max $750 cash out • Max $1,000 buy';
+                discountHelperText.textContent = 'Max $1,000 buy back';
             }
         }
 
@@ -162,7 +159,7 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
-            // Interest Savings (simplified)
+            // Interest Savings
             const baseRemaining = principal - minDeposit;
             const baseInterest = (pmt(interestRate/12, 24, baseRemaining) * 24) - baseRemaining;
             const currentRemaining = principal - cashDown;
@@ -170,7 +167,7 @@
             const interestSaved = baseInterest - currentInterest;
 
             totalInterestSavedOutput.innerHTML = cashDown <= minDeposit 
-                ? `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase down payment to save interest</p>`
+                ? `<p class="text-xl sm:text-3xl font-bold text-green-800">Increase Initial Amount to Save Interest</p>`
                 : `<p class="text-xl sm:text-3xl font-bold text-green-800">${formatCurrency(interestSaved)}</p>`;
 
             const remainingBalance = principal - cashDown;
@@ -183,17 +180,16 @@
                 const currentPayment = pmt(monthlyRate, term, remainingBalance);
                 let comparisonHTML = '';
 
-                // Upgrade logic
                 if (plan === '3year') {
                     const nextPrincipal = 2999 - discount;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.round(nextPrincipal * ratio);
                     const nextRemaining = nextPrincipal - nextCashDown;
-                    const upgradePayment = pmt(monthlyRate, 36, nextRemaining);   // 36 months for 10 Year
+                    const upgradePayment = pmt(monthlyRate, 36, nextRemaining);
 
                     comparisonHTML = `
-                        <div class="upgrade-recommendation">
-                            ↑ Upgrade to <strong>10 Year</strong> 36 mo:<br>
+                        <div class="upgrade-comparison">
+                            ↑ Upgrade to <strong>10 Year</strong> 36 mo for only<br>
                             <strong>${formatCurrency(upgradePayment)}</strong>
                         </div>`;
                 } 
@@ -205,14 +201,12 @@
                     const upgradePayment = pmt(monthlyRate, term, nextRemaining);
                     const savings = currentPayment - upgradePayment;
 
-                    if (savings > 2) {
-                        comparisonHTML = `
-                            <div class="upgrade-recommendation">
-                                ↑ Upgrade to <strong>Legacy</strong>:<br>
-                                <strong>${formatCurrency(upgradePayment)}</strong> 
-                                <span class="text-green-700">(save $${Math.round(savings)}/mo)</span>
-                            </div>`;
-                    }
+                    comparisonHTML = `
+                        <div class="upgrade-comparison">
+                            ↑ Upgrade to <strong>Legacy</strong> for only<br>
+                            <strong>${formatCurrency(upgradePayment)}</strong>
+                            ${savings > 2 ? `<span class="text-green-700"> (save $${Math.round(savings)}/mo)</span>` : ''}
+                        </div>`;
                 }
 
                 const isDefault = (plan === '3year' && term === 12) || (term === 36);
@@ -253,7 +247,6 @@
         });
 
         cashDownInput.addEventListener('input', calculate);
-        desiredMonthlyInput.addEventListener('input', calculate);
         cashDownInput.addEventListener('blur', calculate);
 
         document.addEventListener('DOMContentLoaded', () => {
