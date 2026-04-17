@@ -28,17 +28,11 @@
 <body class="flex items-center justify-center min-h-screen p-4">
 
     <div class="bg-white p-6 sm:p-10 rounded-2xl container-shadow w-full max-w-lg mx-auto">
-        <!-- Header -->
         <div class="flex flex-col items-center mb-8">
-            <img src="https://www.alohahawaiitours.com/wp-content/uploads/2023/05/Aloha-Hawaii-Tours-Logo.png" 
-                 alt="Aloha Hawaii Tours & Travel Logo" 
-                 class="w-32 sm:w-40 md:w-48 mb-3"
-                 onerror="this.src='https://via.placeholder.com/200x80/006699/ffffff?text=Aloha+Logo'">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-1">Eliminate the Retail Markup on Your Travel</p>
         </div>
 
-        <!-- Inputs -->
         <div class="space-y-6 mb-8">
             <div class="space-y-4">
                 <p class="text-sm font-medium text-gray-700">Membership</p>
@@ -79,7 +73,6 @@
             </div>
         </div>
 
-        <!-- Results -->
         <div class="border-t border-gray-200 pt-8">
             <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
            
@@ -225,7 +218,7 @@
                     const upgradePayment = pmt(monthlyRate, term, nextRemaining);
                     const savings = currentPayment - upgradePayment;
 
-                    if (savings > 3) {
+                    if (savings > 2) {
                         comparisonHTML = `
                             <div class="upgrade-comparison">
                                 ↑ Upgrade to <strong>Legacy</strong>:<br>
