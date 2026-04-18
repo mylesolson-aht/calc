@@ -28,34 +28,6 @@
         .input-tile.active { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); }
         .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-        /* ULTRA CLEAN INITIAL AMOUNT INPUT - NO FLEX, NO POINTER BLOCKING */
-        #initialAmountContainer {
-            background-color: #f9f9f9;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            padding: 1.25rem 1rem;
-            min-height: 74px;
-            width: 100%;
-        }
-        #cashDown {
-            background: transparent !important;
-            border: none !important;
-            outline: none !important;
-            font-size: 1.75rem !important;
-            font-weight: 700 !important;
-            width: 100% !important;
-            text-align: center !important;
-            color: #1d1d1f !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            pointer-events: auto !important;
-        }
-        #cashDown:focus {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
         .input-error { border-color: #ff3b30 !important; box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2) !important; }
         .highlight-monthly { background-color: #f2faff; color: #007aff; font-weight: 600; }
         .aloha-brand-text { color: #006699; }
@@ -110,11 +82,17 @@
                 </div>
             </div>
 
-            <!-- Initial Amount – ULTRA CLEAN (no flex, direct input) -->
+            <!-- Initial Amount – NOW A SLIDER IN $100 INCREMENTS -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700">Initial Amount</p>
-                <div id="initialAmountContainer">
-                    <input type="number" id="cashDown" step="5" placeholder="0">
+                <div class="flex justify-between items-baseline mb-2">
+                    <p class="text-sm font-medium text-gray-700">Initial Amount</p>
+                    <p id="initialAmountValue" class="text-lg font-semibold text-blue-600">$0</p>
+                </div>
+                <input type="range" id="initialAmountSlider" min="99" max="4999" step="100" value="399" class="w-full accent-blue-600">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span id="sliderMinLabel">$99</span>
+                    <span id="sliderMaxLabel">$4,999</span>
                 </div>
                 <p id="cashDownError" class="hidden mt-2 text-xs text-red-500 text-center"></p>
             </div>
@@ -190,7 +168,6 @@
     </div>
 
     <script>
-        const cashDownInput = document.getElementById('cashDown');
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
         const discountHelperText = document.getElementById('discountHelperText');
@@ -207,6 +184,12 @@
         const upgradeOfferText = document.getElementById('upgradeOfferText');
         const upgradeOffer = document.getElementById('upgradeOffer');
         const toggleInterestButton = document.getElementById('toggleInterestButton');
+
+        // New slider elements
+        const initialAmountSlider = document.getElementById('initialAmountSlider');
+        const initialAmountValue = document.getElementById('initialAmountValue');
+        const sliderMinLabel = document.getElementById('sliderMinLabel');
+        const sliderMaxLabel = document.getElementById('sliderMaxLabel');
 
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
@@ -257,23 +240,33 @@
             }
         }
 
+        function updateInitialSlider(principal, plan) {
+            const minDep = getMinDeposit(principal, plan);
+            initialAmountSlider.min = minDep;
+            initialAmountSlider.max = principal;
+            initialAmountSlider.value = minDep;
+            initialAmountValue.textContent = '$' + minDep;
+            sliderMinLabel.textContent = '$' + minDep;
+            sliderMaxLabel.textContent = '$' + principal;
+        }
+
         function calculate() {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
             let discount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
             const principal = Math.max(0, planPrices[plan] - discount);
             const minDeposit = getMinDeposit(principal, plan);
-            let cashDown = parseFloat(cashDownInput.value) || minDeposit;
+
+            let cashDown = parseFloat(initialAmountSlider.value) || minDeposit;
             cashDown = Math.max(minDeposit, Math.min(cashDown, principal));
-            cashDownInput.value = cashDown;
+            initialAmountSlider.value = cashDown;
+            initialAmountValue.textContent = '$' + cashDown;
 
             if (cashDown < minDeposit) {
                 cashDownError.textContent = `Minimum Initial Amount is ${formatCurrency(minDeposit)}`;
                 cashDownError.classList.remove('hidden');
-                document.getElementById('initialAmountContainer').classList.add('input-error');
             } else {
                 cashDownError.classList.add('hidden');
-                document.getElementById('initialAmountContainer').classList.remove('input-error');
             }
 
             principalAmountOutput.textContent = formatCurrency(principal);
@@ -356,22 +349,29 @@
             const plan = tile.dataset.plan;
             const discount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
             const principal = planPrices[plan] - discount;
-            const minDep = getMinDeposit(principal, plan);
-            cashDownInput.value = minDep;
+            updateInitialSlider(principal, plan);
             updateDiscountUI(plan);
             calculate();
         }
 
         // Event listeners
         document.querySelectorAll('[data-plan]').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
+
         discountSlider.addEventListener('input', () => {
             if (!discountSlider.disabled) {
                 discountValue.textContent = '$' + discountSlider.value;
+                const activeTile = document.querySelector('.input-tile.active');
+                const plan = activeTile.dataset.plan;
+                const principal = planPrices[plan] - parseInt(discountSlider.value);
+                updateInitialSlider(principal, plan);
                 calculate();
             }
         });
-        cashDownInput.addEventListener('input', calculate);
-        cashDownInput.addEventListener('blur', calculate);
+
+        initialAmountSlider.addEventListener('input', () => {
+            initialAmountValue.textContent = '$' + initialAmountSlider.value;
+            calculate();
+        });
 
         // Financing Details toggle
         let detailsVisible = false;
@@ -392,8 +392,7 @@
                     nextTile.classList.add('active');
                     discountSlider.value = upgradeTargetDiscount;
                     discountValue.textContent = '$' + upgradeTargetDiscount;
-                    cashDownInput.value = upgradeTargetCashDown;
-                    updateDiscountUI(upgradeTargetPlan);
+                    updateInitialSlider(upgradeTargetCashDown + (planPrices[upgradeTargetPlan] - 1000 - upgradeTargetCashDown), upgradeTargetPlan); // rough re-calc
                     calculate();
                 }
             }
