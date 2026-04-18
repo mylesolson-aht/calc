@@ -82,14 +82,14 @@
                 </div>
             </div>
 
-            <!-- Initial Amount – NOW A SLIDER IN $100 INCREMENTS -->
+            <!-- Initial Amount Slider – now $50 increments -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700">Initial Amount</p>
                 <div class="flex justify-between items-baseline mb-2">
                     <p class="text-sm font-medium text-gray-700">Initial Amount</p>
                     <p id="initialAmountValue" class="text-lg font-semibold text-blue-600">$0</p>
                 </div>
-                <input type="range" id="initialAmountSlider" min="99" max="4999" step="100" value="399" class="w-full accent-blue-600">
+                <input type="range" id="initialAmountSlider" min="99" max="4999" step="50" value="399" class="w-full accent-blue-600">
                 <div class="flex justify-between text-xs text-gray-500 mt-1">
                     <span id="sliderMinLabel">$99</span>
                     <span id="sliderMaxLabel">$4,999</span>
@@ -185,7 +185,7 @@
         const upgradeOffer = document.getElementById('upgradeOffer');
         const toggleInterestButton = document.getElementById('toggleInterestButton');
 
-        // New slider elements
+        // Initial Amount Slider
         const initialAmountSlider = document.getElementById('initialAmountSlider');
         const initialAmountValue = document.getElementById('initialAmountValue');
         const sliderMinLabel = document.getElementById('sliderMinLabel');
@@ -213,10 +213,6 @@
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.round(amount));
-        }
-
-        function formatCurrencyWithCents(amount) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(amount);
         }
 
         function getMinDeposit(principal, plan) {
@@ -392,7 +388,8 @@
                     nextTile.classList.add('active');
                     discountSlider.value = upgradeTargetDiscount;
                     discountValue.textContent = '$' + upgradeTargetDiscount;
-                    updateInitialSlider(upgradeTargetCashDown + (planPrices[upgradeTargetPlan] - 1000 - upgradeTargetCashDown), upgradeTargetPlan); // rough re-calc
+                    const nextPrincipal = planPrices[upgradeTargetPlan] - upgradeTargetDiscount;
+                    updateInitialSlider(nextPrincipal, upgradeTargetPlan);
                     calculate();
                 }
             }
