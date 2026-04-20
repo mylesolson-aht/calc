@@ -62,13 +62,16 @@
             text-align: center;
         }
 
+        /* Vertically justified alignment like your original */
         .summary-tile {
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 82px;
-            padding: 0.9rem;
+            align-items: center;
+            min-height: 92px;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 12px;
         }
     </style>
 </head>
@@ -144,7 +147,7 @@
             </div>
         </div>
 
-        <!-- Results Section - Very tight -->
+        <!-- Results Section -->
         <div class="mt-6">
             <div id="results" class="space-y-4">
                 <div id="cashResults" class="hidden">
@@ -169,23 +172,23 @@
 
                     <h2 class="text-xl font-semibold text-center mt-5 mb-4">Your Wholesale Travel Membership</h2>
                     
-                    <!-- Bottom 3 Tiles -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-                        <div class="summary-tile bg-gray-50 rounded-xl">
+                    <!-- Bottom 3 Tiles - Vertically Justified Like Original -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                            <p id="principalAmount" class="text-2xl font-bold mt-1">$0</p>
+                            <p id="principalAmount" class="text-2xl font-bold mt-2">$0</p>
                         </div>
-                        <div class="summary-tile bg-gray-50 rounded-xl">
+                        <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                            <p id="cashDownAmount" class="text-2xl font-bold mt-1">$0</p>
+                            <p id="cashDownAmount" class="text-2xl font-bold mt-2">$0</p>
                         </div>
-                        <div class="summary-tile bg-gray-50 rounded-xl">
+                        <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
-                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-1">$0</p>
+                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-2">$0</p>
                         </div>
                     </div>
 
-                    <div id="totalInterestContainer">
+                    <div id="totalInterestContainer" class="mt-6">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
                             <button id="toggleInterestButton" class="text-xs font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1">
@@ -204,7 +207,7 @@
     </div>
 
     <script>
-        // Your full working script (unchanged)
+        // Full working script (same as before)
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
         const discountHelperText = document.getElementById('discountHelperText');
