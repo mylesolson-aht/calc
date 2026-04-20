@@ -118,14 +118,14 @@
                 <p id="discountHelperText" class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buyback</p>
             </div>
 
-            <!-- Financing Term (now consistent spacing, no extra gap) -->
-            <div id="financingTermSection">
+            <!-- Financing Term -->
+            <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-2">Financing Term (Months)</p>
                 <div class="flex justify-between items-baseline mb-2">
                     <span id="termValueDisplay" class="text-lg font-semibold text-blue-600">36 Months</span>
                 </div>
                 <input type="range" id="termSlider" min="6" max="36" step="6" value="36" class="w-full accent-blue-600">
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <div class="flex justify-between text-xs text-gray-500 mt-1" id="termLabels">
                     <span>6</span><span>12</span><span>18</span><span>24</span><span id="termMaxLabel">36</span>
                 </div>
             </div>
@@ -134,7 +134,6 @@
         <!-- Results Section -->
         <div class="pt-8 border-t border-gray-200">
             <div id="results" class="space-y-6">
-                <!-- Cash Results -->
                 <div id="cashResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-4">Cash Price</h3>
                     <div class="p-4 rounded-xl bg-green-50">
@@ -143,11 +142,9 @@
                     </div>
                 </div>
 
-                <!-- Financing Results -->
                 <div id="financingResults" class="hidden">
                     <div id="monthlyPayments" class="grid grid-cols-1 gap-4 mb-6"></div>
 
-                    <!-- Upgrade Offer -->
                     <div id="upgradeOfferContainer" class="mb-8">
                         <p class="section-label text-sm font-medium text-gray-700 mb-2">Upgrade Offer</p>
                         <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 cursor-pointer hover:border-blue-400 transition-colors">
@@ -210,6 +207,7 @@
         const termSlider = document.getElementById('termSlider');
         const termValueDisplay = document.getElementById('termValueDisplay');
         const termMaxLabel = document.getElementById('termMaxLabel');
+        const termLabelsContainer = document.getElementById('termLabels');
         const initialAmountSlider = document.getElementById('initialAmountSlider');
         const initialAmountValue = document.getElementById('initialAmountValue');
         const sliderMinLabel = document.getElementById('sliderMinLabel');
@@ -270,6 +268,22 @@
             sliderMaxLabel.textContent = '$' + principal;
         }
 
+        function updateTermUI(plan) {
+            updateTermDisplay();
+
+            if (plan === 'legacy') {
+                termSlider.max = 36;
+                termSlider.value = 36;
+                termMaxLabel.textContent = '36';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
+            } else {
+                termSlider.max = 24;
+                termSlider.value = (plan === '10year') ? 24 : 12;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            }
+        }
+
         function updateTermDisplay() {
             termValueDisplay.textContent = termSlider.value + " Months";
         }
@@ -311,12 +325,26 @@
                 const currentTerm = parseInt(termSlider.value);
                 const payment = pmt(monthlyRate, currentTerm, remaining);
 
+                // Monthly Payment
                 monthlyPaymentsContainer.innerHTML = '';
                 const div = document.createElement('div');
                 div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between highlight-monthly`;
                 div.innerHTML = `<p class="text-sm text-gray-500">${currentTerm} Months</p><p class="text-3xl font-bold">${formatCurrency(payment)}</p>`;
                 monthlyPaymentsContainer.appendChild(div);
 
+                // Penalty warnings for 3-year plan
+                if (plan === '3year') {
+                    let penaltyHTML = '';
+                    if (currentTerm === 18) penaltyHTML = `<p class="text-xs text-amber-600 mt-2">25% commission penalty applied</p>`;
+                    if (currentTerm === 24) penaltyHTML = `<p class="text-xs text-red-600 mt-2">35% commission penalty applied</p>`;
+                    if (penaltyHTML) {
+                        const penaltyDiv = document.createElement('div');
+                        penaltyDiv.innerHTML = penaltyHTML;
+                        monthlyPaymentsContainer.appendChild(penaltyDiv);
+                    }
+                }
+
+                // Total Interest & Cost
                 const totalInterest = (payment * currentTerm) - remaining;
                 const totalCost = cashDown + (payment * currentTerm);
 
@@ -375,18 +403,7 @@
             const discount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
             const principal = planPrices[plan] - discount;
 
-            // Fix term slider limits & labels (no duplicate 24)
-            if (plan === 'legacy') {
-                termSlider.max = 36;
-                termSlider.value = 36;
-                termMaxLabel.textContent = '36';
-            } else {
-                termSlider.max = 24;
-                termSlider.value = plan === '10year' ? 24 : 12;
-                termMaxLabel.textContent = '24';
-            }
-
-            updateTermDisplay();
+            updateTermUI(plan);
             updateInitialSlider(principal, plan);
             updateDiscountUI(plan);
             calculate();
