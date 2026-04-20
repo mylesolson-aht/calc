@@ -7,37 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f7f9;
-        }
-        .text-shadow-custom {
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .membership-btn {
-            transition: all 0.15s ease-in-out;
-        }
-        #membership-buttons {
-            grid-template-columns: repeat(1, minmax(0, 1fr));
-        }
-        @media (min-width: 640px) {
-            #membership-buttons {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f9; }
+        .text-shadow-custom { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .membership-btn { transition: all 0.15s ease-in-out; }
+        #membership-buttons { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        @media (min-width: 640px) { #membership-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     </style>
 </head>
 <body class="p-4 sm:p-8 flex justify-center min-h-screen">
     <div id="app" class="w-full max-w-xl bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-100">
         <!-- Header -->
         <header class="mb-8">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-700 mb-2 text-shadow-custom">
-                Membership Commission Tracker
-            </h1>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-700 mb-2 text-shadow-custom">Membership Commission Tracker</h1>
             <p class="text-gray-500">Calculate your total earnings based on payment method splits.</p>
         </header>
 
-        <!-- Inputs Section -->
+        <!-- Inputs -->
         <section class="space-y-6">
             <!-- Membership Selection -->
             <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
@@ -58,37 +43,27 @@
                 </div>
             </div>
 
-            <!-- Discount Slider (dynamic max) -->
+            <!-- Discount Slider -->
             <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <label class="block text-lg font-semibold text-yellow-800 mb-3">Manager Discount / Buyback</label>
                 <div class="flex justify-between items-baseline mb-2">
                     <span class="text-sm font-medium text-gray-700">Discount Amount</span>
                     <span id="discountValueDisplay" class="text-lg font-semibold text-yellow-700">$0</span>
                 </div>
-                <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" 
-                       class="w-full accent-yellow-600" oninput="calculateCommission()">
+                <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" class="w-full accent-yellow-600" oninput="calculateCommission()">
                 <div class="flex justify-between text-xs text-gray-500 mt-1">
                     <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="sliderMaxLabel">$1,000</span>
                 </div>
                 <p id="discountNote" class="text-sm text-yellow-700 opacity-90 mt-2"></p>
             </div>
 
-            <!-- Commission Cuts / Penalties -->
+            <!-- Commission Cuts -->
             <div class="p-4 bg-red-50 rounded-lg border border-red-200">
                 <label class="block text-lg font-semibold text-red-800 mb-3">Commission Cuts / Penalties</label>
                 <div class="space-y-3">
-                    <label class="flex items-center">
-                        <input type="checkbox" id="cut18mo" onchange="calculateCommission()" class="form-checkbox h-5 w-5 text-red-600 focus:ring-red-500">
-                        <span class="ml-3 text-gray-700">-25% 18 Month Financing on 3 Year</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" id="cut24mo" onchange="calculateCommission()" class="form-checkbox h-5 w-5 text-red-600 focus:ring-red-500">
-                        <span class="ml-3 text-gray-700">-35% 24 Month Financing on 3 Year</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" id="cutPaymentAssistance" onchange="calculateCommission()" class="form-checkbox h-5 w-5 text-red-600 focus:ring-red-500">
-                        <span class="ml-3 text-gray-700">-20% Payment Assistance</span>
-                    </label>
+                    <label class="flex items-center"><input type="checkbox" id="cut18mo" onchange="calculateCommission()" class="form-checkbox h-5 w-5 text-red-600 focus:ring-red-500"><span class="ml-3 text-gray-700">-25% 18 Month Financing on 3 Year</span></label>
+                    <label class="flex items-center"><input type="checkbox" id="cut24mo" onchange="calculateCommission()" class="form-checkbox h-5 w-5 text-red-600 focus:ring-red-500"><span class="ml-3 text-gray-700">-35% 24 Month Financing on 3 Year</span></label>
+                    <label class="flex items-center"><input type="checkbox" id="cutPaymentAssistance" onchange="calculateCommission()" class="form-checkbox h-5 w-5 text-red-600 focus:ring-red-500"><span class="ml-3 text-gray-700">-20% Payment Assistance</span></label>
                 </div>
             </div>
 
@@ -98,8 +73,7 @@
                 <div class="flex justify-between items-center">
                     <label for="conversionRate" class="text-md font-medium text-gray-700">Exchange Rate (1 USD = X CAD):</label>
                     <div class="flex items-center space-x-2">
-                        <input type="number" id="conversionRate" value="1.39" min="1.0" step="0.01" oninput="calculateCommission()" 
-                               class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-purple-500 focus:border-purple-500 shadow-sm">
+                        <input type="number" id="conversionRate" value="1.39" min="1.0" step="0.01" oninput="calculateCommission()" class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-purple-500 focus:border-purple-500 shadow-sm">
                         <span class="text-xl font-bold text-purple-600">CAD</span>
                     </div>
                 </div>
@@ -112,24 +86,21 @@
                     <div class="flex justify-between items-center">
                         <label for="cashRate" class="text-md font-medium text-gray-700">Cash Collected:</label>
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="cashRate" value="25" min="0" max="100" step="0.5" oninput="calculateCommission()" 
-                                   class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
+                            <input type="number" id="cashRate" value="25" min="0" max="100" step="0.5" oninput="calculateCommission()" class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
                             <span class="text-xl font-bold text-indigo-600">%</span>
                         </div>
                     </div>
                     <div class="flex justify-between items-center">
                         <label for="abcRate" class="text-md font-medium text-gray-700">ABC Credit:</label>
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="abcRate" value="15" min="0" max="100" step="0.5" oninput="calculateCommission()" 
-                                   class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
+                            <input type="number" id="abcRate" value="15" min="0" max="100" step="0.5" oninput="calculateCommission()" class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
                             <span class="text-xl font-bold text-indigo-600">%</span>
                         </div>
                     </div>
                     <div class="flex justify-between items-center">
                         <label for="dsoRate" class="text-md font-medium text-gray-700">D/SO Credit:</label>
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="dsoRate" value="7.5" min="0" max="100" step="0.5" oninput="calculateCommission()" 
-                                   class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
+                            <input type="number" id="dsoRate" value="7.5" min="0" max="100" step="0.5" oninput="calculateCommission()" class="w-20 p-2 border border-gray-300 rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
                             <span class="text-xl font-bold text-indigo-600">%</span>
                         </div>
                     </div>
@@ -141,8 +112,7 @@
                 <label for="cashAmount" class="block text-md font-medium text-gray-700 mb-2">Cash Collected Amount ($)</label>
                 <div class="flex items-center space-x-2">
                     <span class="text-xl font-bold text-gray-600">$</span>
-                    <input type="number" id="cashAmount" value="" min="0" step="1" oninput="calculateCommission()" 
-                           class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-bold text-lg">
+                    <input type="number" id="cashAmount" value="" min="0" step="1" oninput="calculateCommission()" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-bold text-lg">
                 </div>
                 <p id="cashValidationMessage" class="text-sm text-red-500 mt-1 h-4"></p>
                 <p class="text-sm text-gray-500 mt-1">Cash must be between 10% and 100% of the membership price (after discount).</p>
@@ -232,11 +202,8 @@
 
         function selectMembership(element) {
             const buttons = document.querySelectorAll('.membership-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-700');
-                btn.classList.add('bg-white', 'text-indigo-600', 'border-indigo-300');
-            });
-            element.classList.remove('bg-white', 'text-indigo-600', 'border-indigo-300');
+            buttons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-700'));
+            buttons.forEach(btn => btn.classList.add('bg-white', 'text-indigo-600', 'border-indigo-300'));
             element.classList.add('bg-indigo-600', 'text-white', 'border-indigo-700');
 
             selectedBasePrice = parseFloat(element.getAttribute('data-price'));
@@ -248,17 +215,14 @@
 
         function calculateCommission() {
             try {
-                // Discount slider (dynamic max)
+                // Discount slider with 3-year cap
                 let discountAmount = parseFloat(document.getElementById('discountSlider').value) || 0;
-                const is3Year = selectedBasePrice === 999;
-                const maxDiscount = is3Year ? 100 : 1000;
-                discountAmount = Math.min(discountAmount, maxDiscount);
+                if (selectedBasePrice === 999) discountAmount = Math.min(discountAmount, 100);
                 document.getElementById('discountSlider').value = discountAmount;
                 document.getElementById('discountValueDisplay').textContent = '$' + discountAmount;
-                document.getElementById('sliderMaxLabel').textContent = '$' + maxDiscount;
+                document.getElementById('sliderMaxLabel').textContent = selectedBasePrice === 999 ? '$100' : '$1,000';
 
-                let effectivePrice = selectedBasePrice - discountAmount;
-
+                const effectivePrice = selectedBasePrice - discountAmount;
                 document.getElementById('membershipPriceDisplay').textContent = formatCurrency(effectivePrice);
 
                 // Commission rates
@@ -269,17 +233,20 @@
                 let cashAmount = parseFloat(document.getElementById('cashAmount').value) || 0;
                 const creditType = document.querySelector('input[name="creditType"]:checked').value;
 
-                // Commission Cuts
+                // Commission cuts
                 let totalPenalty = 0;
                 if (document.getElementById('cut18mo').checked) totalPenalty += 0.25;
                 if (document.getElementById('cut24mo').checked) totalPenalty += 0.35;
                 if (document.getElementById('cutPaymentAssistance').checked) totalPenalty += 0.20;
 
-                // Min cash deposit (clean 10% + absolute floor - no .90 hack)
+                // MIN CASH = 10% of net price - $1 (with absolute floor)
+                const tenPercent = effectivePrice * 0.10;
+                const calculatedMin = Math.ceil(tenPercent) - 1;
                 const absMin = selectedBasePrice === 999 ? 99 : selectedBasePrice === 2999 ? 199 : 299;
-                const minCash = Math.max(absMin, Math.ceil(effectivePrice * 0.10));
+                const minCash = Math.max(absMin, calculatedMin);
                 const maxCash = effectivePrice;
 
+                // Validation
                 const validationMessage = document.getElementById('cashValidationMessage');
                 if (cashAmount < minCash) {
                     validationMessage.textContent = `Minimum cash required is ${formatCurrency(minCash)}.`;
@@ -297,20 +264,15 @@
                 // Commissions
                 const cashCommission = clampedCashAmount * cashRatePct;
                 const remainingCredit = effectivePrice - clampedCashAmount;
-                let abcCommission = 0;
-                let dsoCommission = 0;
-
+                let abcCommission = 0, dsoCommission = 0;
                 if (remainingCredit > 0) {
                     if (creditType === 'ABC') abcCommission = remainingCredit * abcRatePct;
                     else if (creditType === 'DSO') dsoCommission = remainingCredit * dsoRatePct;
                 }
 
                 let grossCommission = cashCommission + abcCommission + dsoCommission;
-
-                // Apply penalties
                 grossCommission = grossCommission * (1 - totalPenalty);
 
-                // Holdback & Net
                 const HOLDBACK_RATE = 0.10;
                 const holdbackAmount = grossCommission * HOLDBACK_RATE;
                 const netCommission = grossCommission - holdbackAmount;
