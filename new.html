@@ -130,9 +130,7 @@
                 </div>
 
                 <div id="financingResults" class="hidden">
-                    <h3 class="text-lg font-semibold mb-4">Monthly Amount</h3>
-                    
-                    <!-- Financing Term Slider -->
+                    <!-- Financing Term Slider (no header or line) -->
                     <div class="mb-6">
                         <p class="section-label text-sm font-medium text-gray-700 mb-2">Financing Term (Months)</p>
                         <div class="flex justify-between items-baseline mb-2">
@@ -267,8 +265,7 @@
         }
 
         function updateTermDisplay() {
-            const term = termSlider.value;
-            termValueDisplay.textContent = term + " Months";
+            termValueDisplay.textContent = termSlider.value + " Months";
         }
 
         function calculate() {
@@ -344,7 +341,7 @@
                     monthlyPaymentsContainer.appendChild(penaltyDiv);
                 }
 
-                // Upgrade Offer
+                // Upgrade Offer (clean stacked version)
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
@@ -386,7 +383,7 @@
             const discount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
             const principal = planPrices[plan] - discount;
 
-            // Update term slider
+            // Set financing term slider
             if (plan === 'legacy') {
                 termSlider.max = 36;
                 termSlider.value = 36;
