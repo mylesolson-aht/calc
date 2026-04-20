@@ -40,7 +40,11 @@
         .input-tile.active span { color: white !important; }
         .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-        .highlight-monthly { background-color: #f2faff; color: #007aff; font-weight: 600; }
+        .highlight-monthly { 
+            background-color: #f2faff; 
+            color: #007aff; 
+            font-weight: 600; 
+        }
         .aloha-brand-text { color: #006699; }
         input[type="range"] { accent-color: #007aff; }
         input[type="range"]:disabled { accent-color: #9ca3af; opacity: 0.6; }
@@ -49,6 +53,12 @@
         .upgrade-delta-positive { color: #28a745; }
         .upgrade-delta-negative { color: #ff3b30; }
         .section-label { margin-bottom: 0.5rem; }
+
+        .penalty-text {
+            text-align: center;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -119,6 +129,8 @@
                 <div class="flex justify-between text-xs text-gray-500 mt-1" id="termLabels">
                     <span>6</span><span>12</span><span>18</span><span>24</span><span id="termMaxLabel">36</span>
                 </div>
+                <!-- Commission Penalty -->
+                <div id="penaltyContainer" class="penalty-text hidden"></div>
             </div>
         </div>
 
@@ -129,33 +141,36 @@
                     <h3 class="text-lg font-semibold mb-4">Cash Price</h3>
                     <div class="p-4 rounded-xl bg-green-50">
                         <p class="text-sm text-gray-700">Total Due</p>
-                        <p id="cashOutTotal" class="text-3xl font-bold">$0</p>
+                        <p id="cashOutTotal" class="text-3xl font-bold text-center">$0</p>
                     </div>
                 </div>
 
                 <div id="financingResults" class="hidden">
-                    <div id="monthlyPayments" class="grid grid-cols-1 gap-4 mb-6"></div>
+                    <!-- Monthly Payment Tile - Centered & Pretty -->
+                    <div id="monthlyPayments" class="flex justify-center mb-8"></div>
 
-                    <div id="upgradeOfferContainer" class="mb-8">
-                        <p class="section-label text-sm font-medium text-gray-700 mb-2">Upgrade Offer</p>
-                        <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 cursor-pointer hover:border-blue-400 transition-colors">
+                    <!-- Upgrade Offer - Centered & Clean -->
+                    <div id="upgradeOfferContainer" class="mb-10">
+                        <p class="section-label text-sm font-medium text-gray-700 mb-3 text-center">Upgrade Offer</p>
+                        <div id="upgradeOffer" class="p-6 rounded-2xl bg-blue-50 border border-blue-200 cursor-pointer hover:border-blue-400 transition-all text-center">
                             <p id="upgradeOfferText" class="text-lg font-semibold"></p>
                         </div>
                     </div>
 
-                    <h2 class="text-xl sm:text-2xl font-semibold mb-6">Your Wholesale Travel Membership</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <div class="summary-card p-4 rounded-xl bg-gray-50">
+                    <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-center">Your Wholesale Travel Membership</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                        <div class="summary-card p-4 rounded-xl bg-gray-50 text-center">
                             <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                            <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
+                            <p id="principalAmount" class="text-2xl font-bold mt-2">$0</p>
                         </div>
-                        <div class="summary-card p-4 rounded-xl bg-gray-50">
+                        <div class="summary-card p-4 rounded-xl bg-gray-50 text-center">
                             <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                            <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
+                            <p id="cashDownAmount" class="text-2xl font-bold mt-2">$0</p>
                         </div>
-                        <div class="summary-card p-4 rounded-xl bg-gray-50">
+                        <div class="summary-card p-4 rounded-xl bg-gray-50 text-center">
                             <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
-                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
+                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-2">$0</p>
                         </div>
                     </div>
 
@@ -199,6 +214,7 @@
         const termValueDisplay = document.getElementById('termValueDisplay');
         const termMaxLabel = document.getElementById('termMaxLabel');
         const termLabelsContainer = document.getElementById('termLabels');
+        const penaltyContainer = document.getElementById('penaltyContainer');
         const initialAmountSlider = document.getElementById('initialAmountSlider');
         const initialAmountValue = document.getElementById('initialAmountValue');
         const sliderMinLabel = document.getElementById('sliderMinLabel');
@@ -278,6 +294,26 @@
             termValueDisplay.textContent = termSlider.value + " Months";
         }
 
+        function showPenalty(plan, term) {
+            penaltyContainer.classList.add('hidden');
+            if (plan !== '3year') return;
+
+            let message = '';
+            let color = '';
+            if (term === 18) {
+                message = '25% commission penalty applied';
+                color = 'text-amber-600';
+            } else if (term === 24) {
+                message = '35% commission penalty applied';
+                color = 'text-red-600';
+            }
+
+            if (message) {
+                penaltyContainer.innerHTML = `<p class="${color} font-medium">${message}</p>`;
+                penaltyContainer.classList.remove('hidden');
+            }
+        }
+
         function calculate() {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile.dataset.plan;
@@ -315,24 +351,17 @@
                 const currentTerm = parseInt(termSlider.value);
                 const payment = pmt(monthlyRate, currentTerm, remaining);
 
-                // Monthly Payment Display
-                monthlyPaymentsContainer.innerHTML = '';
-                const div = document.createElement('div');
-                div.className = `p-4 rounded-xl shadow-sm flex flex-col justify-between highlight-monthly`;
-                div.innerHTML = `<p class="text-sm text-gray-500">${currentTerm} Months</p><p class="text-3xl font-bold">${formatCurrency(payment)}</p>`;
-                monthlyPaymentsContainer.appendChild(div);
+                // Monthly Payment Tile - Centered & Pretty
+                monthlyPaymentsContainer.innerHTML = `
+                    <div class="p-6 rounded-2xl shadow-sm bg-white border border-gray-100 text-center max-w-[280px]">
+                        <p class="text-sm text-gray-500 mb-1">${currentTerm} Months</p>
+                        <p class="text-4xl font-bold text-blue-600">${formatCurrency(payment)}</p>
+                        <p class="text-xs text-gray-400 mt-1">per month</p>
+                    </div>
+                `;
 
-                // Penalty warnings for 3-year plan
-                if (plan === '3year') {
-                    let penaltyHTML = '';
-                    if (currentTerm === 18) penaltyHTML = `<p class="text-xs text-amber-600 mt-2">25% commission penalty applied</p>`;
-                    if (currentTerm === 24) penaltyHTML = `<p class="text-xs text-red-600 mt-2">35% commission penalty applied</p>`;
-                    if (penaltyHTML) {
-                        const penaltyDiv = document.createElement('div');
-                        penaltyDiv.innerHTML = penaltyHTML;
-                        monthlyPaymentsContainer.appendChild(penaltyDiv);
-                    }
-                }
+                // Show penalty if applicable
+                showPenalty(plan, currentTerm);
 
                 // Total Interest & Cost
                 const totalInterest = (payment * currentTerm) - remaining;
@@ -351,7 +380,7 @@
                     </div>
                 `;
 
-                // Upgrade Offer
+                // Upgrade Offer - Centered
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
@@ -373,9 +402,10 @@
 
                     upgradeOfferText.innerHTML = `
                         ${upgradeInfo.message}<br>
-                        <span class="text-2xl font-bold">${formatCurrency(nextMonthly)}</span> per month<br>
+                        <span class="text-2xl font-bold block mt-2">${formatCurrency(nextMonthly)}</span> 
+                        <span class="text-sm">per month</span><br>
                         ${deltaHTML}
-                        <span class="text-xs text-gray-500 block mt-1">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
+                        <span class="text-xs text-gray-500 block mt-3">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
                     `;
 
                     upgradeTargetPlan = nextPlan;
@@ -423,7 +453,7 @@
             calculate();
         });
 
-        // Toggle Financing Details
+        // Toggle Details
         let detailsVisible = false;
         toggleInterestButton.addEventListener('click', () => {
             detailsVisible = !detailsVisible;
