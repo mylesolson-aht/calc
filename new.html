@@ -118,10 +118,19 @@
             </div>
         </div>
 
-       
+        <!-- Results Section -->
+        <div class="border-t border-gray-200 pt-8">
+            <div id="results" class="space-y-6">
+                <div id="cashResults" class="hidden">
+                    <h3 class="text-lg font-semibold mb-4">Cash Price</h3>
+                    <div class="p-4 rounded-xl bg-green-50 highlight-interest">
+                        <p class="text-sm text-gray-700">Total Due</p>
+                        <p id="cashOutTotal" class="text-3xl font-bold">$0</p>
+                    </div>
+                </div>
 
                 <div id="financingResults" class="hidden">
-                    <!-- Financing Term Slider (no header or line) -->
+                    <!-- Financing Term Slider -->
                     <div class="mb-6">
                         <p class="section-label text-sm font-medium text-gray-700 mb-2">Financing Term (Months)</p>
                         <div class="flex justify-between items-baseline mb-2">
@@ -135,6 +144,7 @@
 
                     <div id="monthlyPayments" class="grid grid-cols-1 gap-4 mb-6"></div>
 
+                    <!-- Upgrade Offer – reverted to the clean stacked version from your uploaded file -->
                     <div id="upgradeOfferContainer" class="mb-8">
                         <p class="section-label text-sm font-medium text-gray-700 mb-2">Upgrade Offer</p>
                         <div id="upgradeOffer" class="p-4 rounded-xl bg-blue-50 border border-blue-200 cursor-pointer hover:border-blue-400 transition-colors">
@@ -332,7 +342,7 @@
                     monthlyPaymentsContainer.appendChild(penaltyDiv);
                 }
 
-                // Upgrade Offer (clean stacked version)
+                // Upgrade Offer (reverted to clean stacked version from your uploaded file)
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
@@ -374,7 +384,7 @@
             const discount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
             const principal = planPrices[plan] - discount;
 
-            // Set financing term slider
+            // Set financing term slider correctly (no duplicate 24)
             if (plan === 'legacy') {
                 termSlider.max = 36;
                 termSlider.value = 36;
