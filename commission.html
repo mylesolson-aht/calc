@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <!-- Discount Slider (0–1000) -->
+            <!-- Discount Slider (dynamic max) -->
             <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <label class="block text-lg font-semibold text-yellow-800 mb-3">Manager Discount / Buyback</label>
                 <div class="flex justify-between items-baseline mb-2">
@@ -68,7 +68,7 @@
                 <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" 
                        class="w-full accent-yellow-600" oninput="calculateCommission()">
                 <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span>$1,000</span>
+                    <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="sliderMaxLabel">$1,000</span>
                 </div>
                 <p id="discountNote" class="text-sm text-yellow-700 opacity-90 mt-2"></p>
             </div>
@@ -248,17 +248,14 @@
 
         function calculateCommission() {
             try {
-                // Discount slider
+                // Discount slider (dynamic max)
                 let discountAmount = parseFloat(document.getElementById('discountSlider').value) || 0;
-
-                // Cap 3 Year at 10%
-                if (selectedBasePrice === 999) {
-                    const max3yr = Math.floor(selectedBasePrice * 0.10);
-                    discountAmount = Math.min(discountAmount, max3yr);
-                    document.getElementById('discountSlider').value = discountAmount;
-                }
-
+                const is3Year = selectedBasePrice === 999;
+                const maxDiscount = is3Year ? 100 : 1000;
+                discountAmount = Math.min(discountAmount, maxDiscount);
+                document.getElementById('discountSlider').value = discountAmount;
                 document.getElementById('discountValueDisplay').textContent = '$' + discountAmount;
+                document.getElementById('sliderMaxLabel').textContent = '$' + maxDiscount;
 
                 let effectivePrice = selectedBasePrice - discountAmount;
 
@@ -278,9 +275,9 @@
                 if (document.getElementById('cut24mo').checked) totalPenalty += 0.35;
                 if (document.getElementById('cutPaymentAssistance').checked) totalPenalty += 0.20;
 
-                // Min / Max cash validation (matches main calculator)
+                // Min cash deposit (clean 10% + absolute floor - no .90 hack)
                 const absMin = selectedBasePrice === 999 ? 99 : selectedBasePrice === 2999 ? 199 : 299;
-                const minCash = Math.max(absMin, effectivePrice * 0.10);
+                const minCash = Math.max(absMin, Math.ceil(effectivePrice * 0.10));
                 const maxCash = effectivePrice;
 
                 const validationMessage = document.getElementById('cashValidationMessage');
