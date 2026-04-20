@@ -22,14 +22,14 @@
             background-color: #f9f9f9; 
             border: 1px solid #d2d2d7; 
             border-radius: 12px;
-            padding: 1.25rem; 
+            padding: 1.1rem; 
             text-align: center; 
             cursor: pointer; 
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 74px;
+            min-height: 68px;
         }
         .input-tile.active { 
             background-color: #007aff !important;
@@ -46,19 +46,19 @@
         .upgrade-delta { font-weight: 700; }
         .upgrade-delta-positive { color: #28a745; }
         .upgrade-delta-negative { color: #ff3b30; }
-        .section-label { margin-bottom: 0.5rem; }
+        .section-label { margin-bottom: 0.4rem; }
 
         .penalty-text {
             text-align: center;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
         }
 
         .result-card {
             background-color: white;
             border-radius: 16px;
             box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-            padding: 1.25rem;
+            padding: 1.1rem;
             text-align: center;
         }
 
@@ -67,26 +67,26 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 88px;
-            padding: 1rem;
+            min-height: 82px;
+            padding: 0.9rem;
         }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
-    <div class="bg-white p-6 sm:p-9 rounded-2xl container-shadow w-full max-w-lg mx-auto">
+    <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
         <!-- Header -->
-        <div class="flex flex-col items-center mb-6">
+        <div class="flex flex-col items-center mb-5">
             <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png"
                  alt="Aloha Hawaii Tours & Travel Logo"
-                 class="w-32 sm:w-40 md:w-48 mb-2">
+                 class="w-28 sm:w-36 md:w-44 mb-2">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
-            <p class="text-center text-gray-500 mt-1">Eliminate the Retail Markup on Your Travel</p>
+            <p class="text-center text-gray-500 mt-1 text-sm">Eliminate the Retail Markup on Your Travel</p>
         </div>
 
-        <div class="space-y-5">
+        <div class="space-y-4">
             <!-- Membership Tiles -->
             <div>
-                <p class="section-label text-sm font-medium text-gray-700 mb-2">Membership</p>
+                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Membership</p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy">
                         <span class="text-xl sm:text-2xl font-bold">Legacy</span>
@@ -144,9 +144,9 @@
             </div>
         </div>
 
-        <!-- Results Section -->
-        <div class="mt-7">
-            <div id="results" class="space-y-5">
+        <!-- Results Section - Very tight -->
+        <div class="mt-6">
+            <div id="results" class="space-y-4">
                 <div id="cashResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
                     <div class="p-5 rounded-2xl bg-green-50 text-center">
@@ -157,31 +157,31 @@
 
                 <div id="financingResults" class="hidden">
                     <!-- Monthly Payment -->
-                    <div id="monthlyPayments" class="flex justify-center mb-4"></div>
+                    <div id="monthlyPayments" class="flex justify-center mb-3"></div>
 
                     <!-- Upgrade Offer -->
-                    <div id="upgradeOfferContainer" class="mb-5">
-                        <p class="section-label text-sm font-medium text-gray-700 mb-2 text-center">Upgrade Offer</p>
+                    <div id="upgradeOfferContainer" class="mb-4">
+                        <p class="section-label text-sm font-medium text-gray-700 mb-1.5 text-center">Upgrade Offer</p>
                         <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all">
                             <p id="upgradeOfferText" class="text-lg font-semibold"></p>
                         </div>
                     </div>
 
-                    <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
+                    <h2 class="text-xl font-semibold text-center mt-5 mb-4">Your Wholesale Travel Membership</h2>
                     
                     <!-- Bottom 3 Tiles -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                         <div class="summary-tile bg-gray-50 rounded-xl">
                             <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                            <p id="principalAmount" class="text-2xl font-bold mt-2">$0</p>
+                            <p id="principalAmount" class="text-2xl font-bold mt-1">$0</p>
                         </div>
                         <div class="summary-tile bg-gray-50 rounded-xl">
                             <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                            <p id="cashDownAmount" class="text-2xl font-bold mt-2">$0</p>
+                            <p id="cashDownAmount" class="text-2xl font-bold mt-1">$0</p>
                         </div>
                         <div class="summary-tile bg-gray-50 rounded-xl">
                             <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
-                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-2">$0</p>
+                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-1">$0</p>
                         </div>
                     </div>
 
@@ -198,13 +198,13 @@
             </div>
         </div>
 
-        <div class="mt-8 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
+        <div class="mt-7 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
             <p>All calculations are for illustrative purposes only. This is not a binding quote.</p>
         </div>
     </div>
 
     <script>
-        // Your existing script (unchanged - only spacing was optimized in HTML/CSS)
+        // Your full working script (unchanged)
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
         const discountHelperText = document.getElementById('discountHelperText');
