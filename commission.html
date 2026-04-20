@@ -9,9 +9,24 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f7f7f9; }
         .text-shadow-custom { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .membership-btn { transition: all 0.15s ease-in-out; }
-        #membership-buttons { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-        @media (min-width: 640px) { #membership-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        
+        .membership-btn {
+            transition: all 0.15s ease-in-out;
+        }
+        .membership-btn.bg-indigo-600 {
+            background-color: #4338ca !important; /* darker indigo for better contrast */
+        }
+        .membership-btn.bg-indigo-600 span {
+            opacity: 1 !important;
+            color: white !important;
+        }
+
+        #membership-buttons {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        @media (min-width: 640px) {
+            #membership-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
     </style>
 </head>
 <body class="p-4 sm:p-8 flex justify-center min-h-screen">
@@ -30,15 +45,15 @@
                 <div id="membership-buttons" class="grid gap-3 md:gap-4">
                     <button type="button" data-price="4999" data-default-cash="499" onclick="selectMembership(this)"
                         class="membership-btn bg-indigo-600 text-white p-3 rounded-lg font-bold text-center border-2 border-indigo-700 hover:bg-indigo-700 shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
-                        Legacy<br><span class="text-sm font-normal opacity-90">$4,999</span>
+                        Legacy<br><span class="text-sm font-normal">$4,999</span>
                     </button>
                     <button type="button" data-price="2999" data-default-cash="299" onclick="selectMembership(this)"
                         class="membership-btn bg-white text-indigo-600 p-3 rounded-lg font-bold text-center border-2 border-indigo-300 hover:bg-indigo-50 shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
-                        10 Year<br><span class="text-sm font-normal opacity-90">$2,999</span>
+                        10 Year<br><span class="text-sm font-normal">$2,999</span>
                     </button>
                     <button type="button" data-price="999" data-default-cash="99" onclick="selectMembership(this)"
                         class="membership-btn bg-white text-indigo-600 p-3 rounded-lg font-bold text-center border-2 border-indigo-300 hover:bg-indigo-50 shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
-                        3 Year<br><span class="text-sm font-normal opacity-90">$999</span>
+                        3 Year<br><span class="text-sm font-normal">$999</span>
                     </button>
                 </div>
             </div>
@@ -115,8 +130,7 @@
                     <input type="number" id="cashAmount" value="" min="0" step="1" oninput="calculateCommission()" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm font-bold text-lg">
                 </div>
                 <p id="cashValidationMessage" class="text-sm text-red-500 mt-1 h-4"></p>
-                <p class="text-sm text-gray-500 mt-1">Cash must be between 10% and 100% of the membership price (after discount).</p>
-            </div>
+                </div>
 
             <!-- Credit Type -->
             <div class="pb-4">
@@ -202,8 +216,10 @@
 
         function selectMembership(element) {
             const buttons = document.querySelectorAll('.membership-btn');
-            buttons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-700'));
-            buttons.forEach(btn => btn.classList.add('bg-white', 'text-indigo-600', 'border-indigo-300'));
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-700');
+                btn.classList.add('bg-white', 'text-indigo-600', 'border-indigo-300');
+            });
             element.classList.add('bg-indigo-600', 'text-white', 'border-indigo-700');
 
             selectedBasePrice = parseFloat(element.getAttribute('data-price'));
@@ -215,7 +231,6 @@
 
         function calculateCommission() {
             try {
-                // Discount slider with 3-year cap
                 let discountAmount = parseFloat(document.getElementById('discountSlider').value) || 0;
                 if (selectedBasePrice === 999) discountAmount = Math.min(discountAmount, 100);
                 document.getElementById('discountSlider').value = discountAmount;
@@ -225,7 +240,6 @@
                 const effectivePrice = selectedBasePrice - discountAmount;
                 document.getElementById('membershipPriceDisplay').textContent = formatCurrency(effectivePrice);
 
-                // Commission rates
                 const cashRatePct = parseFloat(document.getElementById('cashRate').value) / 100;
                 const abcRatePct = parseFloat(document.getElementById('abcRate').value) / 100;
                 const dsoRatePct = parseFloat(document.getElementById('dsoRate').value) / 100;
@@ -233,20 +247,17 @@
                 let cashAmount = parseFloat(document.getElementById('cashAmount').value) || 0;
                 const creditType = document.querySelector('input[name="creditType"]:checked').value;
 
-                // Commission cuts
                 let totalPenalty = 0;
                 if (document.getElementById('cut18mo').checked) totalPenalty += 0.25;
                 if (document.getElementById('cut24mo').checked) totalPenalty += 0.35;
                 if (document.getElementById('cutPaymentAssistance').checked) totalPenalty += 0.20;
 
-                // MIN CASH = 10% of net price - $1 (with absolute floor)
                 const tenPercent = effectivePrice * 0.10;
                 const calculatedMin = Math.ceil(tenPercent) - 1;
                 const absMin = selectedBasePrice === 999 ? 99 : selectedBasePrice === 2999 ? 199 : 299;
                 const minCash = Math.max(absMin, calculatedMin);
                 const maxCash = effectivePrice;
 
-                // Validation
                 const validationMessage = document.getElementById('cashValidationMessage');
                 if (cashAmount < minCash) {
                     validationMessage.textContent = `Minimum cash required is ${formatCurrency(minCash)}.`;
@@ -261,7 +272,6 @@
 
                 const clampedCashAmount = Math.max(minCash, Math.min(maxCash, cashAmount));
 
-                // Commissions
                 const cashCommission = clampedCashAmount * cashRatePct;
                 const remainingCredit = effectivePrice - clampedCashAmount;
                 let abcCommission = 0, dsoCommission = 0;
@@ -280,7 +290,6 @@
                 const conversionRate = parseFloat(document.getElementById('conversionRate').value) || 1.0;
                 const netCommissionCAD = netCommission * conversionRate;
 
-                // Display
                 document.getElementById('cashCommission').textContent = formatCurrency(cashCommission);
                 document.getElementById('abcCommission').textContent = formatCurrency(abcCommission);
                 document.getElementById('dsoCommission').textContent = formatCurrency(dsoCommission);
