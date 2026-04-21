@@ -62,16 +62,16 @@
             text-align: center;
         }
 
-        /* Clean horizontal alignment for bottom tiles */
+        /* Desired alignment: labels at top, numbers at bottom, horizontally aligned */
         .summary-tile {
             background-color: #f9fafb;
             border-radius: 12px;
-            padding: 14px 12px;
+            padding: 12px 8px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            justify-content: space-between;   /* Pushes label to top, number to bottom */
             min-height: 94px;
+            text-align: center;
         }
     </style>
 </head>
@@ -106,7 +106,7 @@
                 </div>
             </div>
 
-            <!-- Initial Amount, Manager Discount, Financing Term sections (tight spacing) -->
+            <!-- Initial Amount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Initial Amount</p>
@@ -120,6 +120,7 @@
                 <p id="cashDownError" class="hidden mt-1 text-xs text-red-500 text-center"></p>
             </div>
 
+            <!-- Manager Discount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Manager Discount</p>
@@ -132,6 +133,7 @@
                 <p id="discountHelperText" class="text-xs text-gray-500 mt-1 text-center">Max $750 cash out • Max $1,000 buyback</p>
             </div>
 
+            <!-- Financing Term -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Financing Term</p>
@@ -168,19 +170,19 @@
 
                     <h2 class="text-xl font-semibold text-center mt-5 mb-4">Your Wholesale Travel Membership</h2>
                     
-                    <!-- Clean horizontally aligned tiles -->
+                    <!-- Horizontally aligned labels at top, numbers at bottom -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                            <p id="principalAmount" class="text-2xl font-bold mt-2">$0</p>
+                            <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
                         </div>
                         <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                            <p id="cashDownAmount" class="text-2xl font-bold mt-2">$0</p>
+                            <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
                         </div>
                         <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
-                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-2">$0</p>
+                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
                         </div>
                     </div>
 
