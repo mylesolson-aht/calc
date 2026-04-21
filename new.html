@@ -153,10 +153,10 @@
                         <!-- Monthly Payment -->
                         <div id="monthlyPayments" class="flex justify-center"></div>
 
-                        <!-- Upgrade Offer - Simplified with plan name inside tile -->
+                        <!-- Upgrade Offer -->
                         <div id="upgradeOfferContainer">
                             <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
-                                <p id="upgradeOfferText" class="text-base font-semibold"></p>
+                                <p id="upgradeOfferText" class="text-sm"></p>
                             </div>
                         </div>
                     </div>
@@ -372,7 +372,6 @@
                     </div>
                 `;
 
-                // Simplified Upgrade Offer with "Upgrade to ..." text
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
@@ -388,15 +387,15 @@
                     const delta = payment - nextMonthly;
 
                     let deltaHTML = '';
-                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive text-sm">↓ Save ${formatCurrency(delta)}/mo</span>`;
-                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative text-sm">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
+                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
+                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
 
                     upgradeOfferText.innerHTML = `
-                        <span class="font-medium text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
-                        <span class="text-3xl font-bold text-blue-600 block mt-1">${formatCurrency(nextMonthly)}</span>
-                        <span class="text-sm text-gray-500">per month</span><br>
+                        <span class="text-sm text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
+                        <span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span>
+                        <span class="text-xs text-gray-500">per month</span><br>
                         ${deltaHTML}
-                        <span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo)</span>
+                        <span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
                     `;
                 }
             }
