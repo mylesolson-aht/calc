@@ -60,7 +60,18 @@
             box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
             padding: 1.25rem;
             text-align: center;
-            height: 100%; /* Makes both cards equal height */
+            height: 100%;
+        }
+
+        .summary-tile {
+            background-color: #f9fafb;
+            border-radius: 12px;
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 94px;
+            text-align: center;
         }
     </style>
 </head>
@@ -136,7 +147,7 @@
             </div>
         </div>
 
-        <!-- Results Section -->
+        <!-- Results -->
         <div class="mt-6">
             <div id="results" class="space-y-4">
                 <div id="cashResults" class="hidden">
@@ -148,8 +159,8 @@
                 </div>
 
                 <div id="financingResults" class="hidden">
-                    <!-- Monthly Payment + Upgrade Offer - Always side by side -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- Monthly + Upgrade Offer - Always side by side (2 columns) -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
                         <!-- Monthly Payment -->
                         <div id="monthlyPayments" class="flex justify-center"></div>
 
@@ -164,7 +175,8 @@
 
                     <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Bottom 3 tiles - Always 3 columns -->
+                    <div class="grid grid-cols-3 gap-3">
                         <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Membership Value</p>
                             <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
@@ -174,7 +186,7 @@
                             <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
                         </div>
                         <div class="summary-tile">
-                            <p class="text-sm font-medium text-gray-500">Remaining Balance</p>
+                            <p class="text-sm font-medium text-gray-500">Financed Balance</p>
                             <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
                         </div>
                     </div>
@@ -198,7 +210,7 @@
     </div>
 
     <script>
-        // Your existing script (unchanged)
+        // Your script (unchanged - only "Remaining Balance" renamed to "Financed Balance")
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
         const discountHelperText = document.getElementById('discountHelperText');
@@ -348,7 +360,6 @@
                 const currentTerm = parseInt(termSlider.value);
                 const payment = pmt(monthlyRate, currentTerm, remaining);
 
-                // Monthly Payment Tile
                 monthlyPaymentsContainer.innerHTML = `
                     <div class="result-card">
                         <p class="text-sm text-gray-500 mb-1">${currentTerm} Months</p>
