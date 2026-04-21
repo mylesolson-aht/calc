@@ -62,17 +62,6 @@
             text-align: center;
             height: 100%;
         }
-
-        .summary-tile {
-            background-color: #f9fafb;
-            border-radius: 12px;
-            padding: 12px 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 94px;
-            text-align: center;
-        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -159,23 +148,21 @@
                 </div>
 
                 <div id="financingResults" class="hidden">
-                    <!-- Monthly + Upgrade Offer - Always side by side (2 columns) -->
+                    <!-- Monthly + Upgrade Offer - Side by side -->
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <!-- Monthly Payment -->
                         <div id="monthlyPayments" class="flex justify-center"></div>
 
-                        <!-- Upgrade Offer -->
+                        <!-- Upgrade Offer - Simplified with plan name inside tile -->
                         <div id="upgradeOfferContainer">
-                            <p class="section-label text-sm font-medium text-gray-700 mb-2 text-center">Upgrade Offer</p>
                             <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
-                                <p id="upgradeOfferText" class="text-lg font-semibold"></p>
+                                <p id="upgradeOfferText" class="text-base font-semibold"></p>
                             </div>
                         </div>
                     </div>
 
                     <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
                     
-                    <!-- Bottom 3 tiles - Always 3 columns -->
                     <div class="grid grid-cols-3 gap-3">
                         <div class="summary-tile">
                             <p class="text-sm font-medium text-gray-500">Membership Value</p>
@@ -210,7 +197,6 @@
     </div>
 
     <script>
-        // Your script (unchanged - only "Remaining Balance" renamed to "Financed Balance")
         const discountSlider = document.getElementById('discountSlider');
         const discountValue = document.getElementById('discountValue');
         const discountHelperText = document.getElementById('discountHelperText');
@@ -243,8 +229,8 @@
         const PLAN_TERMS = { 'legacy': 36, '10year': 24, '3year': 12 };
 
         const UPGRADE_PATHS = {
-            '3year': { message: 'Travel 10 Years Unlimited for only', price: 2999, nextPlan: '10year' },
-            '10year': { message: 'Never Pay Retail Again for only', price: 4999, nextPlan: 'legacy' }
+            '3year': { name: '10 Year', price: 2999, nextPlan: '10year' },
+            '10year': { name: 'Legacy', price: 4999, nextPlan: 'legacy' }
         };
 
         let upgradeTargetPlan = null;
@@ -386,6 +372,7 @@
                     </div>
                 `;
 
+                // Simplified Upgrade Offer with "Upgrade to ..." text
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
 
@@ -401,16 +388,15 @@
                     const delta = payment - nextMonthly;
 
                     let deltaHTML = '';
-                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
-                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
-                    else deltaHTML = `<span class="text-gray-500">Same monthly</span>`;
+                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive text-sm">↓ Save ${formatCurrency(delta)}/mo</span>`;
+                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative text-sm">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
 
                     upgradeOfferText.innerHTML = `
-                        ${upgradeInfo.message}<br>
-                        <span class="text-2xl font-bold block mt-2 text-blue-600">${formatCurrency(nextMonthly)}</span>
-                        <span class="text-sm">per month</span><br>
+                        <span class="font-medium text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
+                        <span class="text-3xl font-bold text-blue-600 block mt-1">${formatCurrency(nextMonthly)}</span>
+                        <span class="text-sm text-gray-500">per month</span><br>
                         ${deltaHTML}
-                        <span class="text-xs text-gray-500 block mt-3">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
+                        <span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo)</span>
                     `;
                 }
             }
