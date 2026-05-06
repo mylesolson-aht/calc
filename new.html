@@ -183,19 +183,24 @@
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
-        function forceAutoInitial() {
-            const plan = document.querySelector('.input-tile.active').dataset.plan;
-            let buyback = parseInt(discountSlider.value) || 0;
-            if (plan === '3year') buyback = Math.min(buyback, 100);
-            const principal = Math.max(0, planPrices[plan] - buyback);
-            const defaultInitial = getDefaultInitialAmount(principal);
-
-            initialAmountSlider.min = defaultInitial;
-            initialAmountSlider.max = principal;
-            initialAmountSlider.value = defaultInitial;
-            initialAmountValue.textContent = '$' + defaultInitial;
-            sliderMinLabel.textContent = '$' + defaultInitial;
-            sliderMaxLabel.textContent = '$' + principal;
+        function updateTermUI(plan) {
+            if (plan === 'legacy') {
+                termSlider.max = 36;
+                termSlider.value = 36;
+                termMaxLabel.textContent = '36';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
+            } else if (plan === '10year') {
+                termSlider.max = 24;
+                termSlider.value = Math.min(24, parseInt(termSlider.value) || 24);
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            } else { // 3year
+                termSlider.max = 24;
+                termSlider.value = 12;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            }
+            termValueDisplay.textContent = termSlider.value + " Months";
         }
 
         function calculate() {
@@ -207,12 +212,11 @@
             discountValue.textContent = '$' + buyback;
 
             const defaultInitial = getDefaultInitialAmount(principal);
-            let cashDown = parseInt(initialAmountSlider.value);
+            let cashDown = parseInt(initialAmountSlider.value) || defaultInitial;
 
-            if (cashDown < principal - 1) {
-                cashDown = defaultInitial;
-                initialAmountSlider.value = cashDown;
-            }
+            initialAmountSlider.min = defaultInitial;
+            initialAmountSlider.max = principal;
+            initialAmountSlider.value = cashDown;
 
             initialAmountValue.textContent = '$' + cashDown;
             sliderMinLabel.textContent = '$' + defaultInitial;
@@ -229,6 +233,7 @@
             } else {
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
+
                 const remaining = principal - cashDown;
                 const term = parseInt(termSlider.value);
                 const payment = pmt(interestRate / 12, term, remaining);
@@ -272,6 +277,7 @@
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
             discountSlider.value = 0;
+            updateTermUI(tile.dataset.plan);   // ← This enforces 24-month limit
             calculate();
         }
 
@@ -287,11 +293,8 @@
 
         // Event Listeners
         document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
-        discountSlider.addEventListener('input', () => { forceAutoInitial(); calculate(); });
-        initialAmountSlider.addEventListener('input', () => {
-            initialAmountValue.textContent = '$' + initialAmountSlider.value;
-            calculate();
-        });
+        discountSlider.addEventListener('input', calculate);
+        initialAmountSlider.addEventListener('input', () => { initialAmountValue.textContent = '$' + initialAmountSlider.value; calculate(); });
         termSlider.addEventListener('input', calculate);
 
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
