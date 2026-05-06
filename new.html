@@ -61,7 +61,7 @@
         .quick-tile:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .quick-tile:active { transform: scale(0.98); }
 
-        .whatsapp-tile {
+        .vlo-button {
             background-color: #25D366;
             color: white;
             border-radius: 12px;
@@ -76,7 +76,17 @@
             justify-content: center;
             gap: 8px;
         }
-        .whatsapp-tile:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3); }
+        .vlo-button:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3); }
+        .vlo-button.error {
+            background-color: #ff3b30;
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
 
         .upgrade-delta { font-weight: 700; }
         .upgrade-delta-positive { color: #28a745; }
@@ -158,10 +168,10 @@
                 </div>
             </div>
 
-            <!-- NEW: WhatsApp Copy Button -->
+            <!-- VLO Call Button -->
             <div class="mt-2">
-                <div id="whatsappButton" class="whatsapp-tile text-white">
-                    📋 Copy WhatsApp Message
+                <div id="vloButton" class="vlo-button">
+                    📋 Copy VLO Call
                 </div>
             </div>
 
@@ -292,8 +302,7 @@
         const sliderMinLabel = document.getElementById('sliderMinLabel');
         const sliderMaxLabel = document.getElementById('sliderMaxLabel');
 
-        // New WhatsApp button
-        const whatsappButton = document.getElementById('whatsappButton');
+        const vloButton = document.getElementById('vloButton');
 
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
@@ -422,7 +431,6 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal) {
-                // CASH OUT
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
@@ -432,7 +440,6 @@
                 balanceLabel.textContent = 'Interest Saved';
                 remainingBalanceAmountOutput.textContent = formatCurrency(interestSaved);
             } else {
-                // FINANCING
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -539,28 +546,36 @@
             calculate();
         }
 
-        // ====================== WHATSAPP COPY FUNCTION ======================
-        function copyToWhatsApp() {
-            const activeTile = document.querySelector('.input-tile.active');
-            const plan = activeTile ? activeTile.dataset.plan : 'legacy';
-            const membership = PLAN_DISPLAY[plan];
+        // ====================== COPY VLO CALL ======================
+        function copyVLOCall() {
+            const podiumName = document.getElementById('podiumHostInput').value.trim();
+            const clientName = document.getElementById('clientNameInput').value.trim();
 
-            const clientName = document.getElementById('clientNameInput').value.trim() || 'Client Name';
-            const podiumName = document.getElementById('podiumHostInput').value.trim() || 'Podium Presenter';
+            // === ERROR CHECK ===
+            if (!podiumName || !clientName) {
+                vloButton.classList.add('error');
+                vloButton.textContent = '❌ Enter Client Name & Podium Host';
+                setTimeout(() => {
+                    vloButton.classList.remove('error');
+                    vloButton.innerHTML = '📋 Copy VLO Call';
+                }, 2500);
+                return;
+            }
+
+            const activeTile = document.querySelector('.input-tile.active');
+            const plan = activeTile.dataset.plan;
+            const membership = PLAN_DISPLAY[plan];
 
             const buyback = parseInt(discountSlider.value) || 0;
             const isCashOut = parseFloat(initialAmountSlider.value) >= (planPrices[plan] - buyback);
 
-            let amountLine = '';
-            if (isCashOut) {
-                amountLine = `${cashOutTotalOutput.textContent} total`;
-            } else {
-                amountLine = `${initialAmountValue.textContent} down`;
-            }
+            let amountLine = isCashOut 
+                ? `${cashOutTotalOutput.textContent} (Cash Out)` 
+                : `${initialAmountValue.textContent} down`;
 
-            const discountLine = buyback > 0 ? `BB $${buyback}` : 'No bb';
+            const discountLine = buyback > 0 ? `${buyback} discount` : 'No discount';
 
-            const term = termSlider.value;
+            const termLine = isCashOut ? 'CASH OUT' : termSlider.value;
 
             const message = `Vlo please\n\n` +
                 `${clientName}\n` +
@@ -568,17 +583,17 @@
                 `${membership}\n` +
                 `${discountLine}\n` +
                 `No hero\n` +
-                `${term}\n` +
+                `${termLine}\n` +
                 `${podiumName}`;
 
             navigator.clipboard.writeText(message).then(() => {
-                const originalText = whatsappButton.innerHTML;
-                whatsappButton.innerHTML = '✅ Copied to Clipboard!';
-                whatsappButton.style.backgroundColor = '#128C7E';
+                const original = vloButton.innerHTML;
+                vloButton.innerHTML = '✅ Copied!';
+                vloButton.style.backgroundColor = '#128C7E';
                 setTimeout(() => {
-                    whatsappButton.innerHTML = originalText;
-                    whatsappButton.style.backgroundColor = '#25D366';
-                }, 2000);
+                    vloButton.innerHTML = original;
+                    vloButton.style.backgroundColor = '#25D366';
+                }, 1800);
             });
         }
 
@@ -588,12 +603,10 @@
         });
 
         discountSlider.addEventListener('input', calculate);
-
         initialAmountSlider.addEventListener('input', () => {
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
             calculate();
         });
-
         termSlider.addEventListener('input', () => {
             updateTermDisplay();
             calculate();
@@ -603,8 +616,7 @@
             tile.addEventListener('click', () => quickSetInitial(tile.dataset.set));
         });
 
-        // WhatsApp button
-        whatsappButton.addEventListener('click', copyToWhatsApp);
+        vloButton.addEventListener('click', copyVLOCall);
 
         let detailsVisible = false;
         toggleInterestButton.addEventListener('click', () => {
