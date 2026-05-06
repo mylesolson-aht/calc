@@ -136,13 +136,10 @@
                 </div>
             </div>
 
-            <!-- Quick Initial Amount Tiles -->
+            <!-- Quick Initial Amount Tiles (Min Financed removed) -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="quick-tile" data-set="min-financed">
-                        Min Financed
-                    </div>
+                <div class="grid grid-cols-2 gap-3">
                     <div class="quick-tile" data-set="max-buyback-financed">
                         Max Buy Back Financed
                     </div>
@@ -166,7 +163,7 @@
                 <p id="cashDownError" class="hidden mt-1 text-xs text-red-500 text-center"></p>
             </div>
 
-            <!-- Manager Discount + Cash Out 10% Toggle -->
+            <!-- Manager Discount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Manager Discount</p>
@@ -176,14 +173,6 @@
                 <div class="flex justify-between text-xs text-gray-500 mt-1">
                     <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="buybackMaxLabel">$1,000</span>
                 </div>
-
-                <div class="flex items-center gap-2 mt-4">
-                    <input type="checkbox" id="apply10Percent" class="w-5 h-5 accent-blue-600 rounded">
-                    <label for="apply10Percent" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                        Is Cash Out – Apply 10% Cash Discount
-                    </label>
-                </div>
-
                 <p id="discountHelperText" class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buyback</p>
             </div>
 
@@ -283,8 +272,6 @@
         const sliderMinLabel = document.getElementById('sliderMinLabel');
         const sliderMaxLabel = document.getElementById('sliderMaxLabel');
 
-        const apply10PercentCheckbox = document.getElementById('apply10Percent');
-
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
         const ABSOLUTE_MIN = { '3year': 99, '10year': 199, 'legacy': 299 };
@@ -313,15 +300,9 @@
         }
 
         function updateBuybackSliderMax(plan) {
-            const isCashOut10 = apply10PercentCheckbox.checked && plan !== '3year';
             let maxBuyback = 1000;
-
-            if (isCashOut10) {
-                const base = planPrices[plan];
-                const maxTotalForCashOut = (plan === 'legacy') ? 1000 : (plan === '10year' ? 750 : 100);
-                maxBuyback = Math.floor((maxTotalForCashOut - 0.1 * base) / 0.9);
-                if (maxBuyback < 0) maxBuyback = 0;
-            }
+            if (plan === '10year') maxBuyback = 750;
+            if (plan === '3year') maxBuyback = 100;
 
             discountSlider.max = maxBuyback;
             buybackMaxLabel.textContent = '$' + maxBuyback;
@@ -337,16 +318,13 @@
                 discountSlider.value = 0;
                 discountValue.textContent = '$0';
                 discountValue.classList.add('text-gray-400');
-                apply10PercentCheckbox.disabled = true;
-                apply10PercentCheckbox.checked = false;
                 discountHelperText.textContent = 'No discount available on Trial 3 Year plan';
             } else {
                 discountSlider.disabled = false;
                 discountValue.classList.remove('text-gray-400');
-                apply10PercentCheckbox.disabled = false;
                 updateBuybackSliderMax(plan);
-                discountHelperText.textContent = apply10PercentCheckbox.checked
-                    ? 'Buyback + 10% cash discount (total capped at plan limit)'
+                discountHelperText.textContent = plan === 'legacy' 
+                    ? 'Max $1,000 buyback' 
                     : 'Max $750 cash out • Max $1,000 buyback';
             }
         }
@@ -399,10 +377,7 @@
             const basePrice = planPrices[plan];
 
             const buyback = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
-            const apply10 = apply10PercentCheckbox.checked && plan !== '3year';
-
-            const cashDiscount = apply10 ? Math.round(0.10 * (basePrice - buyback)) : 0;
-            const totalDiscount = buyback + cashDiscount;
+            const totalDiscount = buyback; // 10% only applied via Max Cash Out button
 
             const principal = Math.max(0, basePrice - totalDiscount);
 
@@ -467,7 +442,6 @@
                     const nextPlan = upgradeInfo.nextPlan;
                     const nextTerm = PLAN_TERMS[nextPlan];
                     const nextBuyback = 1000;
-                    const nextCashDiscount = 0;
                     const nextPrincipal = upgradeInfo.price - nextBuyback;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.max(getMinDeposit(nextPrincipal, nextPlan), Math.round(nextPrincipal * ratio));
@@ -495,13 +469,10 @@
             tile.classList.add('active');
             const plan = tile.dataset.plan;
 
-            // DEFAULTS as requested
-            discountSlider.value = 0;                    // Manager Discount defaults to 0
-            apply10PercentCheckbox.checked = false;      // Cash Out 10% OFF by default
-
+            discountSlider.value = 0;
             updateTermUI(plan);
             updateDiscountUI(plan);
-            calculate();                                 // This will set Initial Amount to 10% min deposit
+            calculate(); // defaults to 10% min deposit
         }
 
         function quickSetInitial(action) {
@@ -511,18 +482,19 @@
             const basePrice = planPrices[plan];
 
             const buyback = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
-            const apply10 = apply10PercentCheckbox.checked && plan !== '3year';
-            const cashDiscount = apply10 ? Math.round(0.10 * (basePrice - buyback)) : 0;
-            const totalDiscount = buyback + cashDiscount;
-            const principal = Math.max(0, basePrice - totalDiscount);
+            let principal = Math.max(0, basePrice - buyback);
 
             let targetValue;
-            if (action === 'min-financed') {
-                targetValue = getMinDeposit(principal, plan);
-            } else if (action === 'max-buyback-financed') {
+            if (action === 'max-buyback-financed') {
                 targetValue = plan === 'legacy' ? 399 : plan === '10year' ? 199 : 99;
             } else if (action === 'max-cash-out') {
-                targetValue = principal;
+                // Apply 10% cash discount + fix 3-year to exactly 899
+                let discounted = Math.round(basePrice * 0.9);
+                if (plan === '3year') discounted = 899;
+                principal = discounted;
+                targetValue = discounted;
+                // Reset buyback when doing full cash-out with 10%
+                discountSlider.value = 0;
             }
 
             initialAmountSlider.value = targetValue;
@@ -544,13 +516,6 @@
 
         termSlider.addEventListener('input', () => {
             updateTermDisplay();
-            calculate();
-        });
-
-        apply10PercentCheckbox.addEventListener('change', () => {
-            const activeTile = document.querySelector('.input-tile.active');
-            const plan = activeTile ? activeTile.dataset.plan : 'legacy';
-            updateBuybackSliderMax(plan);
             calculate();
         });
 
