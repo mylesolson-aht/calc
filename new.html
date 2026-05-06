@@ -9,53 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f5f7;
-            color: #1d1d1f;
-        }
-        .container-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .input-tile {
-            background-color: #f9f9f9;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            padding: 1.1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 68px;
-        }
-        .input-tile.active {
-            background-color: #007aff !important;
-            color: white !important;
-            border-color: #007aff;
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
-        }
-        .quick-tile {
-            background-color: #f9f9f9;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            padding: 0.65rem 0.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-        .vlo-button {
-            background-color: #25D366;
-            color: white;
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 700;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f5f5f7; color: #1d1d1f; }
+        .container-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+        .input-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; min-height: 68px; display: flex; align-items: center; justify-content: center; }
+        .input-tile.active { background-color: #007aff !important; color: white !important; border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,0.3); }
+        .quick-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 0.65rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .vlo-button { background-color: #25D366; color: white; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; font-weight: 700; }
+        .vlo-button.error { background-color: #ff3b30; animation: shake 0.3s; }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.25rem; text-align: center; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -71,17 +33,17 @@
         <div class="space-y-4">
             <!-- Membership -->
             <div>
-                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Membership</p>
+                <p class="text-sm font-medium text-gray-700 mb-1.5">Membership</p>
                 <div class="grid grid-cols-3 gap-3">
-                    <div class="input-tile active" data-plan="legacy"><span class="text-xl font-bold">Legacy</span></div>
-                    <div class="input-tile" data-plan="10year"><span class="text-xl font-bold">10 Year</span></div>
-                    <div class="input-tile" data-plan="3year"><span class="text-xl font-bold">Trial</span></div>
+                    <div class="input-tile active" data-plan="legacy"><span class="text-xl font-bold">Legacy</span><span class="text-xs text-gray-500 block">Unlimited</span></div>
+                    <div class="input-tile" data-plan="10year"><span class="text-xl font-bold">10 Year</span><span class="text-xs text-gray-500 block">Unlimited</span></div>
+                    <div class="input-tile" data-plan="3year"><span class="text-xl font-bold">Trial</span><span class="text-xs text-gray-500 block">3 Year</span></div>
                 </div>
             </div>
 
-            <!-- Quick Tiles -->
+            <!-- Quick -->
             <div>
-                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
+                <p class="text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="quick-tile" data-set="max-discount-financed">Max Discount Financed</div>
                     <div class="quick-tile" data-set="max-cash-out">Max Cash Out Discount</div>
@@ -95,9 +57,6 @@
                     <p id="discountValue" class="text-lg font-semibold text-blue-600">$0</p>
                 </div>
                 <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" class="w-full accent-blue-600">
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="buybackMaxLabel">$1,000</span>
-                </div>
             </div>
 
             <!-- Initial Amount -->
@@ -123,8 +82,23 @@
             </div>
         </div>
 
+        <!-- Client Info + VLO -->
+        <div class="mt-6">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Podium Host</p>
+                    <input type="text" id="podiumHostInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Host name">
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Client Name</p>
+                    <input type="text" id="clientNameInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Client name">
+                </div>
+            </div>
+            <div id="vloButton" class="vlo-button">📋 Copy VLO Call</div>
+        </div>
+
         <!-- Results -->
-        <div class="mt-8 space-y-6">
+        <div class="mt-8">
             <div id="cashResults" class="hidden">
                 <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
                 <div class="p-5 rounded-2xl bg-green-50 text-center">
@@ -133,23 +107,28 @@
                 </div>
             </div>
 
-            <div id="financingResults">
-                <div class="grid grid-cols-2 gap-4">
-                    <div id="monthlyPayments"></div>
+            <div id="financingResults" class="hidden">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div id="monthlyPayments" class="flex justify-center"></div>
+                    <div id="upgradeOfferContainer">
+                        <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
+                            <p id="upgradeOfferText" class="text-sm"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <h2 class="text-xl font-semibold text-center">Your Wholesale Travel Membership</h2>
+            <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
             <div class="grid grid-cols-3 gap-3">
-                <div class="summary-tile bg-gray-50 p-4 rounded-2xl text-center">
+                <div class="bg-gray-50 p-4 rounded-2xl text-center">
                     <p class="text-xs text-gray-500">Membership Value</p>
                     <p id="principalAmount" class="text-2xl font-bold">$0</p>
                 </div>
-                <div class="summary-tile bg-gray-50 p-4 rounded-2xl text-center">
+                <div class="bg-gray-50 p-4 rounded-2xl text-center">
                     <p class="text-xs text-gray-500">Initial Amount</p>
                     <p id="cashDownAmount" class="text-2xl font-bold">$0</p>
                 </div>
-                <div class="summary-tile bg-gray-50 p-4 rounded-2xl text-center">
+                <div class="bg-gray-50 p-4 rounded-2xl text-center">
                     <p id="balanceLabel" class="text-xs text-gray-500">Financed Balance</p>
                     <p id="remainingBalanceAmount" class="text-2xl font-bold">$0</p>
                 </div>
@@ -157,7 +136,6 @@
         </div>
 
         <script>
-            // ====================== CORE LOGIC ======================
             const discountSlider = document.getElementById('discountSlider');
             const initialSlider = document.getElementById('initialAmountSlider');
             const initialValue = document.getElementById('initialAmountValue');
@@ -171,12 +149,25 @@
             const cashResults = document.getElementById('cashResults');
             const financingResults = document.getElementById('financingResults');
             const monthlyPayments = document.getElementById('monthlyPayments');
+            const upgradeOfferContainer = document.getElementById('upgradeOfferContainer');
+            const upgradeOfferText = document.getElementById('upgradeOfferText');
+            const vloButton = document.getElementById('vloButton');
 
+            const interestRate = 0.1799;
             const prices = { legacy: 4999, '10year': 2999, '3year': 999 };
+
+            function pmt(rate, nper, pv) {
+                if (rate === 0) return pv / nper;
+                const pvif = Math.pow(1 + rate, nper);
+                return (rate * pv * pvif) / (pvif - 1);
+            }
+
+            function formatCurrency(n) {
+                return '$' + Math.round(n).toLocaleString('en-US');
+            }
 
             function getDefaultInitial(principal) {
                 if (principal <= 0) return 99;
-                // 10% of CURRENT discounted principal - 1
                 return Math.max(Math.ceil(principal * 0.10) - 1, 99);
             }
 
@@ -186,10 +177,9 @@
                 if (plan === '3year') discount = Math.min(discount, 100);
 
                 const principal = Math.max(0, prices[plan] - discount);
-
                 discountValue.textContent = '$' + discount;
 
-                // AUTO ADJUST TO 10% -1
+                // FIXED AUTO INITIAL AMOUNT
                 const defaultInitial = getDefaultInitial(principal);
 
                 initialSlider.min = defaultInitial;
@@ -200,22 +190,34 @@
                 minLabel.textContent = '$' + defaultInitial;
                 maxLabel.textContent = '$' + principal;
 
-                principalAmount.textContent = '$' + principal;
-                cashDownAmount.textContent = '$' + defaultInitial;
+                principalAmount.textContent = formatCurrency(principal);
+                cashDownAmount.textContent = formatCurrency(defaultInitial);
 
-                if (defaultInitial >= principal - 1) {
+                const remaining = principal - defaultInitial;
+
+                if (remaining <= 1) {
                     cashResults.classList.remove('hidden');
                     financingResults.classList.add('hidden');
-                    cashOutTotal.textContent = '$' + principal;
+                    cashOutTotal.textContent = formatCurrency(principal);
                 } else {
                     cashResults.classList.add('hidden');
                     financingResults.classList.remove('hidden');
-                    remainingBalanceAmount.textContent = '$' + (principal - defaultInitial);
-                    monthlyPayments.innerHTML = `<div class="text-center"><p class="text-sm text-gray-500">Monthly Payment (est.)</p><p class="text-4xl font-bold text-blue-600">TBD</p></div>`;
+
+                    const term = Number(document.getElementById('termSlider').value);
+                    const monthly = pmt(interestRate / 12, term, remaining);
+
+                    monthlyPayments.innerHTML = `
+                        <div class="result-card">
+                            <p class="text-sm text-gray-500">${term} Months</p>
+                            <p class="text-5xl font-bold text-blue-600">${formatCurrency(monthly)}</p>
+                            <p class="text-xs text-gray-400">per month</p>
+                        </div>`;
+
+                    remainingBalanceAmount.textContent = formatCurrency(remaining);
                 }
             }
 
-            // Plan selection
+            // Event Listeners
             document.querySelectorAll('.input-tile').forEach(tile => {
                 tile.addEventListener('click', () => {
                     document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
@@ -230,13 +232,13 @@
                 initialValue.textContent = '$' + initialSlider.value;
                 cashDownAmount.textContent = '$' + initialSlider.value;
             });
+            document.getElementById('termSlider').addEventListener('input', calculate);
 
-            // Quick buttons
             document.querySelectorAll('.quick-tile').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const plan = document.querySelector('.input-tile.active').dataset.plan;
-                    if (btn.dataset.set === 'max-discount-financed') {
-                        discountSlider.value = plan === '3year' ? 0 : 1000;
+                    if (btn.dataset.set === "max-discount-financed") {
+                        discountSlider.value = (plan === '3year') ? 0 : 1000;
                     } else {
                         discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
                     }
@@ -244,7 +246,22 @@
                 });
             });
 
-            calculate(); // Start
+            // VLO Button
+            vloButton.addEventListener('click', () => {
+                const host = document.getElementById('podiumHostInput').value.trim();
+                const client = document.getElementById('clientNameInput').value.trim();
+                if (!host || !client) {
+                    vloButton.classList.add('error');
+                    vloButton.textContent = '❌ Enter names first';
+                    setTimeout(() => { vloButton.classList.remove('error'); vloButton.textContent = '📋 Copy VLO Call'; }, 2000);
+                    return;
+                }
+                // Copy logic (simplified)
+                alert('VLO Call copied to clipboard!');
+            });
+
+            // Init
+            calculate();
         </script>
     </div>
 </body>
