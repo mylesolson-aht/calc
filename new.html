@@ -19,7 +19,6 @@
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.25rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
-        .interest-saved { color: #28a745; font-weight: 700; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -277,14 +276,13 @@
 
         function quickSetInitial(action) {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
-
             if (action === 'max-discount-financed') {
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
-                forceAutoInitial();           // ← THIS WAS THE MISSING LINE
+                forceAutoInitial();   // ← THIS IS THE FIX
             } else if (action === 'max-cash-out') {
                 discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
                 const principal = Math.max(0, planPrices[plan] - parseInt(discountSlider.value));
-                initialAmountSlider.value = principal;   // full cash out
+                initialAmountSlider.value = principal;
             }
             calculate();
         }
@@ -292,10 +290,7 @@
         // Event Listeners
         document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
         discountSlider.addEventListener('input', () => { forceAutoInitial(); calculate(); });
-        initialAmountSlider.addEventListener('input', () => {
-            initialAmountValue.textContent = '$' + initialAmountSlider.value;
-            calculate();
-        });
+        initialAmountSlider.addEventListener('input', () => { initialAmountValue.textContent = '$' + initialAmountSlider.value; calculate(); });
         termSlider.addEventListener('input', calculate);
 
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
