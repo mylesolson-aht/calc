@@ -182,19 +182,21 @@
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
-        function forceAutoInitial() {
-            const plan = document.querySelector('.input-tile.active').dataset.plan;
-            let buyback = parseInt(discountSlider.value) || 0;
-            if (plan === '3year') buyback = Math.min(buyback, 100);
-            const principal = Math.max(0, planPrices[plan] - buyback);
-            const defaultInitial = getDefaultInitialAmount(principal);
-
-            initialAmountSlider.min = defaultInitial;
-            initialAmountSlider.max = principal;
-            initialAmountSlider.value = defaultInitial;
-            initialAmountValue.textContent = '$' + defaultInitial;
-            sliderMinLabel.textContent = '$' + defaultInitial;
-            sliderMaxLabel.textContent = '$' + principal;
+        function updateTermUI(plan) {
+            if (plan === 'legacy') {
+                termSlider.max = 36; termSlider.value = 36;
+                termMaxLabel.textContent = '36';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
+            } else if (plan === '10year') {
+                termSlider.max = 24; termSlider.value = 24;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            } else {
+                termSlider.max = 24; termSlider.value = 12;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            }
+            termValueDisplay.textContent = termSlider.value + " Months";
         }
 
         function calculate() {
@@ -271,20 +273,37 @@
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
             discountSlider.value = 0;
+            updateTermUI(tile.dataset.plan);
             calculate();
         }
 
         function quickSetInitial(action) {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
+
             if (action === 'max-discount-financed') {
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
-                forceAutoInitial();   // ← THIS IS THE FIX
+                forceAutoInitial();           // ← CRITICAL FIX
             } else if (action === 'max-cash-out') {
                 discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
                 const principal = Math.max(0, planPrices[plan] - parseInt(discountSlider.value));
-                initialAmountSlider.value = principal;
+                initialAmountSlider.value = principal;   // full cash out
             }
             calculate();
+        }
+
+        function forceAutoInitial() {
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
+            let buyback = parseInt(discountSlider.value) || 0;
+            if (plan === '3year') buyback = Math.min(buyback, 100);
+            const principal = Math.max(0, planPrices[plan] - buyback);
+            const defaultInitial = getDefaultInitialAmount(principal);
+
+            initialAmountSlider.min = defaultInitial;
+            initialAmountSlider.max = principal;
+            initialAmountSlider.value = defaultInitial;
+            initialAmountValue.textContent = '$' + defaultInitial;
+            sliderMinLabel.textContent = '$' + defaultInitial;
+            sliderMaxLabel.textContent = '$' + principal;
         }
 
         // Event Listeners
