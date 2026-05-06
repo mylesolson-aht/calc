@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- Quick Initial Amount Tiles (Min Financed removed) -->
+            <!-- Quick Initial Amount Tiles -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
                 <div class="grid grid-cols-2 gap-3">
@@ -301,7 +301,7 @@
 
         function updateBuybackSliderMax(plan) {
             let maxBuyback = 1000;
-            if (plan === '10year') maxBuyback = 750;
+            if (plan === '10year') maxBuyback = 750;   // cash-out limit for 10yr
             if (plan === '3year') maxBuyback = 100;
 
             discountSlider.max = maxBuyback;
@@ -377,7 +377,7 @@
             const basePrice = planPrices[plan];
 
             const buyback = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
-            const totalDiscount = buyback; // 10% only applied via Max Cash Out button
+            const totalDiscount = buyback;
 
             const principal = Math.max(0, basePrice - totalDiscount);
 
@@ -469,10 +469,10 @@
             tile.classList.add('active');
             const plan = tile.dataset.plan;
 
-            discountSlider.value = 0;
+            discountSlider.value = 0;                    // Manager Discount defaults to 0
             updateTermUI(plan);
             updateDiscountUI(plan);
-            calculate(); // defaults to 10% min deposit
+            calculate();                                 // defaults to 10% min deposit
         }
 
         function quickSetInitial(action) {
@@ -481,20 +481,28 @@
             const plan = activeTile.dataset.plan;
             const basePrice = planPrices[plan];
 
-            const buyback = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
-            let principal = Math.max(0, basePrice - buyback);
-
             let targetValue;
+
             if (action === 'max-buyback-financed') {
+                // === NEW BEHAVIOR: Set max buyback + adjust initial amount ===
+                const maxBuyback = (plan === 'legacy' || plan === '10year') ? 1000 : 0;
+                discountSlider.value = maxBuyback;
+
+                const principalAfterBuyback = Math.max(0, basePrice - maxBuyback);
+
+                // Low financed amount after max buyback
                 targetValue = plan === 'legacy' ? 399 : plan === '10year' ? 199 : 99;
+
+                // Ensure it doesn't go below the new minimum deposit
+                const newMinDep = getMinDeposit(principalAfterBuyback, plan);
+                if (targetValue < newMinDep) targetValue = newMinDep;
+
             } else if (action === 'max-cash-out') {
-                // Apply 10% cash discount + fix 3-year to exactly 899
-                let discounted = Math.round(basePrice * 0.9);
-                if (plan === '3year') discounted = 899;
-                principal = discounted;
-                targetValue = discounted;
-                // Reset buyback when doing full cash-out with 10%
-                discountSlider.value = 0;
+                // Max Cash Out still applies 10% discount and sets full amount
+                let discountedPrice = Math.round(basePrice * 0.9);
+                if (plan === '3year') discountedPrice = 899;
+                discountSlider.value = 0;                     // reset buyback
+                targetValue = discountedPrice;
             }
 
             initialAmountSlider.value = targetValue;
