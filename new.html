@@ -81,7 +81,6 @@
             background-color: #ff3b30;
             animation: shake 0.3s;
         }
-
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-4px); }
@@ -306,7 +305,7 @@
 
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
-        const ABSOLUTE_MIN = { '3year': 99, '10year': 199, 'legacy': 299 };
+        const FLOOR_INITIAL = { '3year': 99, '10year': 299, 'legacy': 499 };   // exact floors requested
         const PLAN_TERMS = { 'legacy': 36, '10year': 24, '3year': 12 };
 
         const UPGRADE_PATHS = {
@@ -328,9 +327,9 @@
         }
 
         function getDefaultInitialAmount(principal, plan) {
-            if (principal <= 0) return ABSOLUTE_MIN[plan];
+            if (principal <= 0) return FLOOR_INITIAL[plan];
             const tenPercent = Math.round(principal * 0.10);
-            return Math.max(tenPercent, ABSOLUTE_MIN[plan]);
+            return Math.max(tenPercent, FLOOR_INITIAL[plan]);
         }
 
         function calculateHypotheticalInterest(principal, plan) {
@@ -551,10 +550,9 @@
             const podiumName = document.getElementById('podiumHostInput').value.trim();
             const clientName = document.getElementById('clientNameInput').value.trim();
 
-            // === ERROR CHECK ===
             if (!podiumName || !clientName) {
                 vloButton.classList.add('error');
-                vloButton.textContent = '❌ Enter Client Name & Podium Host';
+                vloButton.textContent = '❌ Enter Client & Podium Name';
                 setTimeout(() => {
                     vloButton.classList.remove('error');
                     vloButton.innerHTML = '📋 Copy VLO Call';
@@ -575,14 +573,13 @@
 
             const discountLine = buyback > 0 ? `${buyback} discount` : 'No discount';
 
-            const termLine = isCashOut ? 'CASH OUT' : termSlider.value;
+            const termLine = isCashOut ? 'CASH OUT' : `${termSlider.value} Months`;
 
-            const message = `Vlo please\n\n` +
+            const message = `VLO Please\n\n` +
                 `${clientName}\n` +
                 `${amountLine}\n` +
                 `${membership}\n` +
                 `${discountLine}\n` +
-                `No hero\n` +
                 `${termLine}\n` +
                 `${podiumName}`;
 
