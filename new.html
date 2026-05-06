@@ -171,20 +171,6 @@
                 📋 Copy VLO Call
             </div>
 
-            <!-- Initial Amount -->
-            <div>
-                <div class="flex justify-between items-baseline mb-1">
-                    <p class="text-sm font-medium text-gray-700">Initial Amount</p>
-                    <p id="initialAmountValue" class="text-lg font-semibold text-blue-600">$0</p>
-                </div>
-                <input type="range" id="initialAmountSlider" min="99" max="4999" step="50" value="399" class="w-full accent-blue-600">
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span id="sliderMinLabel">$99</span>
-                    <span id="sliderMaxLabel">$4,999</span>
-                </div>
-                <p id="cashDownError" class="hidden mt-1 text-xs text-red-500 text-center"></p>
-            </div>
-
             <!-- Manager Discount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
@@ -196,6 +182,20 @@
                     <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="buybackMaxLabel">$1,000</span>
                 </div>
                 <p id="discountHelperText" class="text-xs text-gray-500 mt-2 text-center">Max $750 cash out • Max $1,000 buyback</p>
+            </div>
+
+            <!-- Initial Amount (moved below Manager Discount) -->
+            <div>
+                <div class="flex justify-between items-baseline mb-1">
+                    <p class="text-sm font-medium text-gray-700">Initial Amount</p>
+                    <p id="initialAmountValue" class="text-lg font-semibold text-blue-600">$0</p>
+                </div>
+                <input type="range" id="initialAmountSlider" min="99" max="4999" step="50" value="399" class="w-full accent-blue-600">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span id="sliderMinLabel">$99</span>
+                    <span id="sliderMaxLabel">$4,999</span>
+                </div>
+                <p id="cashDownError" class="hidden mt-1 text-xs text-red-500 text-center"></p>
             </div>
 
             <!-- Financing Term -->
@@ -323,10 +323,9 @@
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.round(amount));
         }
 
-        function getDefaultInitialAmount(plan) {
-            const originalPrice = planPrices[plan];
-            if (originalPrice <= 0) return FLOOR_INITIAL[plan];
-            const tenPercent = originalPrice * 0.10;
+        function getDefaultInitialAmount(principal, plan) {
+            if (principal <= 0) return FLOOR_INITIAL[plan];
+            const tenPercent = principal * 0.10;
             const calculated = Math.ceil(tenPercent) - 1;
             return Math.max(calculated, FLOOR_INITIAL[plan]);
         }
@@ -366,13 +365,14 @@
         }
 
         function updateInitialSlider(plan) {
-            const defaultInitial = getDefaultInitialAmount(plan);
+            const principal = planPrices[plan] - (plan === '3year' ? 0 : parseInt(discountSlider.value) || 0);
+            const defaultInitial = getDefaultInitialAmount(principal, plan);
             initialAmountSlider.min = defaultInitial;
-            initialAmountSlider.max = planPrices[plan];
+            initialAmountSlider.max = principal;
             initialAmountSlider.value = defaultInitial;
             initialAmountValue.textContent = '$' + defaultInitial;
             sliderMinLabel.textContent = '$' + defaultInitial;
-            sliderMaxLabel.textContent = '$' + planPrices[plan];
+            sliderMaxLabel.textContent = '$' + principal;
         }
 
         function updateTermUI(plan) {
@@ -416,7 +416,7 @@
 
             discountValue.textContent = '$' + buyback;
 
-            const defaultInitial = getDefaultInitialAmount(plan);
+            const defaultInitial = getDefaultInitialAmount(principal, plan);
             let cashDown = parseFloat(initialAmountSlider.value) || defaultInitial;
             cashDown = Math.max(defaultInitial, Math.min(cashDown, principal));
 
@@ -525,12 +525,10 @@
                 const maxBuyback = (plan === 'legacy' || plan === '10year') ? 1000 : 0;
                 discountSlider.value = maxBuyback;
 
-                const principalAfterBuyback = Math.max(0, basePrice - maxBuyback);
-                let targetDown = plan === 'legacy' ? 399 : plan === '10year' ? 199 : 99;
-                const newMinDep = getDefaultInitialAmount(plan);
-                if (targetDown < newMinDep) targetDown = newMinDep;
-
-                initialAmountSlider.value = targetDown;
+                // Force update of initial amount to 10% of the NEW discounted principal
+                const newPrincipal = Math.max(0, basePrice - maxBuyback);
+                const newDefault = getDefaultInitialAmount(newPrincipal, plan);
+                initialAmountSlider.value = newDefault;
             } else if (action === 'max-cash-out') {
                 let cashDiscount = 1000;
                 if (plan === '10year') cashDiscount = 750;
