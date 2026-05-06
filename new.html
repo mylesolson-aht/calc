@@ -4,100 +4,248 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wholesale Travel Program Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: system-ui; background: #f5f5f7; }
-        .tile { padding: 16px; background: white; border: 2px solid #ddd; border-radius: 12px; text-align: center; cursor: pointer; }
-        .tile.active { border-color: #007aff; background: #007aff; color: white; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .container-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .input-tile {
+            background-color: #f9f9f9;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 1.1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 68px;
+        }
+        .input-tile.active {
+            background-color: #007aff !important;
+            color: white !important;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+        }
+        .quick-tile {
+            background-color: #f9f9f9;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 0.65rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .vlo-button {
+            background-color: #25D366;
+            color: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+        }
     </style>
 </head>
-<body class="p-6 max-w-md mx-auto">
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+    <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
 
-    <h1 class="text-3xl font-bold text-center mb-8">Wholesale Travel Calculator</h1>
-
-    <!-- Plan Selection -->
-    <div class="grid grid-cols-3 gap-3 mb-8">
-        <div class="tile active" data-plan="legacy">Legacy</div>
-        <div class="tile" data-plan="10year">10 Year</div>
-        <div class="tile" data-plan="3year">3 Year</div>
-    </div>
-
-    <!-- Discount -->
-    <div class="mb-6">
-        <div class="flex justify-between mb-2">
-            <span>Discount</span>
-            <span id="discountValue" class="font-bold text-blue-600">$0</span>
+        <!-- Header -->
+        <div class="flex flex-col items-center mb-5">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Logo" class="w-28 sm:w-36 md:w-44 mb-2">
+            <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
+            <p class="text-center text-gray-500 mt-1 text-sm">Eliminate the Retail Markup on Your Travel</p>
         </div>
-        <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" class="w-full accent-blue-600">
-    </div>
 
-    <!-- Initial Amount -->
-    <div>
-        <div class="flex justify-between mb-2">
-            <span>Initial Amount</span>
-            <span id="initialAmountValue" class="font-bold text-blue-600">$499</span>
+        <div class="space-y-4">
+            <!-- Membership -->
+            <div>
+                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Membership</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="input-tile active" data-plan="legacy"><span class="text-xl font-bold">Legacy</span></div>
+                    <div class="input-tile" data-plan="10year"><span class="text-xl font-bold">10 Year</span></div>
+                    <div class="input-tile" data-plan="3year"><span class="text-xl font-bold">Trial</span></div>
+                </div>
+            </div>
+
+            <!-- Quick Tiles -->
+            <div>
+                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="quick-tile" data-set="max-discount-financed">Max Discount Financed</div>
+                    <div class="quick-tile" data-set="max-cash-out">Max Cash Out Discount</div>
+                </div>
+            </div>
+
+            <!-- Discount -->
+            <div>
+                <div class="flex justify-between items-baseline mb-1">
+                    <p class="text-sm font-medium text-gray-700">Hero/Buy Back Discount</p>
+                    <p id="discountValue" class="text-lg font-semibold text-blue-600">$0</p>
+                </div>
+                <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" class="w-full accent-blue-600">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="buybackMaxLabel">$1,000</span>
+                </div>
+            </div>
+
+            <!-- Initial Amount -->
+            <div>
+                <div class="flex justify-between items-baseline mb-1">
+                    <p class="text-sm font-medium text-gray-700">Initial Amount</p>
+                    <p id="initialAmountValue" class="text-lg font-semibold text-blue-600">$499</p>
+                </div>
+                <input type="range" id="initialAmountSlider" min="99" max="4999" step="50" value="499" class="w-full accent-blue-600">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span id="sliderMinLabel">$499</span>
+                    <span id="sliderMaxLabel">$4,999</span>
+                </div>
+            </div>
+
+            <!-- Term -->
+            <div>
+                <div class="flex justify-between items-baseline mb-1">
+                    <p class="text-sm font-medium text-gray-700">Financing Term</p>
+                    <span id="termValueDisplay" class="text-lg font-semibold text-blue-600">36 Months</span>
+                </div>
+                <input type="range" id="termSlider" min="6" max="36" step="6" value="36" class="w-full accent-blue-600">
+            </div>
         </div>
-        <input type="range" id="initialAmountSlider" min="99" max="4999" step="1" value="499" class="w-full accent-blue-600">
-        <div class="flex justify-between text-xs text-gray-500 mt-1">
-            <span id="minLabel">$499</span>
-            <span id="maxLabel">$4,999</span>
+
+        <!-- Results -->
+        <div class="mt-8 space-y-6">
+            <div id="cashResults" class="hidden">
+                <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
+                <div class="p-5 rounded-2xl bg-green-50 text-center">
+                    <p class="text-sm text-gray-600">Total Due</p>
+                    <p id="cashOutTotal" class="text-4xl font-bold text-green-700">$0</p>
+                </div>
+            </div>
+
+            <div id="financingResults">
+                <div class="grid grid-cols-2 gap-4">
+                    <div id="monthlyPayments"></div>
+                </div>
+            </div>
+
+            <h2 class="text-xl font-semibold text-center">Your Wholesale Travel Membership</h2>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="summary-tile bg-gray-50 p-4 rounded-2xl text-center">
+                    <p class="text-xs text-gray-500">Membership Value</p>
+                    <p id="principalAmount" class="text-2xl font-bold">$0</p>
+                </div>
+                <div class="summary-tile bg-gray-50 p-4 rounded-2xl text-center">
+                    <p class="text-xs text-gray-500">Initial Amount</p>
+                    <p id="cashDownAmount" class="text-2xl font-bold">$0</p>
+                </div>
+                <div class="summary-tile bg-gray-50 p-4 rounded-2xl text-center">
+                    <p id="balanceLabel" class="text-xs text-gray-500">Financed Balance</p>
+                    <p id="remainingBalanceAmount" class="text-2xl font-bold">$0</p>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <script>
-        const discountSlider = document.getElementById('discountSlider');
-        const initialSlider = document.getElementById('initialAmountSlider');
-        const initialValue = document.getElementById('initialAmountValue');
-        const minLabel = document.getElementById('minLabel');
-        const maxLabel = document.getElementById('maxLabel');
-        const discountValue = document.getElementById('discountValue');
+        <script>
+            // ====================== CORE LOGIC ======================
+            const discountSlider = document.getElementById('discountSlider');
+            const initialSlider = document.getElementById('initialAmountSlider');
+            const initialValue = document.getElementById('initialAmountValue');
+            const minLabel = document.getElementById('sliderMinLabel');
+            const maxLabel = document.getElementById('sliderMaxLabel');
+            const discountValue = document.getElementById('discountValue');
+            const principalAmount = document.getElementById('principalAmount');
+            const cashDownAmount = document.getElementById('cashDownAmount');
+            const remainingBalanceAmount = document.getElementById('remainingBalanceAmount');
+            const cashOutTotal = document.getElementById('cashOutTotal');
+            const cashResults = document.getElementById('cashResults');
+            const financingResults = document.getElementById('financingResults');
+            const monthlyPayments = document.getElementById('monthlyPayments');
 
-        const prices = { legacy: 4999, '10year': 2999, '3year': 999 };
+            const prices = { legacy: 4999, '10year': 2999, '3year': 999 };
 
-        function getDefaultInitial(principal) {
-            if (principal <= 0) return 99;
-            return Math.max(Math.ceil(principal * 0.10) - 1, 99);
-        }
+            function getDefaultInitial(principal) {
+                if (principal <= 0) return 99;
+                // 10% of CURRENT discounted principal - 1
+                return Math.max(Math.ceil(principal * 0.10) - 1, 99);
+            }
 
-        function calculate() {
-            const plan = document.querySelector('.tile.active').dataset.plan;
-            let discount = Number(discountSlider.value);
-            if (plan === '3year') discount = Math.min(discount, 100);
+            function calculate() {
+                const plan = document.querySelector('.input-tile.active').dataset.plan;
+                let discount = Number(discountSlider.value) || 0;
+                if (plan === '3year') discount = Math.min(discount, 100);
 
-            const principal = Math.max(0, prices[plan] - discount);
+                const principal = Math.max(0, prices[plan] - discount);
 
-            discountValue.textContent = '$' + discount;
+                discountValue.textContent = '$' + discount;
 
-            // === THIS IS THE KEY PART ===
-            const defaultInitial = getDefaultInitial(principal);
+                // AUTO ADJUST TO 10% -1
+                const defaultInitial = getDefaultInitial(principal);
 
-            // Auto-set the initial amount
-            initialSlider.min = defaultInitial;
-            initialSlider.max = principal;
-            initialSlider.value = defaultInitial;
+                initialSlider.min = defaultInitial;
+                initialSlider.max = principal;
+                initialSlider.value = defaultInitial;
 
-            initialValue.textContent = '$' + defaultInitial;
-            minLabel.textContent = '$' + defaultInitial;
-            maxLabel.textContent = '$' + principal;
-        }
+                initialValue.textContent = '$' + defaultInitial;
+                minLabel.textContent = '$' + defaultInitial;
+                maxLabel.textContent = '$' + principal;
 
-        // Click on plans
-        document.querySelectorAll('.tile').forEach(tile => {
-            tile.addEventListener('click', () => {
-                document.querySelectorAll('.tile').forEach(t => t.classList.remove('active'));
-                tile.classList.add('active');
-                discountSlider.value = 0;
-                calculate();
+                principalAmount.textContent = '$' + principal;
+                cashDownAmount.textContent = '$' + defaultInitial;
+
+                if (defaultInitial >= principal - 1) {
+                    cashResults.classList.remove('hidden');
+                    financingResults.classList.add('hidden');
+                    cashOutTotal.textContent = '$' + principal;
+                } else {
+                    cashResults.classList.add('hidden');
+                    financingResults.classList.remove('hidden');
+                    remainingBalanceAmount.textContent = '$' + (principal - defaultInitial);
+                    monthlyPayments.innerHTML = `<div class="text-center"><p class="text-sm text-gray-500">Monthly Payment (est.)</p><p class="text-4xl font-bold text-blue-600">TBD</p></div>`;
+                }
+            }
+
+            // Plan selection
+            document.querySelectorAll('.input-tile').forEach(tile => {
+                tile.addEventListener('click', () => {
+                    document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
+                    tile.classList.add('active');
+                    discountSlider.value = 0;
+                    calculate();
+                });
             });
-        });
 
-        discountSlider.addEventListener('input', calculate);
-        initialSlider.addEventListener('input', () => {
-            initialValue.textContent = '$' + initialSlider.value;
-        });
+            discountSlider.addEventListener('input', calculate);
+            initialSlider.addEventListener('input', () => {
+                initialValue.textContent = '$' + initialSlider.value;
+                cashDownAmount.textContent = '$' + initialSlider.value;
+            });
 
-        // Start
-        calculate();
-    </script>
+            // Quick buttons
+            document.querySelectorAll('.quick-tile').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const plan = document.querySelector('.input-tile.active').dataset.plan;
+                    if (btn.dataset.set === 'max-discount-financed') {
+                        discountSlider.value = plan === '3year' ? 0 : 1000;
+                    } else {
+                        discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                    }
+                    calculate();
+                });
+            });
+
+            calculate(); // Start
+        </script>
+    </div>
 </body>
 </html>
