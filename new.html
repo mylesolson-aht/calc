@@ -299,6 +299,15 @@
             return Math.max(Math.ceil(tenPercent) - 1, ABSOLUTE_MIN[plan]);
         }
 
+        function calculateHypotheticalInterest(principal, plan) {
+            if (principal <= 0) return 0;
+            const defaultTerm = PLAN_TERMS[plan];
+            const monthlyRate = interestRate / 12;
+            const payment = pmt(monthlyRate, defaultTerm, principal);
+            const totalPaid = payment * defaultTerm;
+            return Math.max(0, totalPaid - principal);
+        }
+
         function updateBuybackSliderMax(plan) {
             let maxBuyback = 1000;
             if (plan === '3year') maxBuyback = 100;
@@ -396,9 +405,11 @@
 
                 cashOutTotalOutput.textContent = formatCurrency(cashDown);
 
-                // 3-Year $100 cash-out now shows ZERO financed amount
+                // Real interest saved calculation
+                const interestSaved = calculateHypotheticalInterest(principal, plan);
+
                 balanceLabel.textContent = 'Interest Saved';
-                remainingBalanceAmountOutput.textContent = '$0';
+                remainingBalanceAmountOutput.textContent = formatCurrency(interestSaved);
             } else {
                 // ====================== FINANCING ======================
                 cashResultsSection.classList.add('hidden');
@@ -489,12 +500,10 @@
 
                 const principalAfterBuyback = Math.max(0, basePrice - maxBuyback);
                 let targetDown = plan === 'legacy' ? 399 : plan === '10year' ? 199 : 99;
-
                 const newMinDep = getMinDeposit(principalAfterBuyback, plan);
                 if (targetDown < newMinDep) targetDown = newMinDep;
 
                 initialAmountSlider.value = targetDown;
-
             } else if (action === 'max-cash-out') {
                 let cashDiscount = 1000;
                 if (plan === '10year') cashDiscount = 750;
@@ -502,7 +511,7 @@
 
                 discountSlider.value = cashDiscount;
                 const principal = Math.max(0, basePrice - cashDiscount);
-                initialAmountSlider.value = principal;   // full cash out
+                initialAmountSlider.value = principal;   // full cash
             }
 
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
