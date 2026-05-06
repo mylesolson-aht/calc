@@ -41,7 +41,27 @@
         .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .aloha-brand-text { color: #006699; }
         input[type="range"] { accent-color: #007aff; }
-       
+
+        /* NEW: Quick-set tiles - vertically narrow */
+        .quick-tile {
+            background-color: #f9f9f9;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 0.65rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.1;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quick-tile:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .quick-tile:active { transform: scale(0.98); }
+
         .upgrade-delta { font-weight: 700; }
         .upgrade-delta-positive { color: #28a745; }
         .upgrade-delta-negative { color: #ff3b30; }
@@ -113,6 +133,22 @@
                     <div class="input-tile flex flex-col justify-center items-center" data-plan="3year">
                         <span class="text-xl sm:text-2xl font-bold">Trial</span>
                         <span class="text-xs text-gray-500">3 Year</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: 3 Quick-Set Tiles (vertically narrow) -->
+            <div>
+                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="quick-tile" data-set="min-financed">
+                        Min Financed
+                    </div>
+                    <div class="quick-tile" data-set="max-buyback-financed">
+                        Max Buy Back Financed
+                    </div>
+                    <div class="quick-tile" data-set="max-cash-out">
+                        Max Cash Out
                     </div>
                 </div>
             </div>
@@ -278,7 +314,6 @@
             return Math.max(Math.ceil(tenPercent) - 1, ABSOLUTE_MIN[plan]);
         }
 
-        // Dynamically adjust Buyback slider max so TOTAL discount (buyback + 10%) never exceeds the plan's cash-out limit
         function updateBuybackSliderMax(plan) {
             const isCashOut10 = apply10PercentCheckbox.checked && plan !== '3year';
             let maxBuyback = 1000;
@@ -286,7 +321,6 @@
             if (isCashOut10) {
                 const base = planPrices[plan];
                 const maxTotalForCashOut = (plan === 'legacy') ? 1000 : 750;
-                // buyback + 10% of (base - buyback) ≤ maxTotalForCashOut
                 maxBuyback = Math.floor((maxTotalForCashOut - 0.1 * base) / 0.9);
                 if (maxBuyback < 0) maxBuyback = 0;
             }
@@ -294,7 +328,6 @@
             discountSlider.max = maxBuyback;
             buybackMaxLabel.textContent = '$' + maxBuyback;
 
-            // Cap current value if it exceeds the new max
             if (parseInt(discountSlider.value) > maxBuyback) {
                 discountSlider.value = maxBuyback;
             }
@@ -370,13 +403,11 @@
             const buyback = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
             const apply10 = apply10PercentCheckbox.checked && plan !== '3year';
 
-            // 10% cash discount is applied to the price AFTER buyback
             const cashDiscount = apply10 ? Math.round(0.10 * (basePrice - buyback)) : 0;
             const totalDiscount = buyback + cashDiscount;
 
             const principal = Math.max(0, basePrice - totalDiscount);
 
-            // Display shows the buyback amount (what the manager controls)
             discountValue.textContent = '$' + buyback;
 
             const minDeposit = getMinDeposit(principal, plan);
@@ -393,13 +424,11 @@
             remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
             if (cashDown >= principal) {
-                // CASH OUT
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(cashDown);
             } else {
-                // FINANCING
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -434,7 +463,6 @@
                     </div>
                 `;
 
-                // Upgrade offer (always uses max buyback, no 10% on upgrade preview)
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
                 if (upgradeInfo) {
@@ -473,6 +501,33 @@
             calculate();
         }
 
+        // ====================== QUICK SET TILES ======================
+        function quickSetInitial(action) {
+            const activeTile = document.querySelector('.input-tile.active');
+            if (!activeTile) return;
+            const plan = activeTile.dataset.plan;
+            const basePrice = planPrices[plan];
+
+            const buyback = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
+            const apply10 = apply10PercentCheckbox.checked && plan !== '3year';
+            const cashDiscount = apply10 ? Math.round(0.10 * (basePrice - buyback)) : 0;
+            const totalDiscount = buyback + cashDiscount;
+            const principal = Math.max(0, basePrice - totalDiscount);
+
+            let targetValue;
+            if (action === 'min-financed') {
+                targetValue = getMinDeposit(principal, plan);
+            } else if (action === 'max-buyback-financed') {
+                targetValue = plan === 'legacy' ? 399 : plan === '10year' ? 199 : 99;
+            } else if (action === 'max-cash-out') {
+                targetValue = principal;
+            }
+
+            initialAmountSlider.value = targetValue;
+            initialAmountValue.textContent = '$' + targetValue;
+            calculate();
+        }
+
         // ====================== EVENT LISTENERS ======================
         document.querySelectorAll('[data-plan]').forEach(tile => {
             tile.addEventListener('click', () => handlePlanChange(tile));
@@ -490,12 +545,18 @@
             calculate();
         });
 
-        // NEW: 10% checkbox
         apply10PercentCheckbox.addEventListener('change', () => {
             const activeTile = document.querySelector('.input-tile.active');
             const plan = activeTile ? activeTile.dataset.plan : 'legacy';
             updateBuybackSliderMax(plan);
             calculate();
+        });
+
+        // Quick-set tile clicks
+        document.querySelectorAll('.quick-tile').forEach(tile => {
+            tile.addEventListener('click', () => {
+                quickSetInitial(tile.dataset.set);
+            });
         });
 
         // Interest details toggle
@@ -508,7 +569,7 @@
                 : `👁 <span class="text-xs">Show Details</span>`;
         });
 
-        // Upgrade click → switch plan
+        // Upgrade click
         upgradeOffer.addEventListener('click', () => {
             const activeTile = document.querySelector('.input-tile.active');
             if (!activeTile) return;
