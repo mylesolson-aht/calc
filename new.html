@@ -221,7 +221,7 @@
                             <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
                         </div>
                         <div class="summary-tile">
-                            <p class="text-sm font-medium text-gray-500">Financed Balance</p>
+                            <p id="balanceLabel" class="text-sm font-medium text-gray-500">Financed Balance</p>
                             <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
                         </div>
                     </div>
@@ -253,6 +253,8 @@
         const principalAmountOutput = document.getElementById('principalAmount');
         const cashDownAmountOutput = document.getElementById('cashDownAmount');
         const remainingBalanceAmountOutput = document.getElementById('remainingBalanceAmount');
+        const balanceLabel = document.getElementById('balanceLabel');
+
         const monthlyPaymentsContainer = document.getElementById('monthlyPayments');
         const totalInterestPaidContainer = document.getElementById('totalInterestPaid');
         const cashOutTotalOutput = document.getElementById('cashOutTotal');
@@ -301,7 +303,7 @@
 
         function updateBuybackSliderMax(plan) {
             let maxBuyback = 1000;
-            if (plan === '10year') maxBuyback = 750;   // cash-out limit for 10yr
+            if (plan === '10year') maxBuyback = 750;
             if (plan === '3year') maxBuyback = 100;
 
             discountSlider.max = maxBuyback;
@@ -394,16 +396,24 @@
 
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
-            remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
             if (cashDown >= principal) {
+                // CASH OUT DEAL
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(cashDown);
+
+                // Show Interest Saved instead of Financed Balance
+                balanceLabel.textContent = 'Interest Saved';
+                remainingBalanceAmountOutput.textContent = '$0';
             } else {
+                // FINANCING
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
+
+                balanceLabel.textContent = 'Financed Balance';
+                remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
                 const remaining = principal - cashDown;
                 const monthlyRate = interestRate / 12;
@@ -469,10 +479,10 @@
             tile.classList.add('active');
             const plan = tile.dataset.plan;
 
-            discountSlider.value = 0;                    // Manager Discount defaults to 0
+            discountSlider.value = 0;
             updateTermUI(plan);
             updateDiscountUI(plan);
-            calculate();                                 // defaults to 10% min deposit
+            calculate();
         }
 
         function quickSetInitial(action) {
@@ -484,25 +494,23 @@
             let targetValue;
 
             if (action === 'max-buyback-financed') {
-                // === NEW BEHAVIOR: Set max buyback + adjust initial amount ===
                 const maxBuyback = (plan === 'legacy' || plan === '10year') ? 1000 : 0;
                 discountSlider.value = maxBuyback;
 
                 const principalAfterBuyback = Math.max(0, basePrice - maxBuyback);
-
-                // Low financed amount after max buyback
                 targetValue = plan === 'legacy' ? 399 : plan === '10year' ? 199 : 99;
 
-                // Ensure it doesn't go below the new minimum deposit
                 const newMinDep = getMinDeposit(principalAfterBuyback, plan);
                 if (targetValue < newMinDep) targetValue = newMinDep;
 
             } else if (action === 'max-cash-out') {
-                // Max Cash Out still applies 10% discount and sets full amount
-                let discountedPrice = Math.round(basePrice * 0.9);
-                if (plan === '3year') discountedPrice = 899;
-                discountSlider.value = 0;                     // reset buyback
-                targetValue = discountedPrice;
+                let cashDiscount = 1000;
+                if (plan === '10year') cashDiscount = 750;
+                if (plan === '3year') cashDiscount = 100;
+
+                discountSlider.value = cashDiscount;
+                const principal = Math.max(0, basePrice - cashDiscount);
+                targetValue = principal;
             }
 
             initialAmountSlider.value = targetValue;
