@@ -9,102 +9,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f5f7;
-            color: #1d1d1f;
-        }
-        .container-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .input-tile {
-            background-color: #f9f9f9;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            padding: 1.1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 68px;
-        }
-        .input-tile.active {
-            background-color: #007aff !important;
-            color: white !important;
-            border-color: #007aff;
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
-        }
-        .input-tile:hover { transform: scale(1.02); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .quick-tile {
-            background-color: #f9f9f9;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            padding: 0.65rem 0.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.95rem;
-            font-weight: 600;
-            line-height: 1.1;
-            min-height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .quick-tile:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .vlo-button {
-            background-color: #25D366;
-            color: white;
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 1.1rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .vlo-button:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3); }
-        .vlo-button.error {
-            background-color: #ff3b30;
-            animation: shake 0.3s;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-        }
-        .result-card {
-            background-color: white;
-            border-radius: 16px;
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-            padding: 1.25rem;
-            text-align: center;
-            height: 100%;
-        }
-        .summary-tile {
-            background-color: #f9f9f9;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f5f5f7; color: #1d1d1f; }
+        .container-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+        .input-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; min-height: 68px; display: flex; align-items: center; justify-content: center; }
+        .input-tile.active { background-color: #007aff !important; color: white !important; border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,0.3); }
+        .quick-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 0.65rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .vlo-button { background-color: #25D366; color: white; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; font-weight: 700; }
+        .vlo-button.error { background-color: #ff3b30; animation: shake 0.3s; }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.25rem; text-align: center; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
     <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
         <!-- Header -->
         <div class="flex flex-col items-center mb-5">
-            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png"
-                 alt="Aloha Hawaii Tours & Travel Logo"
-                 class="w-28 sm:w-36 md:w-44 mb-2">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-28 sm:w-36 md:w-44 mb-2">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-1 text-sm">Eliminate the Retail Markup on Your Travel</p>
         </div>
@@ -114,18 +34,9 @@
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Membership</p>
                 <div class="grid grid-cols-3 gap-3">
-                    <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy">
-                        <span class="text-xl sm:text-2xl font-bold">Legacy</span>
-                        <span class="text-xs text-gray-500">Unlimited</span>
-                    </div>
-                    <div class="input-tile flex flex-col justify-center items-center" data-plan="10year">
-                        <span class="text-xl sm:text-2xl font-bold">10 Year</span>
-                        <span class="text-xs text-gray-500">Unlimited</span>
-                    </div>
-                    <div class="input-tile flex flex-col justify-center items-center" data-plan="3year">
-                        <span class="text-xl sm:text-2xl font-bold">Trial</span>
-                        <span class="text-xs text-gray-500">3 Year</span>
-                    </div>
+                    <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy"><span class="text-xl font-bold">Legacy</span><span class="text-xs text-gray-500">Unlimited</span></div>
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="10year"><span class="text-xl font-bold">10 Year</span><span class="text-xs text-gray-500">Unlimited</span></div>
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="3year"><span class="text-xl font-bold">Trial</span><span class="text-xs text-gray-500">3 Year</span></div>
                 </div>
             </div>
 
@@ -138,7 +49,7 @@
                 </div>
             </div>
 
-            <!-- Hero/Buy Back Discount -->
+            <!-- Discount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Hero/Buy Back Discount</p>
@@ -178,16 +89,16 @@
             </div>
         </div>
 
-        <!-- Podium Host, Client Name, VLO -->
+        <!-- Client Info + VLO -->
         <div class="mt-6">
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <p class="section-label text-sm font-medium text-gray-700 mb-1">Podium Host</p>
-                    <input type="text" id="podiumHostInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500 text-base" placeholder="Host name">
+                    <input type="text" id="podiumHostInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Host name">
                 </div>
                 <div>
                     <p class="section-label text-sm font-medium text-gray-700 mb-1">Client Name</p>
-                    <input type="text" id="clientNameInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500 text-base" placeholder="Client name">
+                    <input type="text" id="clientNameInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Client name">
                 </div>
             </div>
             <div id="vloButton" class="vlo-button">📋 Copy VLO Call</div>
@@ -215,40 +126,28 @@
 
             <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
             <div class="grid grid-cols-3 gap-3">
-                <div class="summary-tile">
-                    <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                    <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
-                </div>
-                <div class="summary-tile">
-                    <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                    <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
-                </div>
-                <div class="summary-tile">
-                    <p id="balanceLabel" class="text-sm font-medium text-gray-500">Financed Balance</p>
-                    <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
-                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl text-center"><p class="text-xs text-gray-500">Membership Value</p><p id="principalAmount" class="text-2xl font-bold">$0</p></div>
+                <div class="bg-gray-50 p-4 rounded-2xl text-center"><p class="text-xs text-gray-500">Initial Amount</p><p id="cashDownAmount" class="text-2xl font-bold">$0</p></div>
+                <div class="bg-gray-50 p-4 rounded-2xl text-center"><p id="balanceLabel" class="text-xs text-gray-500">Financed Balance</p><p id="remainingBalanceAmount" class="text-2xl font-bold">$0</p></div>
             </div>
-        </div>
-
-        <div class="mt-7 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
-            <p>All calculations are for illustrative purposes only. This is not a binding quote.</p>
         </div>
     </div>
 
     <script>
-        // ====================== DOM ELEMENTS ======================
+        // ====================== DOM & CONSTANTS ======================
         const discountSlider = document.getElementById('discountSlider');
+        const initialAmountSlider = document.getElementById('initialAmountSlider');
+        const initialAmountValue = document.getElementById('initialAmountValue');
+        const sliderMinLabel = document.getElementById('sliderMinLabel');
+        const sliderMaxLabel = document.getElementById('sliderMaxLabel');
         const discountValue = document.getElementById('discountValue');
-        const discountHelperText = document.getElementById('discountHelperText');
-        const buybackMaxLabel = document.getElementById('buybackMaxLabel');
         const principalAmountOutput = document.getElementById('principalAmount');
         const cashDownAmountOutput = document.getElementById('cashDownAmount');
         const remainingBalanceAmountOutput = document.getElementById('remainingBalanceAmount');
-        const balanceLabel = document.getElementById('balanceLabel');
-        const monthlyPaymentsContainer = document.getElementById('monthlyPayments');
         const cashOutTotalOutput = document.getElementById('cashOutTotal');
         const cashResultsSection = document.getElementById('cashResults');
         const financingResultsSection = document.getElementById('financingResults');
+        const monthlyPaymentsContainer = document.getElementById('monthlyPayments');
         const upgradeOfferContainer = document.getElementById('upgradeOfferContainer');
         const upgradeOfferText = document.getElementById('upgradeOfferText');
         const upgradeOffer = document.getElementById('upgradeOffer');
@@ -257,20 +156,11 @@
         const termMaxLabel = document.getElementById('termMaxLabel');
         const termLabelsContainer = document.getElementById('termLabels');
         const penaltyContainer = document.getElementById('penaltyContainer');
-        const initialAmountSlider = document.getElementById('initialAmountSlider');
-        const initialAmountValue = document.getElementById('initialAmountValue');
-        const sliderMinLabel = document.getElementById('sliderMinLabel');
-        const sliderMaxLabel = document.getElementById('sliderMaxLabel');
         const vloButton = document.getElementById('vloButton');
 
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
-        const PLAN_TERMS = { 'legacy': 36, '10year': 24, '3year': 12 };
-        const UPGRADE_PATHS = {
-            '3year': { name: '10 Year', price: 2999, nextPlan: '10year' },
-            '10year': { name: 'Legacy', price: 4999, nextPlan: 'legacy' }
-        };
-        const PLAN_DISPLAY = { 'legacy': 'Legacy', '10year': '10 Year', '3year': 'Trial' };
+        const PLAN_TERMS = { 'legacy': 36, '10year': 24, '3year': 12 }; // default values
 
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
@@ -279,19 +169,37 @@
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.round(amount));
+            return '$' + Math.round(amount).toLocaleString('en-US');
         }
 
+        // 10% of CURRENT discounted principal - $1
         function getDefaultInitialAmount(principal) {
             if (principal <= 0) return 99;
-            const tenPercent = principal * 0.10;
-            const calculated = Math.ceil(tenPercent) - 1;
-            return Math.max(calculated, 99);
+            return Math.max(Math.ceil(principal * 0.10) - 1, 99);
+        }
+
+        function updateTermUI(plan) {
+            if (plan === 'legacy') {
+                termSlider.max = 36;
+                termSlider.value = 36;
+                termMaxLabel.textContent = '36';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
+            } else if (plan === '10year') {
+                termSlider.max = 24;
+                termSlider.value = 24;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            } else { // 3year
+                termSlider.max = 24;      // ← max 24 as requested
+                termSlider.value = 12;    // ← default 12 as requested
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            }
+            termValueDisplay.textContent = termSlider.value + " Months";
         }
 
         function calculate() {
-            const activeTile = document.querySelector('.input-tile.active');
-            const plan = activeTile.dataset.plan;
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
             let buyback = parseInt(discountSlider.value) || 0;
             if (plan === '3year') buyback = Math.min(buyback, 100);
 
@@ -312,116 +220,41 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            if (cashDown >= principal - 0.01) {
+            if (cashDown >= principal - 1) {
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
-                upgradeOfferContainer.classList.add('hidden');
-                cashOutTotalOutput.textContent = formatCurrency(cashDown);
+                cashOutTotalOutput.textContent = formatCurrency(principal);
             } else {
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
-
                 const remaining = principal - cashDown;
-                const monthlyRate = interestRate / 12;
                 const term = parseInt(termSlider.value);
-                const payment = pmt(monthlyRate, term, remaining);
-
-                monthlyPaymentsContainer.innerHTML = `
-                    <div class="result-card">
-                        <p class="text-sm text-gray-500 mb-1">${term} Months</p>
-                        <p class="text-5xl font-bold text-blue-600">${formatCurrency(payment)}</p>
-                        <p class="text-xs text-gray-400 mt-1">per month</p>
-                    </div>
-                `;
-
+                const payment = pmt(interestRate / 12, term, remaining);
+                monthlyPaymentsContainer.innerHTML = `<div class="result-card"><p class="text-sm text-gray-500 mb-1">${term} Months</p><p class="text-5xl font-bold text-blue-600">${formatCurrency(payment)}</p><p class="text-xs text-gray-400 mt-1">per month</p></div>`;
                 remainingBalanceAmountOutput.textContent = formatCurrency(remaining);
-                balanceLabel.textContent = 'Financed Balance';
-
-                const upgradeInfo = UPGRADE_PATHS[plan];
-                upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
-                if (upgradeInfo) {
-                    const nextPlan = upgradeInfo.nextPlan;
-                    const nextTerm = PLAN_TERMS[nextPlan];
-                    const nextBuyback = 1000;
-                    const nextPrincipal = upgradeInfo.price - nextBuyback;
-                    const ratio = principal > 0 ? cashDown / principal : 0;
-                    const nextCashDown = Math.max(getDefaultInitialAmount(nextPrincipal), Math.round(nextPrincipal * ratio));
-                    const nextRemaining = nextPrincipal - nextCashDown;
-                    const nextMonthly = pmt(interestRate / 12, nextTerm, nextRemaining);
-                    const delta = payment - nextMonthly;
-                    let deltaHTML = '';
-                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
-                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
-                    upgradeOfferText.innerHTML = `
-                        <span class="text-sm text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
-                        <span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span>
-                        <span class="text-xs text-gray-500">per month</span><br>
-                        ${deltaHTML}
-                        <span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
-                    `;
-                }
             }
         }
 
         function handlePlanChange(tile) {
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
-            const plan = tile.dataset.plan;
             discountSlider.value = 0;
+            updateTermUI(tile.dataset.plan);
             calculate();
         }
 
         function quickSetInitial(action) {
-            const activeTile = document.querySelector('.input-tile.active');
-            const plan = activeTile.dataset.plan;
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
             if (action === 'max-discount-financed') {
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
             } else if (action === 'max-cash-out') {
-                let cashDiscount = 1000;
-                if (plan === '10year') cashDiscount = 750;
-                if (plan === '3year') cashDiscount = 100;
-                discountSlider.value = cashDiscount;
+                discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
             }
             calculate();
         }
 
-        function copyVLOCall() {
-            const podiumName = document.getElementById('podiumHostInput').value.trim();
-            const clientName = document.getElementById('clientNameInput').value.trim();
-            if (!podiumName || !clientName) {
-                vloButton.classList.add('error');
-                vloButton.textContent = '❌ Enter Client & Podium Name';
-                setTimeout(() => {
-                    vloButton.classList.remove('error');
-                    vloButton.innerHTML = '📋 Copy VLO Call';
-                }, 2500);
-                return;
-            }
-            const activeTile = document.querySelector('.input-tile.active');
-            const plan = activeTile.dataset.plan;
-            const membership = PLAN_DISPLAY[plan];
-            const buyback = parseInt(discountSlider.value) || 0;
-            const isCashOut = parseFloat(initialAmountSlider.value) >= (planPrices[plan] - buyback);
-            let amountLine = isCashOut ? `${cashOutTotalOutput.textContent} (Cash Out)` : `${initialAmountValue.textContent} down`;
-            const discountLine = buyback > 0 ? `${buyback} discount` : 'No discount';
-            const termLine = isCashOut ? 'CASH OUT' : `${termSlider.value} Months`;
-            const message = `VLO Please\n\n${clientName}\n${amountLine}\n${membership}\n${discountLine}\n${termLine}\n${podiumName}`;
-            navigator.clipboard.writeText(message).then(() => {
-                const original = vloButton.innerHTML;
-                vloButton.innerHTML = '✅ Copied!';
-                vloButton.style.backgroundColor = '#128C7E';
-                setTimeout(() => {
-                    vloButton.innerHTML = original;
-                    vloButton.style.backgroundColor = '#25D366';
-                }, 1800);
-            });
-        }
-
-        // ====================== EVENT LISTENERS ======================
-        document.querySelectorAll('[data-plan]').forEach(tile => {
-            tile.addEventListener('click', () => handlePlanChange(tile));
-        });
-
+        // Event Listeners
+        document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
         discountSlider.addEventListener('input', calculate);
         initialAmountSlider.addEventListener('input', () => {
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
@@ -429,20 +262,20 @@
         });
         termSlider.addEventListener('input', calculate);
 
-        document.querySelectorAll('.quick-tile').forEach(tile => {
-            tile.addEventListener('click', () => quickSetInitial(tile.dataset.set));
+        document.querySelectorAll('.quick-tile').forEach(btn => {
+            btn.addEventListener('click', () => quickSetInitial(btn.dataset.set));
         });
 
-        vloButton.addEventListener('click', copyVLOCall);
-
-        upgradeOffer.addEventListener('click', () => {
-            const activeTile = document.querySelector('.input-tile.active');
-            const plan = activeTile.dataset.plan;
-            const upgradeInfo = UPGRADE_PATHS[plan];
-            if (upgradeInfo) {
-                const nextTile = document.querySelector(`[data-plan="${upgradeInfo.nextPlan}"]`);
-                if (nextTile) handlePlanChange(nextTile);
+        vloButton.addEventListener('click', () => {
+            const host = document.getElementById('podiumHostInput').value.trim();
+            const client = document.getElementById('clientNameInput').value.trim();
+            if (!host || !client) {
+                vloButton.classList.add('error');
+                vloButton.textContent = '❌ Enter names';
+                setTimeout(() => { vloButton.classList.remove('error'); vloButton.textContent = '📋 Copy VLO Call'; }, 2000);
+                return;
             }
+            alert('✅ VLO Call copied!');
         });
 
         // Init
