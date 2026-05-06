@@ -19,7 +19,6 @@
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.25rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
-        .interest-saved { color: #28a745; font-weight: 700; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -183,12 +182,19 @@
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
-        function calculateHypotheticalInterest(principal, plan) {
-            if (principal <= 0) return 0;
-            const term = PLAN_TERMS[plan];
-            const monthlyRate = interestRate / 12;
-            const payment = pmt(monthlyRate, term, principal);
-            return Math.max(0, payment * term - principal);
+        function forceAutoInitial() {
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
+            let buyback = parseInt(discountSlider.value) || 0;
+            if (plan === '3year') buyback = Math.min(buyback, 100);
+            const principal = Math.max(0, planPrices[plan] - buyback);
+            const defaultInitial = getDefaultInitialAmount(principal);
+
+            initialAmountSlider.min = defaultInitial;
+            initialAmountSlider.max = principal;
+            initialAmountSlider.value = defaultInitial;
+            initialAmountValue.textContent = '$' + defaultInitial;
+            sliderMinLabel.textContent = '$' + defaultInitial;
+            sliderMaxLabel.textContent = '$' + principal;
         }
 
         function updateTermUI(plan) {
@@ -229,18 +235,12 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            if (cashDown >= principal - 0.01) {
-                // CASH OUT MODE
+            if (cashDown >= principal - 1) {
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(principal);
-
-                const interestSaved = calculateHypotheticalInterest(principal, plan);
-                balanceLabel.textContent = 'Interest Saved';
-                remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
-                // FINANCING MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -293,23 +293,20 @@
 
         function quickSetInitial(action) {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
-
             if (action === 'max-discount-financed') {
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
-                const principal = Math.max(0, planPrices[plan] - parseInt(discountSlider.value));
-                initialAmountSlider.value = getDefaultInitialAmount(principal);
+                forceAutoInitial();
             } else if (action === 'max-cash-out') {
-                let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
-                discountSlider.value = maxDiscount;
-                const principal = Math.max(0, planPrices[plan] - maxDiscount);
-                initialAmountSlider.value = principal;   // FORCE FULL CASH OUT
+                discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                const principal = Math.max(0, planPrices[plan] - parseInt(discountSlider.value));
+                initialAmountSlider.value = principal;
             }
             calculate();
         }
 
         // Event Listeners
         document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
-        discountSlider.addEventListener('input', calculate);
+        discountSlider.addEventListener('input', () => { forceAutoInitial(); calculate(); });
         initialAmountSlider.addEventListener('input', () => {
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
             calculate();
