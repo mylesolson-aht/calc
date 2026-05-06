@@ -185,6 +185,7 @@
         <!-- Results -->
         <div class="mt-6">
             <div id="results" class="space-y-4">
+                <!-- CASH OUT SECTION -->
                 <div id="cashResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
                     <div class="p-5 rounded-2xl bg-green-50 text-center">
@@ -192,6 +193,8 @@
                         <p id="cashOutTotal" class="text-4xl font-bold text-green-700">$0</p>
                     </div>
                 </div>
+
+                <!-- FINANCING SECTION -->
                 <div id="financingResults" class="hidden">
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div id="monthlyPayments" class="flex justify-center"></div>
@@ -201,34 +204,37 @@
                             </div>
                         </div>
                     </div>
-                    <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
-                   
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="summary-tile">
-                            <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                            <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
-                        </div>
-                        <div class="summary-tile">
-                            <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                            <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
-                        </div>
-                        <div class="summary-tile">
-                            <p id="balanceLabel" class="text-sm font-medium text-gray-500">Financed Balance</p>
-                            <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
-                        </div>
+                </div>
+
+                <!-- SUMMARY TILES – ALWAYS VISIBLE -->
+                <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="summary-tile">
+                        <p class="text-sm font-medium text-gray-500">Membership Value</p>
+                        <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
                     </div>
-                    <div id="totalInterestContainer" class="mt-6">
-                        <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
-                            <button id="toggleInterestButton" class="text-xs font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1">
-                                👁 <span class="text-xs">Show Details</span>
-                            </button>
-                        </div>
-                        <div id="totalInterestPaid" class="hidden"></div>
+                    <div class="summary-tile">
+                        <p class="text-sm font-medium text-gray-500">Initial Amount</p>
+                        <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
                     </div>
+                    <div class="summary-tile">
+                        <p id="balanceLabel" class="text-sm font-medium text-gray-500">Financed Balance</p>
+                        <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
+                    </div>
+                </div>
+
+                <div id="totalInterestContainer" class="mt-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium text-gray-700">Financing Details</h3>
+                        <button id="toggleInterestButton" class="text-xs font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1">
+                            👁 <span class="text-xs">Show Details</span>
+                        </button>
+                    </div>
+                    <div id="totalInterestPaid" class="hidden"></div>
                 </div>
             </div>
         </div>
+
         <div class="mt-7 text-center text-xs text-gray-500 border-t border-gray-200 pt-4">
             <p>All calculations are for illustrative purposes only. This is not a binding quote.</p>
         </div>
@@ -294,13 +300,10 @@
         }
 
         function updateBuybackSliderMax(plan) {
-            // Always allow full financed buyback max (1000 for Legacy & 10 Year)
             let maxBuyback = 1000;
             if (plan === '3year') maxBuyback = 100;
-
             discountSlider.max = maxBuyback;
             buybackMaxLabel.textContent = '$' + maxBuyback;
-
             if (parseInt(discountSlider.value) > maxBuyback) discountSlider.value = maxBuyback;
         }
 
@@ -386,16 +389,18 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal) {
-                // CASH OUT
+                // ====================== CASH OUT DEAL ======================
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
+
                 cashOutTotalOutput.textContent = formatCurrency(cashDown);
 
+                // 3-Year $100 cash-out now shows ZERO financed amount
                 balanceLabel.textContent = 'Interest Saved';
                 remainingBalanceAmountOutput.textContent = '$0';
             } else {
-                // FINANCING
+                // ====================== FINANCING ======================
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -479,7 +484,6 @@
             const basePrice = planPrices[plan];
 
             if (action === 'max-buyback-financed') {
-                // MAX BUY BACK FINANCED
                 const maxBuyback = (plan === 'legacy' || plan === '10year') ? 1000 : 0;
                 discountSlider.value = maxBuyback;
 
@@ -490,20 +494,18 @@
                 if (targetDown < newMinDep) targetDown = newMinDep;
 
                 initialAmountSlider.value = targetDown;
-                initialAmountValue.textContent = '$' + targetDown;
 
             } else if (action === 'max-cash-out') {
-                // MAX CASH OUT (with correct cash-out discounts)
                 let cashDiscount = 1000;
                 if (plan === '10year') cashDiscount = 750;
                 if (plan === '3year') cashDiscount = 100;
 
                 discountSlider.value = cashDiscount;
                 const principal = Math.max(0, basePrice - cashDiscount);
-                initialAmountSlider.value = principal;
-                initialAmountValue.textContent = '$' + principal;
+                initialAmountSlider.value = principal;   // full cash out
             }
 
+            initialAmountValue.textContent = '$' + initialAmountSlider.value;
             calculate();
         }
 
