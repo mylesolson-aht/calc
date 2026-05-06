@@ -59,6 +59,15 @@
             text-align: center;
             height: 100%;
         }
+        .summary-tile {
+            background-color: #f9f9f9;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -72,7 +81,7 @@
             <p class="text-center text-gray-500 mt-1 text-sm">Eliminate the Retail Markup on Your Travel</p>
         </div>
 
-        <!-- NEW: Podium Host + Client Name -->
+        <!-- Podium Host + Client Name -->
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1">Podium Host</p>
@@ -122,7 +131,7 @@
                 <p id="cashDownError" class="hidden mt-1 text-xs text-red-500 text-center"></p>
             </div>
 
-            <!-- Manager Discount + NEW Cash Out 10% Toggle -->
+            <!-- Manager Discount + NEW "Is Cash Out – Apply 10%" -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Manager Discount</p>
@@ -133,7 +142,7 @@
                     <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="buybackMaxLabel">$1,000</span>
                 </div>
 
-                <!-- NEW: Is Cash Out, Apply 10% -->
+                <!-- NEW Cash Out 10% Toggle -->
                 <div class="flex items-center gap-2 mt-4">
                     <input type="checkbox" id="apply10Percent" class="w-5 h-5 accent-blue-600 rounded">
                     <label for="apply10Percent" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
@@ -169,11 +178,8 @@
                     </div>
                 </div>
                 <div id="financingResults" class="hidden">
-                    <!-- Monthly + Upgrade Offer - Side by side -->
                     <div class="grid grid-cols-2 gap-4 mb-6">
-                        <!-- Monthly Payment -->
                         <div id="monthlyPayments" class="flex justify-center"></div>
-                        <!-- Upgrade Offer -->
                         <div id="upgradeOfferContainer">
                             <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
                                 <p id="upgradeOfferText" class="text-sm"></p>
@@ -243,7 +249,6 @@
         const sliderMinLabel = document.getElementById('sliderMinLabel');
         const sliderMaxLabel = document.getElementById('sliderMaxLabel');
 
-        // NEW elements
         const apply10PercentCheckbox = document.getElementById('apply10Percent');
 
         const interestRate = 0.1799;
@@ -273,24 +278,23 @@
             return Math.max(Math.ceil(tenPercent) - 1, ABSOLUTE_MIN[plan]);
         }
 
-        // Dynamically set max buyback so TOTAL discount never exceeds the plan limit
+        // Dynamically adjust Buyback slider max so TOTAL discount (buyback + 10%) never exceeds the plan's cash-out limit
         function updateBuybackSliderMax(plan) {
-            const isCashOut10 = apply10PercentCheckbox.checked;
-            let maxTotalDiscount = (plan === 'legacy') ? 1000 : 750; // cash-out limit
-
+            const isCashOut10 = apply10PercentCheckbox.checked && plan !== '3year';
             let maxBuyback = 1000;
 
-            if (isCashOut10 && plan !== '3year') {
+            if (isCashOut10) {
                 const base = planPrices[plan];
-                // buyback + 10% of (base - buyback) = maxTotalDiscount
-                maxBuyback = Math.floor((maxTotalDiscount - 0.1 * base) / 0.9);
+                const maxTotalForCashOut = (plan === 'legacy') ? 1000 : 750;
+                // buyback + 10% of (base - buyback) ≤ maxTotalForCashOut
+                maxBuyback = Math.floor((maxTotalForCashOut - 0.1 * base) / 0.9);
                 if (maxBuyback < 0) maxBuyback = 0;
             }
 
             discountSlider.max = maxBuyback;
             buybackMaxLabel.textContent = '$' + maxBuyback;
 
-            // Cap current slider value if needed
+            // Cap current value if it exceeds the new max
             if (parseInt(discountSlider.value) > maxBuyback) {
                 discountSlider.value = maxBuyback;
             }
@@ -311,8 +315,50 @@
                 apply10PercentCheckbox.disabled = false;
                 updateBuybackSliderMax(plan);
                 discountHelperText.textContent = apply10PercentCheckbox.checked
-                    ? 'Buyback + 10% cash discount (total capped)'
+                    ? 'Buyback + 10% cash discount (total capped at plan limit)'
                     : 'Max $750 cash out • Max $1,000 buyback';
+            }
+        }
+
+        function updateInitialSlider(principal, plan) {
+            const minDep = getMinDeposit(principal, plan);
+            initialAmountSlider.min = minDep;
+            initialAmountSlider.max = principal;
+            const current = parseFloat(initialAmountSlider.value) || minDep;
+            initialAmountSlider.value = Math.max(minDep, Math.min(current, principal));
+            initialAmountValue.textContent = '$' + initialAmountSlider.value;
+            sliderMinLabel.textContent = '$' + minDep;
+            sliderMaxLabel.textContent = '$' + principal;
+        }
+
+        function updateTermUI(plan) {
+            if (plan === 'legacy') {
+                termSlider.max = 36;
+                termSlider.value = 36;
+                termMaxLabel.textContent = '36';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
+            } else {
+                termSlider.max = 24;
+                termSlider.value = (plan === '10year') ? 24 : 12;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            }
+            updateTermDisplay();
+        }
+
+        function updateTermDisplay() {
+            termValueDisplay.textContent = termSlider.value + " Months";
+        }
+
+        function showPenalty(plan, term) {
+            penaltyContainer.classList.add('hidden');
+            if (plan !== '3year') return;
+            let message = '', color = '';
+            if (term === 18) { message = '25% commission penalty applied'; color = 'text-amber-600'; }
+            else if (term === 24) { message = '35% commission penalty applied'; color = 'text-red-600'; }
+            if (message) {
+                penaltyContainer.innerHTML = `<p class="${color} font-medium">${message}</p>`;
+                penaltyContainer.classList.remove('hidden');
             }
         }
 
@@ -324,15 +370,13 @@
             const buyback = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
             const apply10 = apply10PercentCheckbox.checked && plan !== '3year';
 
-            // Calculate 10% cash discount on the amount AFTER buyback
+            // 10% cash discount is applied to the price AFTER buyback
             const cashDiscount = apply10 ? Math.round(0.10 * (basePrice - buyback)) : 0;
-
-            // Total effective discount
             const totalDiscount = buyback + cashDiscount;
 
             const principal = Math.max(0, basePrice - totalDiscount);
 
-            // Update displayed discount (shows buyback amount – clearest for user)
+            // Display shows the buyback amount (what the manager controls)
             discountValue.textContent = '$' + buyback;
 
             const minDeposit = getMinDeposit(principal, plan);
@@ -390,17 +434,15 @@
                     </div>
                 `;
 
-                // Upgrade offer
+                // Upgrade offer (always uses max buyback, no 10% on upgrade preview)
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
                 if (upgradeInfo) {
                     const nextPlan = upgradeInfo.nextPlan;
                     const nextTerm = PLAN_TERMS[nextPlan];
                     const nextBuyback = 1000;
-                    const nextApply10 = false; // upgrade uses max buyback
                     const nextCashDiscount = 0;
-                    const nextTotalDiscount = nextBuyback + nextCashDiscount;
-                    const nextPrincipal = upgradeInfo.price - nextTotalDiscount;
+                    const nextPrincipal = upgradeInfo.price - nextBuyback;
                     const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.max(getMinDeposit(nextPrincipal, nextPlan), Math.round(nextPrincipal * ratio));
                     const nextRemaining = nextPrincipal - nextCashDown;
@@ -416,4 +458,72 @@
                         <span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span>
                         <span class="text-xs text-gray-500">per month</span><br>
                         ${deltaHTML}
-                        <span class="
+                        <span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
+                    `;
+                }
+            }
+        }
+
+        function handlePlanChange(tile) {
+            document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
+            tile.classList.add('active');
+            const plan = tile.dataset.plan;
+            updateTermUI(plan);
+            updateDiscountUI(plan);
+            calculate();
+        }
+
+        // ====================== EVENT LISTENERS ======================
+        document.querySelectorAll('[data-plan]').forEach(tile => {
+            tile.addEventListener('click', () => handlePlanChange(tile));
+        });
+
+        discountSlider.addEventListener('input', calculate);
+
+        initialAmountSlider.addEventListener('input', () => {
+            initialAmountValue.textContent = '$' + initialAmountSlider.value;
+            calculate();
+        });
+
+        termSlider.addEventListener('input', () => {
+            updateTermDisplay();
+            calculate();
+        });
+
+        // NEW: 10% checkbox
+        apply10PercentCheckbox.addEventListener('change', () => {
+            const activeTile = document.querySelector('.input-tile.active');
+            const plan = activeTile ? activeTile.dataset.plan : 'legacy';
+            updateBuybackSliderMax(plan);
+            calculate();
+        });
+
+        // Interest details toggle
+        let detailsVisible = false;
+        toggleInterestButton.addEventListener('click', () => {
+            detailsVisible = !detailsVisible;
+            totalInterestPaidContainer.classList.toggle('hidden', !detailsVisible);
+            toggleInterestButton.innerHTML = detailsVisible
+                ? `👁 <span class="text-xs">Hide Details</span>`
+                : `👁 <span class="text-xs">Show Details</span>`;
+        });
+
+        // Upgrade click → switch plan
+        upgradeOffer.addEventListener('click', () => {
+            const activeTile = document.querySelector('.input-tile.active');
+            if (!activeTile) return;
+            const plan = activeTile.dataset.plan;
+            const upgradeInfo = UPGRADE_PATHS[plan];
+            if (upgradeInfo) {
+                const nextTile = document.querySelector(`[data-plan="${upgradeInfo.nextPlan}"]`);
+                if (nextTile) handlePlanChange(nextTile);
+            }
+        });
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            handlePlanChange(document.querySelector('[data-plan="legacy"]'));
+        });
+    </script>
+</body>
+</html>
