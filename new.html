@@ -305,7 +305,7 @@
 
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
-        const FLOOR_INITIAL = { '3year': 99, '10year': 299, 'legacy': 499 };   // exact floors requested
+        const FLOOR_INITIAL = { '3year': 99, '10year': 299, 'legacy': 499 };
         const PLAN_TERMS = { 'legacy': 36, '10year': 24, '3year': 12 };
 
         const UPGRADE_PATHS = {
@@ -328,8 +328,9 @@
 
         function getDefaultInitialAmount(principal, plan) {
             if (principal <= 0) return FLOOR_INITIAL[plan];
-            const tenPercent = Math.round(principal * 0.10);
-            return Math.max(tenPercent, FLOOR_INITIAL[plan]);
+            const tenPercent = principal * 0.10;
+            const calculated = Math.ceil(tenPercent) - 1;        // ← This is the exact "10% - $1" rule
+            return Math.max(calculated, FLOOR_INITIAL[plan]);
         }
 
         function calculateHypotheticalInterest(principal, plan) {
@@ -545,7 +546,6 @@
             calculate();
         }
 
-        // ====================== COPY VLO CALL ======================
         function copyVLOCall() {
             const podiumName = document.getElementById('podiumHostInput').value.trim();
             const clientName = document.getElementById('clientNameInput').value.trim();
