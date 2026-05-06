@@ -234,14 +234,9 @@
             let cashDown = parseInt(initialAmountSlider.value);
             const defaultInitial = getDefaultInitialAmount(principal);
 
-            // Force 10% only if not in full cash-out mode
-            if (cashDown < principal - 1) {
-                cashDown = defaultInitial;
-                initialAmountSlider.value = cashDown;
-            }
-
             initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
+
             initialAmountValue.textContent = '$' + cashDown;
             sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
@@ -250,7 +245,6 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal - 1) {
-                // CASH OUT MODE - FIXED
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
@@ -260,7 +254,6 @@
                 balanceLabel.textContent = 'Interest Saved';
                 remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
-                // FINANCING MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -308,6 +301,7 @@
             tile.classList.add('active');
             discountSlider.value = 0;
             updateTermUI(tile.dataset.plan);
+            forceAutoInitial();
             calculate();
         }
 
@@ -318,10 +312,9 @@
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
                 forceAutoInitial();
             } else if (action === 'max-cash-out') {
-                let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
-                discountSlider.value = maxDiscount;
-                const principal = Math.max(0, planPrices[plan] - maxDiscount);
-                initialAmountSlider.value = principal;   // FORCE FULL CASH OUT
+                discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                const principal = Math.max(0, planPrices[plan] - parseInt(discountSlider.value));
+                initialAmountSlider.value = principal;
             }
             calculate();
         }
@@ -329,7 +322,10 @@
         // Event Listeners
         document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
         discountSlider.addEventListener('input', () => { forceAutoInitial(); calculate(); });
-        initialAmountSlider.addEventListener('input', () => { initialAmountValue.textContent = '$' + initialAmountSlider.value; calculate(); });
+        initialAmountSlider.addEventListener('input', () => {
+            initialAmountValue.textContent = '$' + initialAmountSlider.value;
+            calculate();
+        });
         termSlider.addEventListener('input', calculate);
 
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
