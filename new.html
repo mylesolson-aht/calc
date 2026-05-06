@@ -282,7 +282,6 @@
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.round(amount));
         }
 
-        // === YOUR REQUESTED LOGIC ===
         function getDefaultInitialAmount(principal) {
             if (principal <= 0) return 99;
             const tenPercent = principal * 0.10;
@@ -299,7 +298,6 @@
             const principal = Math.max(0, planPrices[plan] - buyback);
             discountValue.textContent = '$' + buyback;
 
-            // AUTO-ADJUST INITIAL AMOUNT TO 10% OF CURRENT DISCOUNTED PRICE - 1
             const defaultInitial = getDefaultInitialAmount(principal);
             let cashDown = defaultInitial;
 
@@ -351,7 +349,9 @@
                     const nextRemaining = nextPrincipal - nextCashDown;
                     const nextMonthly = pmt(interestRate / 12, nextTerm, nextRemaining);
                     const delta = payment - nextMonthly;
-                    let deltaHTML = delta > 0 ? `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>` : (delta < 0 ? `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>` : '');
+                    let deltaHTML = '';
+                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
+                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
                     upgradeOfferText.innerHTML = `
                         <span class="text-sm text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
                         <span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span>
