@@ -150,7 +150,7 @@
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="quick-tile" data-set="max-buyback-financed">Max Buy Back Financed</div>
+                    <div class="quick-tile" data-set="max-discount-financed">Max Discount Financed</div>
                     <div class="quick-tile" data-set="max-cash-out">Max Cash Out</div>
                 </div>
             </div>
@@ -428,7 +428,7 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            if (cashDown >= principal - 0.01) {   // ← ROBUST CASH OUT CHECK
+            if (cashDown >= principal - 0.01) {
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
@@ -511,7 +511,7 @@
             discountSlider.value = 0;
             updateTermUI(plan);
             updateDiscountUI(plan);
-            updateInitialSlider(plan);   // forces correct default every plan change
+            updateInitialSlider(plan);
             calculate();
         }
 
@@ -521,7 +521,7 @@
             const plan = activeTile.dataset.plan;
             const basePrice = planPrices[plan];
 
-            if (action === 'max-buyback-financed') {
+            if (action === 'max-discount-financed') {
                 const maxBuyback = (plan === 'legacy' || plan === '10year') ? 1000 : 0;
                 discountSlider.value = maxBuyback;
 
@@ -538,7 +538,7 @@
 
                 discountSlider.value = cashDiscount;
                 const principal = Math.max(0, basePrice - cashDiscount);
-                initialAmountSlider.value = principal;   // force full cash
+                initialAmountSlider.value = principal;
             }
 
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
