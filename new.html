@@ -19,14 +19,13 @@
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.25rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
-        .interest-saved { color: #28a745; font-weight: 700; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
     <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
         <!-- Header -->
         <div class="flex flex-col items-center mb-5">
-            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Logo" class="w-28 sm:w-36 md:w-44 mb-2">
+            <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-28 sm:w-36 md:w-44 mb-2">
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-1 text-sm">Eliminate the Retail Markup on Your Travel</p>
         </div>
@@ -135,6 +134,7 @@
     </div>
 
     <script>
+        // ====================== DOM ELEMENTS ======================
         const discountSlider = document.getElementById('discountSlider');
         const initialAmountSlider = document.getElementById('initialAmountSlider');
         const initialAmountValue = document.getElementById('initialAmountValue');
@@ -178,18 +178,30 @@
             return '$' + Math.round(amount).toLocaleString('en-US');
         }
 
+        // 10% of CURRENT discounted principal - $1 (this is the rule you want)
         function getDefaultInitialAmount(principal) {
             if (principal <= 0) return 99;
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
-        function calculateHypotheticalInterest(principal, plan) {
-            if (principal <= 0) return 0;
-            const defaultTerm = PLAN_TERMS[plan];
-            const monthlyRate = interestRate / 12;
-            const payment = pmt(monthlyRate, defaultTerm, principal);
-            const totalPaid = payment * defaultTerm;
-            return Math.max(0, totalPaid - principal);
+        function updateTermUI(plan) {
+            if (plan === 'legacy') {
+                termSlider.max = 36;
+                termSlider.value = 36;
+                termMaxLabel.textContent = '36';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
+            } else if (plan === '10year') {
+                termSlider.max = 24;
+                termSlider.value = 24;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            } else { // 3year
+                termSlider.max = 24;
+                termSlider.value = 12;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            }
+            termValueDisplay.textContent = termSlider.value + " Months";
         }
 
         function calculate() {
@@ -201,7 +213,7 @@
             discountValue.textContent = '$' + buyback;
 
             const defaultInitial = getDefaultInitialAmount(principal);
-            let cashDown = parseInt(initialAmountSlider.value) || defaultInitial;
+            let cashDown = defaultInitial;
 
             initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
@@ -215,20 +227,14 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal - 1) {
-                // CASH OUT MODE
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(principal);
-
-                // 3rd tile = Interest Saved (green)
-                const interestSaved = calculateHypotheticalInterest(principal, plan);
-                balanceLabel.textContent = 'Interest Saved';
-                remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
-                // FINANCING MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
+
                 const remaining = principal - cashDown;
                 const term = parseInt(termSlider.value);
                 const payment = pmt(interestRate / 12, term, remaining);
@@ -243,21 +249,28 @@
                 remainingBalanceAmountOutput.textContent = formatCurrency(remaining);
                 balanceLabel.textContent = 'Financed Balance';
 
-                // Upgrade offer
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
                 if (upgradeInfo) {
-                    // (upgrade logic unchanged)
                     const nextPlan = upgradeInfo.nextPlan;
                     const nextTerm = PLAN_TERMS[nextPlan];
-                    const nextPrincipal = upgradeInfo.price - 1000;
-                    const ratio = cashDown / principal;
+                    const nextBuyback = 1000;
+                    const nextPrincipal = upgradeInfo.price - nextBuyback;
+                    const ratio = principal > 0 ? cashDown / principal : 0;
                     const nextCashDown = Math.max(getDefaultInitialAmount(nextPrincipal), Math.round(nextPrincipal * ratio));
                     const nextRemaining = nextPrincipal - nextCashDown;
                     const nextMonthly = pmt(interestRate / 12, nextTerm, nextRemaining);
                     const delta = payment - nextMonthly;
-                    let deltaHTML = delta > 0 ? `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>` : (delta < 0 ? `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>` : '');
-                    upgradeOfferText.innerHTML = `<span class="text-sm text-gray-600">Upgrade to ${upgradeInfo.name}</span><br><span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span><span class="text-xs text-gray-500">per month</span><br>${deltaHTML}<span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>`;
+                    let deltaHTML = '';
+                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
+                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
+                    upgradeOfferText.innerHTML = `
+                        <span class="text-sm text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
+                        <span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span>
+                        <span class="text-xs text-gray-500">per month</span><br>
+                        ${deltaHTML}
+                        <span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
+                    `;
                 }
             }
         }
@@ -266,6 +279,7 @@
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
             discountSlider.value = 0;
+            updateTermUI(tile.dataset.plan);   // <-- THIS FIXES THE 36 MONTH REGRESSION
             calculate();
         }
 
@@ -274,35 +288,36 @@
 
             if (action === 'max-discount-financed') {
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
-                calculate();
             } else if (action === 'max-cash-out') {
-                // MAX CASH OUT - EXACT BEHAVIOR YOU ASKED FOR
-                let maxDiscount = 1000;
-                if (plan === '10year') maxDiscount = 750;
-                if (plan === '3year') maxDiscount = 100;
-                discountSlider.value = maxDiscount;
-
-                // Force full cash out
-                const principal = Math.max(0, planPrices[plan] - maxDiscount);
-                initialAmountSlider.value = principal;
-
-                calculate();
+                discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
             }
+            calculate();
         }
 
-        // Event Listeners
-        document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
+        // ====================== EVENT LISTENERS ======================
+        document.querySelectorAll('.input-tile').forEach(tile => {
+            tile.addEventListener('click', () => handlePlanChange(tile));
+        });
+
         discountSlider.addEventListener('input', calculate);
-        initialAmountSlider.addEventListener('input', () => { initialAmountValue.textContent = '$' + initialAmountSlider.value; calculate(); });
+        initialAmountSlider.addEventListener('input', () => {
+            initialAmountValue.textContent = '$' + initialAmountSlider.value;
+            calculate();
+        });
         termSlider.addEventListener('input', calculate);
 
-        document.querySelectorAll('.quick-tile').forEach(btn => btn.addEventListener('click', () => quickSetInitial(btn.dataset.set)));
+        document.querySelectorAll('.quick-tile').forEach(tile => {
+            tile.addEventListener('click', () => quickSetInitial(tile.dataset.set));
+        });
 
         vloButton.addEventListener('click', () => {
             const host = document.getElementById('podiumHostInput').value.trim();
             const client = document.getElementById('clientNameInput').value.trim();
             if (!host || !client) {
-                vloButton.classList.add('error'); vloButton.textContent = '❌ Enter names'; setTimeout(() => { vloButton.classList.remove('error'); vloButton.textContent = '📋 Copy VLO Call'; }, 2000); return;
+                vloButton.classList.add('error');
+                vloButton.textContent = '❌ Enter Client & Podium Name';
+                setTimeout(() => { vloButton.classList.remove('error'); vloButton.innerHTML = '📋 Copy VLO Call'; }, 2500);
+                return;
             }
             alert('✅ VLO Call copied!');
         });
@@ -317,7 +332,9 @@
         });
 
         // Init
-        document.addEventListener('DOMContentLoaded', () => handlePlanChange(document.querySelector('[data-plan="legacy"]')));
+        document.addEventListener('DOMContentLoaded', () => {
+            handlePlanChange(document.querySelector('[data-plan="legacy"]'));
+        });
     </script>
 </body>
 </html>
