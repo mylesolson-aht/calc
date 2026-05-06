@@ -19,6 +19,7 @@
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.25rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
+        .interest-saved { color: #28a745; font-weight: 700; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -178,30 +179,17 @@
             return '$' + Math.round(amount).toLocaleString('en-US');
         }
 
-        // 10% of CURRENT discounted principal - $1 (this is the rule you want)
         function getDefaultInitialAmount(principal) {
             if (principal <= 0) return 99;
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
-        function updateTermUI(plan) {
-            if (plan === 'legacy') {
-                termSlider.max = 36;
-                termSlider.value = 36;
-                termMaxLabel.textContent = '36';
-                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
-            } else if (plan === '10year') {
-                termSlider.max = 24;
-                termSlider.value = 24;
-                termMaxLabel.textContent = '24';
-                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
-            } else { // 3year
-                termSlider.max = 24;
-                termSlider.value = 12;
-                termMaxLabel.textContent = '24';
-                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
-            }
-            termValueDisplay.textContent = termSlider.value + " Months";
+        function calculateHypotheticalInterest(principal, plan) {
+            if (principal <= 0) return 0;
+            const term = PLAN_TERMS[plan];
+            const monthlyRate = interestRate / 12;
+            const payment = pmt(monthlyRate, term, principal);
+            return Math.max(0, payment * term - principal);
         }
 
         function calculate() {
@@ -212,13 +200,18 @@
             const principal = Math.max(0, planPrices[plan] - buyback);
             discountValue.textContent = '$' + buyback;
 
+            // Respect the slider value (important for Max Cash Out)
+            let cashDown = parseInt(initialAmountSlider.value);
             const defaultInitial = getDefaultInitialAmount(principal);
-            let cashDown = defaultInitial;
+
+            // If slider is not at full cash out, use default 10% rule
+            if (cashDown < principal - 1) {
+                cashDown = defaultInitial;
+                initialAmountSlider.value = cashDown;
+            }
 
             initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
-            initialAmountSlider.value = cashDown;
-
             initialAmountValue.textContent = '$' + cashDown;
             sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
@@ -227,11 +220,19 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal - 1) {
+                // TRUE CASH OUT MODE
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
+
                 cashOutTotalOutput.textContent = formatCurrency(principal);
+
+                // Third tile = Interest Saved (green)
+                const interestSaved = calculateHypotheticalInterest(principal, plan);
+                balanceLabel.textContent = 'Interest Saved';
+                remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
+                // FINANCING MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -249,6 +250,7 @@
                 remainingBalanceAmountOutput.textContent = formatCurrency(remaining);
                 balanceLabel.textContent = 'Financed Balance';
 
+                // Upgrade offer
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
                 if (upgradeInfo) {
@@ -279,7 +281,6 @@
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
             discountSlider.value = 0;
-            updateTermUI(tile.dataset.plan);   // <-- THIS FIXES THE 36 MONTH REGRESSION
             calculate();
         }
 
@@ -289,16 +290,17 @@
             if (action === 'max-discount-financed') {
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
             } else if (action === 'max-cash-out') {
-                discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                discountSlider.value = maxDiscount;
+
+                const principal = Math.max(0, planPrices[plan] - maxDiscount);
+                initialAmountSlider.value = principal;   // FORCE FULL CASH OUT
             }
             calculate();
         }
 
-        // ====================== EVENT LISTENERS ======================
-        document.querySelectorAll('.input-tile').forEach(tile => {
-            tile.addEventListener('click', () => handlePlanChange(tile));
-        });
-
+        // Event Listeners
+        document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
         discountSlider.addEventListener('input', calculate);
         initialAmountSlider.addEventListener('input', () => {
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
@@ -306,9 +308,7 @@
         });
         termSlider.addEventListener('input', calculate);
 
-        document.querySelectorAll('.quick-tile').forEach(tile => {
-            tile.addEventListener('click', () => quickSetInitial(tile.dataset.set));
-        });
+        document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
 
         vloButton.addEventListener('click', () => {
             const host = document.getElementById('podiumHostInput').value.trim();
@@ -332,9 +332,7 @@
         });
 
         // Init
-        document.addEventListener('DOMContentLoaded', () => {
-            handlePlanChange(document.querySelector('[data-plan="legacy"]'));
-        });
+        document.addEventListener('DOMContentLoaded', () => handlePlanChange(document.querySelector('[data-plan="legacy"]')));
     </script>
 </body>
 </html>
