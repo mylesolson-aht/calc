@@ -19,6 +19,7 @@
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1.25rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
+        .interest-saved { color: #28a745; font-weight: 700; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -182,6 +183,14 @@
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
+        function calculateHypotheticalInterest(principal, plan) {
+            if (principal <= 0) return 0;
+            const term = PLAN_TERMS[plan];
+            const monthlyRate = interestRate / 12;
+            const payment = pmt(monthlyRate, term, principal);
+            return Math.max(0, payment * term - principal);
+        }
+
         function forceAutoInitial() {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             let buyback = parseInt(discountSlider.value) || 0;
@@ -225,9 +234,13 @@
             let cashDown = parseInt(initialAmountSlider.value);
             const defaultInitial = getDefaultInitialAmount(principal);
 
+            if (cashDown < principal - 1) {
+                cashDown = defaultInitial;
+                initialAmountSlider.value = cashDown;
+            }
+
             initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
-
             initialAmountValue.textContent = '$' + cashDown;
             sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
@@ -240,6 +253,10 @@
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(principal);
+
+                const interestSaved = calculateHypotheticalInterest(principal, plan);
+                balanceLabel.textContent = 'Interest Saved';
+                remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
@@ -288,6 +305,7 @@
             tile.classList.add('active');
             discountSlider.value = 0;
             updateTermUI(tile.dataset.plan);
+            forceAutoInitial();
             calculate();
         }
 
