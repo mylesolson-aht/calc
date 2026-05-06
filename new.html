@@ -293,10 +293,14 @@
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.round(amount));
         }
 
-        function getMinDeposit(principal, plan) {
+        function getDefaultInitialAmount(principal, plan) {
             if (principal <= 0) return ABSOLUTE_MIN[plan];
-            const tenPercent = principal * 0.10;
-            return Math.max(Math.ceil(tenPercent) - 1, ABSOLUTE_MIN[plan]);
+            const tenPercent = Math.round(principal * 0.10);           // exactly 10% of membership value
+            return Math.max(tenPercent, ABSOLUTE_MIN[plan]);
+        }
+
+        function getMinDeposit(principal, plan) {
+            return getDefaultInitialAmount(principal, plan);           // min = default 10%
         }
 
         function calculateHypotheticalInterest(principal, plan) {
@@ -334,13 +338,12 @@
         }
 
         function updateInitialSlider(principal, plan) {
-            const minDep = getMinDeposit(principal, plan);
-            initialAmountSlider.min = minDep;
+            const defaultInitial = getDefaultInitialAmount(principal, plan);
+            initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
-            const current = parseFloat(initialAmountSlider.value) || minDep;
-            initialAmountSlider.value = Math.max(minDep, Math.min(current, principal));
-            initialAmountValue.textContent = '$' + initialAmountSlider.value;
-            sliderMinLabel.textContent = '$' + minDep;
+            initialAmountSlider.value = defaultInitial;                     // force 10% default
+            initialAmountValue.textContent = '$' + defaultInitial;
+            sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
         }
 
@@ -385,33 +388,32 @@
 
             discountValue.textContent = '$' + buyback;
 
-            const minDeposit = getMinDeposit(principal, plan);
-            let cashDown = parseFloat(initialAmountSlider.value) || minDeposit;
-            cashDown = Math.max(minDeposit, Math.min(cashDown, principal));
+            const defaultInitial = getDefaultInitialAmount(principal, plan);
+            let cashDown = parseFloat(initialAmountSlider.value) || defaultInitial;
+            cashDown = Math.max(defaultInitial, Math.min(cashDown, principal));
 
             initialAmountSlider.value = cashDown;
             initialAmountValue.textContent = '$' + cashDown;
-            sliderMinLabel.textContent = '$' + minDeposit;
+            sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
 
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal) {
-                // ====================== CASH OUT DEAL ======================
+                // CASH OUT DEAL
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
 
                 cashOutTotalOutput.textContent = formatCurrency(cashDown);
 
-                // Real interest saved calculation
                 const interestSaved = calculateHypotheticalInterest(principal, plan);
 
                 balanceLabel.textContent = 'Interest Saved';
                 remainingBalanceAmountOutput.textContent = formatCurrency(interestSaved);
             } else {
-                // ====================== FINANCING ======================
+                // FINANCING
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -457,7 +459,7 @@
                     const nextBuyback = 1000;
                     const nextPrincipal = upgradeInfo.price - nextBuyback;
                     const ratio = principal > 0 ? cashDown / principal : 0;
-                    const nextCashDown = Math.max(getMinDeposit(nextPrincipal, nextPlan), Math.round(nextPrincipal * ratio));
+                    const nextCashDown = Math.max(getDefaultInitialAmount(nextPrincipal, nextPlan), Math.round(nextPrincipal * ratio));
                     const nextRemaining = nextPrincipal - nextCashDown;
                     const nextMonthly = pmt(interestRate / 12, nextTerm, nextRemaining);
                     const delta = payment - nextMonthly;
@@ -482,10 +484,10 @@
             tile.classList.add('active');
             const plan = tile.dataset.plan;
 
-            discountSlider.value = 0;
+            discountSlider.value = 0;                     // Manager Discount defaults to 0
             updateTermUI(plan);
             updateDiscountUI(plan);
-            calculate();
+            calculate();                                  // forces 10% default initial amount
         }
 
         function quickSetInitial(action) {
@@ -500,7 +502,7 @@
 
                 const principalAfterBuyback = Math.max(0, basePrice - maxBuyback);
                 let targetDown = plan === 'legacy' ? 399 : plan === '10year' ? 199 : 99;
-                const newMinDep = getMinDeposit(principalAfterBuyback, plan);
+                const newMinDep = getDefaultInitialAmount(principalAfterBuyback, plan);
                 if (targetDown < newMinDep) targetDown = newMinDep;
 
                 initialAmountSlider.value = targetDown;
@@ -511,7 +513,7 @@
 
                 discountSlider.value = cashDiscount;
                 const principal = Math.max(0, basePrice - cashDiscount);
-                initialAmountSlider.value = principal;   // full cash
+                initialAmountSlider.value = principal;
             }
 
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
