@@ -42,7 +42,6 @@
         .aloha-brand-text { color: #006699; }
         input[type="range"] { accent-color: #007aff; }
 
-        /* NEW: Quick-set tiles - vertically narrow */
         .quick-tile {
             background-color: #f9f9f9;
             border: 1px solid #d2d2d7;
@@ -137,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- NEW: 3 Quick-Set Tiles (vertically narrow) -->
+            <!-- Quick Initial Amount Tiles -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
                 <div class="grid grid-cols-3 gap-3">
@@ -167,7 +166,7 @@
                 <p id="cashDownError" class="hidden mt-1 text-xs text-red-500 text-center"></p>
             </div>
 
-            <!-- Manager Discount + NEW "Is Cash Out – Apply 10%" -->
+            <!-- Manager Discount + Cash Out 10% Toggle -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
                     <p class="text-sm font-medium text-gray-700">Manager Discount</p>
@@ -178,7 +177,6 @@
                     <span>$0</span><span>$250</span><span>$500</span><span>$750</span><span id="buybackMaxLabel">$1,000</span>
                 </div>
 
-                <!-- NEW Cash Out 10% Toggle -->
                 <div class="flex items-center gap-2 mt-4">
                     <input type="checkbox" id="apply10Percent" class="w-5 h-5 accent-blue-600 rounded">
                     <label for="apply10Percent" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
@@ -320,7 +318,7 @@
 
             if (isCashOut10) {
                 const base = planPrices[plan];
-                const maxTotalForCashOut = (plan === 'legacy') ? 1000 : 750;
+                const maxTotalForCashOut = (plan === 'legacy') ? 1000 : (plan === '10year' ? 750 : 100);
                 maxBuyback = Math.floor((maxTotalForCashOut - 0.1 * base) / 0.9);
                 if (maxBuyback < 0) maxBuyback = 0;
             }
@@ -496,12 +494,16 @@
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
             const plan = tile.dataset.plan;
+
+            // DEFAULTS as requested
+            discountSlider.value = 0;                    // Manager Discount defaults to 0
+            apply10PercentCheckbox.checked = false;      // Cash Out 10% OFF by default
+
             updateTermUI(plan);
             updateDiscountUI(plan);
-            calculate();
+            calculate();                                 // This will set Initial Amount to 10% min deposit
         }
 
-        // ====================== QUICK SET TILES ======================
         function quickSetInitial(action) {
             const activeTile = document.querySelector('.input-tile.active');
             if (!activeTile) return;
@@ -552,14 +554,10 @@
             calculate();
         });
 
-        // Quick-set tile clicks
         document.querySelectorAll('.quick-tile').forEach(tile => {
-            tile.addEventListener('click', () => {
-                quickSetInitial(tile.dataset.set);
-            });
+            tile.addEventListener('click', () => quickSetInitial(tile.dataset.set));
         });
 
-        // Interest details toggle
         let detailsVisible = false;
         toggleInterestButton.addEventListener('click', () => {
             detailsVisible = !detailsVisible;
@@ -569,7 +567,6 @@
                 : `👁 <span class="text-xs">Show Details</span>`;
         });
 
-        // Upgrade click
         upgradeOffer.addEventListener('click', () => {
             const activeTile = document.querySelector('.input-tile.active');
             if (!activeTile) return;
