@@ -61,6 +61,23 @@
         .quick-tile:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .quick-tile:active { transform: scale(0.98); }
 
+        .whatsapp-tile {
+            background-color: #25D366;
+            color: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .whatsapp-tile:hover { transform: scale(1.03); box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3); }
+
         .upgrade-delta { font-weight: 700; }
         .upgrade-delta-positive { color: #28a745; }
         .upgrade-delta-negative { color: #ff3b30; }
@@ -141,6 +158,13 @@
                 </div>
             </div>
 
+            <!-- NEW: WhatsApp Copy Button -->
+            <div class="mt-2">
+                <div id="whatsappButton" class="whatsapp-tile text-white">
+                    📋 Copy WhatsApp Message
+                </div>
+            </div>
+
             <!-- Initial Amount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
@@ -185,7 +209,6 @@
         <!-- Results -->
         <div class="mt-6">
             <div id="results" class="space-y-4">
-                <!-- CASH OUT SECTION -->
                 <div id="cashResults" class="hidden">
                     <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
                     <div class="p-5 rounded-2xl bg-green-50 text-center">
@@ -193,8 +216,6 @@
                         <p id="cashOutTotal" class="text-4xl font-bold text-green-700">$0</p>
                     </div>
                 </div>
-
-                <!-- FINANCING SECTION -->
                 <div id="financingResults" class="hidden">
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div id="monthlyPayments" class="flex justify-center"></div>
@@ -206,7 +227,6 @@
                     </div>
                 </div>
 
-                <!-- SUMMARY TILES – ALWAYS VISIBLE -->
                 <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="summary-tile">
@@ -272,6 +292,9 @@
         const sliderMinLabel = document.getElementById('sliderMinLabel');
         const sliderMaxLabel = document.getElementById('sliderMaxLabel');
 
+        // New WhatsApp button
+        const whatsappButton = document.getElementById('whatsappButton');
+
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
         const ABSOLUTE_MIN = { '3year': 99, '10year': 199, 'legacy': 299 };
@@ -281,6 +304,8 @@
             '3year': { name: '10 Year', price: 2999, nextPlan: '10year' },
             '10year': { name: 'Legacy', price: 4999, nextPlan: 'legacy' }
         };
+
+        const PLAN_DISPLAY = { 'legacy': 'Legacy', '10year': '10 Year', '3year': 'Trial' };
 
         // ====================== HELPERS ======================
         function pmt(rate, nper, pv) {
@@ -295,12 +320,8 @@
 
         function getDefaultInitialAmount(principal, plan) {
             if (principal <= 0) return ABSOLUTE_MIN[plan];
-            const tenPercent = Math.round(principal * 0.10);           // exactly 10% of membership value
+            const tenPercent = Math.round(principal * 0.10);
             return Math.max(tenPercent, ABSOLUTE_MIN[plan]);
-        }
-
-        function getMinDeposit(principal, plan) {
-            return getDefaultInitialAmount(principal, plan);           // min = default 10%
         }
 
         function calculateHypotheticalInterest(principal, plan) {
@@ -341,7 +362,7 @@
             const defaultInitial = getDefaultInitialAmount(principal, plan);
             initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
-            initialAmountSlider.value = defaultInitial;                     // force 10% default
+            initialAmountSlider.value = defaultInitial;
             initialAmountValue.textContent = '$' + defaultInitial;
             sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
@@ -401,15 +422,13 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal) {
-                // CASH OUT DEAL
+                // CASH OUT
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
-
                 cashOutTotalOutput.textContent = formatCurrency(cashDown);
 
                 const interestSaved = calculateHypotheticalInterest(principal, plan);
-
                 balanceLabel.textContent = 'Interest Saved';
                 remainingBalanceAmountOutput.textContent = formatCurrency(interestSaved);
             } else {
@@ -484,10 +503,10 @@
             tile.classList.add('active');
             const plan = tile.dataset.plan;
 
-            discountSlider.value = 0;                     // Manager Discount defaults to 0
+            discountSlider.value = 0;
             updateTermUI(plan);
             updateDiscountUI(plan);
-            calculate();                                  // forces 10% default initial amount
+            calculate();
         }
 
         function quickSetInitial(action) {
@@ -520,6 +539,49 @@
             calculate();
         }
 
+        // ====================== WHATSAPP COPY FUNCTION ======================
+        function copyToWhatsApp() {
+            const activeTile = document.querySelector('.input-tile.active');
+            const plan = activeTile ? activeTile.dataset.plan : 'legacy';
+            const membership = PLAN_DISPLAY[plan];
+
+            const clientName = document.getElementById('clientNameInput').value.trim() || 'Client Name';
+            const podiumName = document.getElementById('podiumHostInput').value.trim() || 'Podium Presenter';
+
+            const buyback = parseInt(discountSlider.value) || 0;
+            const isCashOut = parseFloat(initialAmountSlider.value) >= (planPrices[plan] - buyback);
+
+            let amountLine = '';
+            if (isCashOut) {
+                amountLine = `${cashOutTotalOutput.textContent} total`;
+            } else {
+                amountLine = `${initialAmountValue.textContent} down`;
+            }
+
+            const discountLine = buyback > 0 ? `BB $${buyback}` : 'No bb';
+
+            const term = termSlider.value;
+
+            const message = `Vlo please\n\n` +
+                `${clientName}\n` +
+                `${amountLine}\n` +
+                `${membership}\n` +
+                `${discountLine}\n` +
+                `No hero\n` +
+                `${term}\n` +
+                `${podiumName}`;
+
+            navigator.clipboard.writeText(message).then(() => {
+                const originalText = whatsappButton.innerHTML;
+                whatsappButton.innerHTML = '✅ Copied to Clipboard!';
+                whatsappButton.style.backgroundColor = '#128C7E';
+                setTimeout(() => {
+                    whatsappButton.innerHTML = originalText;
+                    whatsappButton.style.backgroundColor = '#25D366';
+                }, 2000);
+            });
+        }
+
         // ====================== EVENT LISTENERS ======================
         document.querySelectorAll('[data-plan]').forEach(tile => {
             tile.addEventListener('click', () => handlePlanChange(tile));
@@ -540,6 +602,9 @@
         document.querySelectorAll('.quick-tile').forEach(tile => {
             tile.addEventListener('click', () => quickSetInitial(tile.dataset.set));
         });
+
+        // WhatsApp button
+        whatsappButton.addEventListener('click', copyToWhatsApp);
 
         let detailsVisible = false;
         toggleInterestButton.addEventListener('click', () => {
