@@ -206,6 +206,23 @@
             sliderMaxLabel.textContent = '$' + principal;
         }
 
+        function updateTermUI(plan) {
+            if (plan === 'legacy') {
+                termSlider.max = 36; termSlider.value = 36;
+                termMaxLabel.textContent = '36';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
+            } else if (plan === '10year') {
+                termSlider.max = 24; termSlider.value = 24;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            } else {
+                termSlider.max = 24; termSlider.value = 12;
+                termMaxLabel.textContent = '24';
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+            }
+            termValueDisplay.textContent = termSlider.value + " Months";
+        }
+
         function calculate() {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             let buyback = parseInt(discountSlider.value) || 0;
@@ -214,16 +231,13 @@
             const principal = Math.max(0, planPrices[plan] - buyback);
             discountValue.textContent = '$' + buyback;
 
-            let cashDown = parseInt(initialAmountSlider.value);
             const defaultInitial = getDefaultInitialAmount(principal);
-
-            if (cashDown < principal - 1) {
-                cashDown = defaultInitial;
-                initialAmountSlider.value = cashDown;
-            }
+            let cashDown = parseInt(initialAmountSlider.value) || defaultInitial;
 
             initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
+            initialAmountSlider.value = cashDown;
+
             initialAmountValue.textContent = '$' + cashDown;
             sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
@@ -232,7 +246,7 @@
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
             if (cashDown >= principal - 1) {
-                // CASH OUT MODE
+                // CASH OUT
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
@@ -242,7 +256,7 @@
                 balanceLabel.textContent = 'Interest Saved';
                 remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
-                // FINANCING MODE
+                // FINANCING
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -271,9 +285,7 @@
                     const nextRemaining = nextPrincipal - nextCashDown;
                     const nextMonthly = pmt(interestRate / 12, nextTerm, nextRemaining);
                     const delta = payment - nextMonthly;
-                    let deltaHTML = '';
-                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
-                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
+                    let deltaHTML = delta > 0 ? `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>` : (delta < 0 ? `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>` : '');
                     upgradeOfferText.innerHTML = `
                         <span class="text-sm text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
                         <span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span>
@@ -289,6 +301,8 @@
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
             discountSlider.value = 0;
+            updateTermUI(tile.dataset.plan);
+            forceAutoInitial();
             calculate();
         }
 
@@ -299,10 +313,9 @@
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
                 forceAutoInitial();
             } else if (action === 'max-cash-out') {
-                let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
-                discountSlider.value = maxDiscount;
-                const principal = Math.max(0, planPrices[plan] - maxDiscount);
-                initialAmountSlider.value = principal;   // force full cash out
+                discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                const principal = Math.max(0, planPrices[plan] - parseInt(discountSlider.value));
+                initialAmountSlider.value = principal;
             }
             calculate();
         }
