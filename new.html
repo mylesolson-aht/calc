@@ -3,6 +3,7 @@
     const discountValue = document.getElementById('discountValue');
     const discountHelperText = document.getElementById('discountHelperText');
     const cashDownError = document.getElementById('cashDownError');
+
     const principalAmountOutput = document.getElementById('principalAmount');
     const cashDownAmountOutput = document.getElementById('cashDownAmount');
     const remainingBalanceAmountOutput = document.getElementById('remainingBalanceAmount');
@@ -45,20 +46,17 @@
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.round(amount));
     }
 
-    function getMaxDiscount(plan, isCashOut = false) {
+    function getMaxDiscount(plan, isFullCashOut) {
         if (plan === '3year') return 0;
         if (plan === 'legacy') return 1000;
-        if (plan === '10year') {
-            return isCashOut ? 750 : 1000;   // Cash out max 750, financing/buyback max 1000
-        }
-        return 1000;
+        // 10 Year
+        return isFullCashOut ? 750 : 1000;
     }
 
     function getMinDeposit(principal, plan) {
         if (principal <= 0) return ABSOLUTE_MIN[plan];
         const tenPercent = principal * 0.10;
-        const calculatedMin = Math.ceil(tenPercent) - 1;
-        return Math.max(calculatedMin, ABSOLUTE_MIN[plan]);
+        return Math.max(Math.ceil(tenPercent) - 1, ABSOLUTE_MIN[plan]);
     }
 
     function updateDiscountUI(plan) {
@@ -72,79 +70,76 @@
             discountSlider.disabled = false;
             discountValue.classList.remove('text-gray-400');
             discountHelperText.textContent = plan === 'legacy' 
-                ? 'Max $1,000 total (10% cash + $500 buyback)' 
-                : 'Max $750 cash out • Max $1,000 buyback';
+                ? 'Max $1,000 (10% cash + $500 buyback)' 
+                : 'Max $750 on Cash Out • Max $1,000 on Buyback';
         }
-    }
-
-    function updateInitialSlider(principal, plan) {
-        const minDep = getMinDeposit(principal, plan);
-        initialAmountSlider.min = minDep;
-        initialAmountSlider.max = principal;
-        initialAmountSlider.value = Math.max(minDep, Math.min(initialAmountSlider.value, principal));
-        initialAmountValue.textContent = '$' + initialAmountSlider.value;
-        sliderMinLabel.textContent = '$' + minDep;
-        sliderMaxLabel.textContent = '$' + principal;
     }
 
     function calculate() {
         const activeTile = document.querySelector('.input-tile.active');
         const plan = activeTile.dataset.plan;
-        let requestedDiscount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
+        const basePrice = planPrices[plan];
 
-        const isCashOutMode = parseFloat(initialAmountSlider.value) >= (planPrices[plan] - requestedDiscount);
+        let discount = plan === '3year' ? 0 : parseInt(discountSlider.value) || 0;
 
-        // Enforce plan-specific max discount
-        const maxAllowed = getMaxDiscount(plan, isCashOutMode);
-        let discount = Math.min(requestedDiscount, maxAllowed);
+        // First calculate provisional principal
+        let provisionalPrincipal = basePrice - discount;
 
-        // Sync slider if we had to reduce it
-        if (discount !== requestedDiscount) {
-            discountSlider.value = discount;
-        }
+        // Determine if this would be full cash out with current cash down
+        let currentCashDown = parseFloat(initialAmountSlider.value) || 0;
+        const isFullCashOut = currentCashDown >= provisionalPrincipal;
 
-        const principal = Math.max(0, planPrices[plan] - discount);
+        // Enforce correct max discount
+        const maxAllowed = getMaxDiscount(plan, isFullCashOut);
+        discount = Math.min(discount, maxAllowed);
+
+        // Apply final discount
+        const principal = basePrice - discount;
+
+        // Update min deposit and cash down
         const minDeposit = getMinDeposit(principal, plan);
-        let cashDown = parseFloat(initialAmountSlider.value) || minDeposit;
-        cashDown = Math.max(minDeposit, Math.min(cashDown, principal));
+        let cashDown = Math.max(minDeposit, Math.min(currentCashDown, principal));
 
+        // Update UI values
+        discountSlider.value = discount;
+        discountValue.textContent = '$' + discount;
         initialAmountSlider.value = cashDown;
         initialAmountValue.textContent = '$' + cashDown;
+        sliderMinLabel.textContent = '$' + minDeposit;
+        sliderMaxLabel.textContent = '$' + principal;
 
         principalAmountOutput.textContent = formatCurrency(principal);
         cashDownAmountOutput.textContent = formatCurrency(cashDown);
         remainingBalanceAmountOutput.textContent = formatCurrency(principal - cashDown);
 
-        discountValue.textContent = '$' + discount;
-
         if (cashDown >= principal) {
-            // === CASH OUT ===
+            // CASH OUT
             cashResultsSection.classList.remove('hidden');
             financingResultsSection.classList.add('hidden');
             upgradeOfferContainer.classList.add('hidden');
             cashOutTotalOutput.textContent = formatCurrency(cashDown);
         } else {
-            // === FINANCING ===
+            // FINANCING
             cashResultsSection.classList.add('hidden');
             financingResultsSection.classList.remove('hidden');
 
             const remaining = principal - cashDown;
             const monthlyRate = interestRate / 12;
-            const currentTerm = parseInt(termSlider.value);
-            const payment = pmt(monthlyRate, currentTerm, remaining);
+            const term = parseInt(termSlider.value);
+            const payment = pmt(monthlyRate, term, remaining);
 
             monthlyPaymentsContainer.innerHTML = `
                 <div class="result-card">
-                    <p class="text-sm text-gray-500 mb-1">${currentTerm} Months</p>
+                    <p class="text-sm text-gray-500 mb-1">${term} Months</p>
                     <p class="text-5xl font-bold text-blue-600">${formatCurrency(payment)}</p>
                     <p class="text-xs text-gray-400 mt-1">per month</p>
                 </div>
             `;
 
-            showPenalty(plan, currentTerm);
+            showPenalty(plan, term);
 
-            const totalInterest = (payment * currentTerm) - remaining;
-            const totalCost = cashDown + (payment * currentTerm);
+            const totalInterest = (payment * term) - remaining;
+            const totalCost = cashDown + (payment * term);
 
             totalInterestPaidContainer.innerHTML = `
                 <div class="grid grid-cols-2 gap-4">
@@ -159,16 +154,17 @@
                 </div>
             `;
 
-            // Upgrade offer
+            // Upgrade logic (kept simple)
             const upgradeInfo = UPGRADE_PATHS[plan];
-            upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
             if (upgradeInfo) {
-                // ... (upgrade logic unchanged - let me know if you want it adjusted too)
+                upgradeOfferContainer.classList.remove('hidden');
+                // ... (upgrade offer code can stay as before)
+            } else {
+                upgradeOfferContainer.classList.add('hidden');
             }
         }
     }
 
-    // Rest of your functions (updateTermUI, showPenalty, handlePlanChange, etc.) remain the same
     function updateTermUI(plan) {
         if (plan === 'legacy') {
             termSlider.max = 36;
@@ -177,7 +173,7 @@
             termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
         } else {
             termSlider.max = 24;
-            termSlider.value = (plan === '10year') ? 24 : 12;
+            termSlider.value = plan === '10year' ? 24 : 12;
             termMaxLabel.textContent = '24';
             termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
         }
@@ -191,11 +187,11 @@
     function showPenalty(plan, term) {
         penaltyContainer.classList.add('hidden');
         if (plan !== '3year') return;
-        let message = '', color = '';
-        if (term === 18) { message = '25% commission penalty applied'; color = 'text-amber-600'; }
-        else if (term === 24) { message = '35% commission penalty applied'; color = 'text-red-600'; }
-        if (message) {
-            penaltyContainer.innerHTML = `<p class="${color} font-medium">${message}</p>`;
+        let msg = '';
+        if (term === 18) msg = '25% commission penalty applied';
+        if (term === 24) msg = '35% commission penalty applied';
+        if (msg) {
+            penaltyContainer.innerHTML = `<p class="text-amber-600 font-medium">${msg}</p>`;
             penaltyContainer.classList.remove('hidden');
         }
     }
@@ -210,32 +206,28 @@
     }
 
     // Event Listeners
-    document.querySelectorAll('[data-plan]').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
-
-    discountSlider.addEventListener('input', () => {
-        if (!discountSlider.disabled) calculate();
+    document.querySelectorAll('[data-plan]').forEach(tile => {
+        tile.addEventListener('click', () => handlePlanChange(tile));
     });
 
-    initialAmountSlider.addEventListener('input', () => {
-        initialAmountValue.textContent = '$' + initialAmountSlider.value;
-        calculate();
-    });
-
+    discountSlider.addEventListener('input', calculate);
+    initialAmountSlider.addEventListener('input', calculate);
     termSlider.addEventListener('input', () => {
         updateTermDisplay();
         calculate();
     });
 
-    // Toggle interest details
+    // Interest details toggle
     let detailsVisible = false;
     toggleInterestButton.addEventListener('click', () => {
         detailsVisible = !detailsVisible;
         totalInterestPaidContainer.classList.toggle('hidden', !detailsVisible);
-        toggleInterestButton.innerHTML = detailsVisible
-            ? `👁 <span class="text-xs">Hide Details</span>`
+        toggleInterestButton.innerHTML = detailsVisible 
+            ? `👁 <span class="text-xs">Hide Details</span>` 
             : `👁 <span class="text-xs">Show Details</span>`;
     });
 
+    // Init
     document.addEventListener('DOMContentLoaded', () => {
         handlePlanChange(document.querySelector('[data-plan="legacy"]'));
     });
