@@ -207,13 +207,13 @@
             return Math.max(0, fullInterest - actualInterest);
         }
 
+        // Updated discount description with dollar amount
         function getDiscountDescription(discount, plan) {
-    if (discount <= 0) return "No BB";
-    if (plan === '3year') return "No BB";
+            if (discount <= 0) return "No BB";
+            if (plan === '3year') return "No BB";
 
-    if (discount <= 500) return `$${discount} Hero`;
-    return `$${discount} Hero / Buy Back`;
-}
+            if (discount <= 500) return `$${discount} Hero`;
+            return `$${discount} Hero / Buy Back`;
         }
 
         function forceAutoInitial() {
@@ -427,7 +427,6 @@
             text += `${initial} down\n`;
             text += `${planName}\n`;
 
-            // New discount language logic
             if (!(plan === '3year' && isCashOut)) {
                 text += `${getDiscountDescription(discount, plan)}\n`;
             }
