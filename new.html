@@ -192,17 +192,14 @@
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
-        // Interest saved by putting down the Initial Amount (works in both modes)
         function calculateInterestSaved(principal, cashDown, plan) {
             if (principal <= 0) return 0;
             const term = PLAN_TERMS[plan];
             const monthlyRate = interestRate / 12;
 
-            // Interest if financing 100%
             const fullPayment = pmt(monthlyRate, term, principal);
             const fullInterest = fullPayment * term - principal;
 
-            // Interest actually being paid with current down payment
             const financedAmount = Math.max(0, principal - cashDown);
             const actualPayment = pmt(monthlyRate, term, financedAmount);
             const actualInterest = actualPayment * term - financedAmount;
@@ -250,6 +247,9 @@
             const principal = Math.max(0, planPrices[plan] - buyback);
             discountValue.textContent = '$' + buyback;
 
+            // === FIX: Always update term display when slider moves ===
+            termValueDisplay.textContent = termSlider.value + " Months";
+
             let cashDown = parseInt(initialAmountSlider.value) || 0;
 
             if (cashDown >= principal - 50) {
@@ -277,19 +277,16 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            // Always show Interest Saved in the third tile
             const interestSaved = calculateInterestSaved(principal, cashDown, plan);
             balanceLabel.textContent = 'Interest Saved';
             remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
 
             if (cashDown >= principal - 10) {
-                // CASH OUT MODE
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(principal);
             } else {
-                // FINANCED MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
