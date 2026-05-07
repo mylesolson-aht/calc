@@ -41,21 +41,21 @@
             </div>
         </div>
 
-        <!-- RESULTS SECTION - Compact stacked narrow tiles -->
+        <!-- COMPACT RESULTS - Narrow vertical stacked tiles -->
         <div class="mb-6 space-y-3">
             <div id="cashResults" class="hidden">
                 <div class="result-card">
-                    <h3 class="text-lg font-semibold mb-2">Cash Price</h3>
+                    <h3 class="text-base font-semibold">Cash Price</h3>
                     <p class="text-sm text-gray-600">Total Due</p>
-                    <p id="cashOutTotal" class="text-4xl font-bold text-green-700">$0</p>
+                    <p id="cashOutTotal" class="text-3xl font-bold text-green-700">$0</p>
                 </div>
             </div>
 
             <div id="financingResults" class="hidden space-y-3">
-                <!-- Monthly Payment Tile -->
+                <!-- Monthly Payment - Narrow Tile -->
                 <div id="monthlyPayments" class="w-full"></div>
                 
-                <!-- Upgrade Offer Tile -->
+                <!-- Upgrade Offer - Narrow Tile -->
                 <div id="upgradeOfferContainer" class="w-full">
                     <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all">
                         <p id="upgradeOfferText" class="text-sm"></p>
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <!-- All Inputs -->
+        <!-- All Inputs (lower for thumb-friendly mobile use) -->
         <div class="space-y-4">
 
             <!-- Membership Tiles -->
@@ -144,7 +144,7 @@
     </div>
 
     <script>
-        // [Full JavaScript from previous version - unchanged except for layout]
+        // (Full JavaScript - same as previous stable version)
         const discountSlider = document.getElementById('discountSlider');
         const initialAmountSlider = document.getElementById('initialAmountSlider');
         const initialAmountValue = document.getElementById('initialAmountValue');
@@ -327,7 +327,6 @@
             }
         }
 
-        // Rest of the script (handlePlanChange, quickSetInitial, reset, vloButton, etc.) remains the same as before
         function handlePlanChange(tile) {
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
@@ -379,7 +378,7 @@
             calculate();
         }
 
-        // Event Listeners (same as before)
+        // Event Listeners
         document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
         discountSlider.addEventListener('input', () => { forceAutoInitial(); calculate(); });
         initialAmountSlider.addEventListener('input', () => {
