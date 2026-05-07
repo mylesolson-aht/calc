@@ -329,7 +329,7 @@
             calculate();
         }
 
-       function quickSetInitial(action) {
+      function quickSetInitial(action) {
     const plan = document.querySelector('.input-tile.active').dataset.plan;
 
     if (action === 'max-discount-financed') {
@@ -342,6 +342,10 @@
         discountValue.textContent = '$' + maxDiscount;
 
         const principal = Math.max(0, planPrices[plan] - maxDiscount);
+        
+        // Reset constraints so full cash-out value is accepted
+        initialAmountSlider.min = 0;
+        initialAmountSlider.max = principal;
         initialAmountSlider.value = principal;
         initialAmountValue.textContent = '$' + principal;
     } else if (action === 'cash-out-no-discount') {
@@ -349,10 +353,17 @@
         discountValue.textContent = '$0';
 
         const principal = planPrices[plan];
+        
+        // Reset constraints so full cash-out value is accepted
+        initialAmountSlider.min = 0;
+        initialAmountSlider.max = principal;
         initialAmountSlider.value = principal;
         initialAmountValue.textContent = '$' + principal;
     }
-    calculate();
+
+    setTimeout(() => {
+        calculate();
+    }, 10);
 }
 
         function resetCalculator() {
