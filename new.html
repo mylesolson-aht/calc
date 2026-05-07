@@ -207,6 +207,14 @@
             return Math.max(0, fullInterest - actualInterest);
         }
 
+        function getDiscountDescription(discount, plan) {
+            if (discount <= 0) return "No BB";
+            if (plan === '3year') return "No BB";
+
+            if (discount <= 500) return "Hero";
+            return "Hero / Buy Back";
+        }
+
         function forceAutoInitial() {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             let buyback = parseInt(discountSlider.value) || 0;
@@ -247,7 +255,6 @@
             const principal = Math.max(0, planPrices[plan] - buyback);
             discountValue.textContent = '$' + buyback;
 
-            // === FIX: Always update term display when slider moves ===
             termValueDisplay.textContent = termSlider.value + " Months";
 
             let cashDown = parseInt(initialAmountSlider.value) || 0;
@@ -419,12 +426,9 @@
             text += `${initial} down\n`;
             text += `${planName}\n`;
 
+            // New discount language logic
             if (!(plan === '3year' && isCashOut)) {
-                if (discount > 0) {
-                    text += `$${discount} BB\n`;
-                } else {
-                    text += `No BB\n`;
-                }
+                text += `${getDiscountDescription(discount, plan)}\n`;
             }
 
             if (isCashOut) {
