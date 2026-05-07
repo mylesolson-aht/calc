@@ -36,12 +36,12 @@
                 <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
             </div>
             <div class="summary-tile">
-                <p id="balanceLabel" class="text-sm font-medium text-gray-500">Financed Balance</p>
+                <p id="balanceLabel" class="text-sm font-medium text-gray-500">Interest Saved</p>
                 <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
             </div>
         </div>
 
-        <!-- RESULTS SECTION - Fixed height so it never shifts layout -->
+        <!-- RESULTS SECTION - Fixed height -->
         <div class="min-h-[190px] flex items-center justify-center mb-4">
             <div id="cashResults" class="hidden w-full">
                 <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
@@ -192,12 +192,22 @@
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
-        function calculateHypotheticalInterest(principal, plan) {
+        // Interest saved by putting down the Initial Amount (works in both modes)
+        function calculateInterestSaved(principal, cashDown, plan) {
             if (principal <= 0) return 0;
             const term = PLAN_TERMS[plan];
             const monthlyRate = interestRate / 12;
-            const payment = pmt(monthlyRate, term, principal);
-            return Math.max(0, payment * term - principal);
+
+            // Interest if financing 100%
+            const fullPayment = pmt(monthlyRate, term, principal);
+            const fullInterest = fullPayment * term - principal;
+
+            // Interest actually being paid with current down payment
+            const financedAmount = Math.max(0, principal - cashDown);
+            const actualPayment = pmt(monthlyRate, term, financedAmount);
+            const actualInterest = actualPayment * term - financedAmount;
+
+            return Math.max(0, fullInterest - actualInterest);
         }
 
         function forceAutoInitial() {
@@ -267,16 +277,19 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
+            // Always show Interest Saved in the third tile
+            const interestSaved = calculateInterestSaved(principal, cashDown, plan);
+            balanceLabel.textContent = 'Interest Saved';
+            remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
+
             if (cashDown >= principal - 10) {
+                // CASH OUT MODE
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(principal);
-
-                const interestSaved = calculateHypotheticalInterest(principal, plan);
-                balanceLabel.textContent = 'Interest Saved';
-                remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
+                // FINANCED MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -290,9 +303,6 @@
                         <p class="text-5xl font-bold text-blue-600">${formatCurrency(payment)}</p>
                         <p class="text-xs text-gray-400 mt-1">per month</p>
                     </div>`;
-
-                remainingBalanceAmountOutput.textContent = formatCurrency(remaining);
-                balanceLabel.textContent = 'Financed Balance';
 
                 const upgradeInfo = UPGRADE_PATHS[plan];
                 upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
