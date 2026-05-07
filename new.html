@@ -182,6 +182,29 @@
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
 
+        function calculateHypotheticalInterest(principal, plan) {
+            if (principal <= 0) return 0;
+            const term = PLAN_TERMS[plan];
+            const monthlyRate = interestRate / 12;
+            const payment = pmt(monthlyRate, term, principal);
+            return Math.max(0, payment * term - principal);
+        }
+
+        function forceAutoInitial() {
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
+            let buyback = parseInt(discountSlider.value) || 0;
+            if (plan === '3year') buyback = Math.min(buyback, 100);
+            const principal = Math.max(0, planPrices[plan] - buyback);
+            const defaultInitial = getDefaultInitialAmount(principal);
+
+            initialAmountSlider.min = defaultInitial;
+            initialAmountSlider.max = principal;
+            initialAmountSlider.value = defaultInitial;
+            initialAmountValue.textContent = '$' + defaultInitial;
+            sliderMinLabel.textContent = '$' + defaultInitial;
+            sliderMaxLabel.textContent = '$' + principal;
+        }
+
         function updateTermUI(plan) {
             if (plan === 'legacy') {
                 termSlider.max = 36; termSlider.value = 36;
@@ -207,25 +230,37 @@
             const principal = Math.max(0, planPrices[plan] - buyback);
             discountValue.textContent = '$' + buyback;
 
-            let cashDown = parseInt(initialAmountSlider.value);
-            const defaultInitial = getDefaultInitialAmount(principal);
+            // Use whatever value is currently in the slider (user can adjust it freely)
+            let cashDown = parseInt(initialAmountSlider.value) || 0;
 
-            initialAmountSlider.min = defaultInitial;
+            // Make sure it's within bounds
+            const minAllowed = getDefaultInitialAmount(principal);
+            if (cashDown < minAllowed) cashDown = minAllowed;
+            if (cashDown > principal) cashDown = principal;
+
+            initialAmountSlider.min = minAllowed;
             initialAmountSlider.max = principal;
+            initialAmountSlider.value = cashDown;
 
             initialAmountValue.textContent = '$' + cashDown;
-            sliderMinLabel.textContent = '$' + defaultInitial;
+            sliderMinLabel.textContent = '$' + minAllowed;
             sliderMaxLabel.textContent = '$' + principal;
 
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            if (cashDown >= principal - 1) {
+            if (cashDown >= principal) {
+                // CASH OUT MODE - NO FINANCING
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
                 cashOutTotalOutput.textContent = formatCurrency(principal);
+
+                const interestSaved = calculateHypotheticalInterest(principal, plan);
+                balanceLabel.textContent = 'Interest Saved';
+                remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
+                // FINANCING MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -273,36 +308,24 @@
             tile.classList.add('active');
             discountSlider.value = 0;
             updateTermUI(tile.dataset.plan);
-            forceAutoInitial();           // reset to 10% of FULL price
+            forceAutoInitial();   // sets initial to 10% of FULL price for the new plan
             calculate();
         }
 
         function quickSetInitial(action) {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
+
             if (action === 'max-discount-financed') {
                 discountSlider.value = (plan === '3year') ? 0 : 1000;
                 forceAutoInitial();
             } else if (action === 'max-cash-out') {
-                discountSlider.value = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
-                const principal = Math.max(0, planPrices[plan] - parseInt(discountSlider.value));
-                initialAmountSlider.value = principal;   // full cash out
+                // 10 YEAR CASH OUT = $750 discount + FULL $2249 initial + NO FINANCING
+                let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                discountSlider.value = maxDiscount;
+                const principal = Math.max(0, planPrices[plan] - maxDiscount);
+                initialAmountSlider.value = principal;   // FORCE FULL CASH OUT - NO FINANCING
             }
             calculate();
-        }
-
-        function forceAutoInitial() {
-            const plan = document.querySelector('.input-tile.active').dataset.plan;
-            let buyback = parseInt(discountSlider.value) || 0;
-            if (plan === '3year') buyback = Math.min(buyback, 100);
-            const principal = Math.max(0, planPrices[plan] - buyback);
-            const defaultInitial = getDefaultInitialAmount(principal);
-
-            initialAmountSlider.min = defaultInitial;
-            initialAmountSlider.max = principal;
-            initialAmountSlider.value = defaultInitial;
-            initialAmountValue.textContent = '$' + defaultInitial;
-            sliderMinLabel.textContent = '$' + defaultInitial;
-            sliderMaxLabel.textContent = '$' + principal;
         }
 
         // Event Listeners
