@@ -232,10 +232,13 @@
 
             let cashDown = parseInt(initialAmountSlider.value) || 0;
 
-            // === STRONG CASH-OUT PROTECTION (stops the $5 drift on 2nd click) ===
-            if (principal - cashDown <= 10 && cashDown >= principal * 0.85) {
+            // ========== EDIT THIS BLOCK IF STILL DROPPING ==========
+            // Strong protection for Max Cash Out button
+            if (cashDown >= principal - 20) {
                 cashDown = principal;
+                initialAmountSlider.value = principal;
             }
+            // ========================================================
 
             const minAllowed = getDefaultInitialAmount(principal);
             if (cashDown < minAllowed) cashDown = minAllowed;
@@ -245,8 +248,8 @@
             initialAmountSlider.max = principal;
             initialAmountSlider.value = cashDown;
 
-            // Final safety re-assert
-            if (cashDown >= principal - 5) {
+            // Extra safety re-assert
+            if (cashDown >= principal - 10) {
                 cashDown = principal;
                 initialAmountSlider.value = principal;
             }
@@ -258,8 +261,8 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            if (cashDown >= principal - 5) {
-                // CASH OUT MODE - NO FINANCING
+            if (cashDown >= principal - 10) {
+                // CASH OUT MODE
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
