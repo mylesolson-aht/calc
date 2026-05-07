@@ -234,6 +234,7 @@
 
             if (cashDown >= principal - 50) {
                 cashDown = principal;
+                initialAmountSlider.value = principal;
             }
 
             const minAllowed = getDefaultInitialAmount(principal);
@@ -244,7 +245,7 @@
             initialAmountSlider.max = principal;
             initialAmountSlider.value = cashDown;
 
-            if (cashDown >= principal - 5) {
+            if (cashDown >= principal - 10) {
                 cashDown = principal;
                 initialAmountSlider.value = principal;
             }
@@ -256,7 +257,7 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            if (cashDown >= principal - 5) {
+            if (cashDown >= principal - 10) {
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
@@ -343,15 +344,14 @@
 
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
 
-        // ========== VLO BUTTON ==========
+        // ========== SIMPLE VLO BUTTON ==========
         vloButton.addEventListener('click', async () => {
             const host = document.getElementById('podiumHostInput').value.trim();
             const client = document.getElementById('clientNameInput').value.trim();
 
-            // Warn if mandatory fields are empty
             if (!host || !client) {
                 vloButton.classList.add('error');
-                vloButton.textContent = '❌ Podium Host & Client Name are required';
+                vloButton.textContent = '❌ Podium Host & Client Name required';
                 setTimeout(() => {
                     vloButton.classList.remove('error');
                     vloButton.innerHTML = '📋 Copy VLO Call';
@@ -362,30 +362,35 @@
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             const planName = PLAN_DISPLAY[plan];
             const discount = parseInt(discountSlider.value) || 0;
-            const initial = cashDownAmountOutput.textContent;
-            const isCashOut = cashDownAmountOutput.textContent.replace(/[^0-9]/g, '') == principalAmountOutput.textContent.replace(/[^0-9]/g, '');
+            const initial = cashDownAmountOutput.textContent.replace('$', '');
+            const isCashOut = (parseInt(cashDownAmountOutput.textContent.replace(/[^0-9]/g, '')) >= parseInt(principalAmountOutput.textContent.replace(/[^0-9]/g, '')) - 10);
 
-            let text = `VLO Please\n\n`;
-            text += `Client Name: ${client}\n`;
-            text += `Membership Type: ${planName}\n`;
-            text += `Deposit: ${initial}\n`;
-            text += `Discount amount applied: ${discount} Discount\n`;
+            let text = `VLO please\n`;
+            text += `${client}\n`;
+            text += `${initial} down\n`;
+            text += `${planName}\n`;
 
-            if (isCashOut) {
-                text += `Financing Term: Cash Out\n`;
+            if (discount > 0) {
+                text += `$${discount} BB\n`;
             } else {
-                text += `Financing Term: ${termValueDisplay.textContent}\n`;
+                text += `No BB\n`;
             }
 
-            text += `Podium Host Name: ${host}`;
+            if (isCashOut) {
+                text += `Cash Out\n`;
+            } else {
+                text += `${termValueDisplay.textContent}\n`;
+            }
+
+            text += `${host}`;
 
             try {
                 await navigator.clipboard.writeText(text);
                 const originalText = vloButton.innerHTML;
-                vloButton.textContent = '✅ Copied to WhatsApp!';
+                vloButton.textContent = '✅ Copied!';
                 setTimeout(() => {
                     vloButton.innerHTML = originalText;
-                }, 2000);
+                }, 1800);
             } catch (err) {
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
@@ -397,7 +402,7 @@
                 vloButton.textContent = '✅ Copied!';
                 setTimeout(() => {
                     vloButton.innerHTML = '📋 Copy VLO Call';
-                }, 2000);
+                }, 1800);
             }
         });
 
