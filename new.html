@@ -232,9 +232,7 @@
 
             let cashDown = parseInt(initialAmountSlider.value) || 0;
 
-            // === DEFENSIVE CASH-OUT PROTECTION ===
-            // If we're within $10 of full principal, force exact full cash out
-            // (prevents the -5 drift you saw when clicking Max Cash Out multiple times)
+            // === DEFENSIVE CASH-OUT PROTECTION (fixes the $5 drift on multiple clicks) ===
             if (principal - cashDown <= 10 && cashDown > principal * 0.9) {
                 cashDown = principal;
             }
