@@ -41,17 +41,18 @@
             </div>
         </div>
 
-        <!-- Results -->
-        <div class="mt-2">
-            <div id="cashResults" class="hidden">
+        <!-- RESULTS SECTION - Fixed height so it never shifts layout -->
+        <div class="min-h-[190px] flex items-center justify-center mb-4">
+            <div id="cashResults" class="hidden w-full">
                 <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
                 <div class="p-5 rounded-2xl bg-green-50 text-center">
                     <p class="text-sm text-gray-600">Total Due</p>
                     <p id="cashOutTotal" class="text-4xl font-bold text-green-700">$0</p>
                 </div>
             </div>
-            <div id="financingResults" class="hidden">
-                <div class="grid grid-cols-2 gap-4 mb-6">
+
+            <div id="financingResults" class="hidden w-full">
+                <div class="grid grid-cols-2 gap-4">
                     <div id="monthlyPayments" class="flex justify-center"></div>
                     <div id="upgradeOfferContainer">
                         <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
@@ -62,8 +63,8 @@
             </div>
         </div>
 
-        <!-- All Inputs (now grouped lower for easy mobile thumb access) -->
-        <div class="space-y-4 mt-6">
+        <!-- All Inputs -->
+        <div class="space-y-4">
 
             <!-- Membership Tiles -->
             <div>
