@@ -25,50 +25,12 @@
     <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
         <!-- Header -->
         <div class="flex flex-col items-center mb-5">
-<!-- <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-28 sm:w-36 md:w-44 mb-2">
-            
+            <!-- <img src="https://static.wixstatic.com/media/adc95e_3a3ff74aa44a4ae4840737c3b941f67d~mv2.png" alt="Aloha Hawaii Tours & Travel Logo" class="w-28 sm:w-36 md:w-44 mb-2"> -->
             <h1 class="text-3xl sm:text-4xl font-bold text-center aloha-brand-text">Wholesale Travel Program</h1>
             <p class="text-center text-gray-500 mt-1 text-sm">Eliminate the Retail Markup on Your Travel</p>
-        </div>--> 
+        </div>
 
         <div class="space-y-4">
-                 </div>
-            </div>
-              <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
-            <div class="grid grid-cols-3 gap-3">
-                <div class="summary-tile">
-                    <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                    <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
-                </div>
-                <div class="summary-tile">
-                    <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                    <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
-                </div>
-                <div class="summary-tile">
-                    <p id="balanceLabel" class="text-sm font-medium text-gray-500">Financed Balance</p>
-                    <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
-                </div>
-            </div>
-        </div>
-             <!-- Results -->
-        <div class="mt-6">
-            <div id="cashResults" class="hidden">
-                <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
-                <div class="p-5 rounded-2xl bg-green-50 text-center">
-                    <p class="text-sm text-gray-600">Total Due</p>
-                    <p id="cashOutTotal" class="text-4xl font-bold text-green-700">$0</p>
-                </div>
-            </div>
-            <div id="financingResults" class="hidden">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div id="monthlyPayments" class="flex justify-center"></div>
-                    <div id="upgradeOfferContainer">
-                        <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
-                            <p id="upgradeOfferText" class="text-sm"></p>
-                        </div>
-                    </div>
-           
-
             <!-- Membership Tiles -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Membership</p>
@@ -125,16 +87,53 @@
             </div>
         </div>
 
-       <!-- Client & VLO -->
+        <!-- Results -->
         <div class="mt-6">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div><p class="text-sm font-medium text-gray-700 mb-1">Podium Host</p><input type="text" id="podiumHostInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Host name"></div>
-                <div><p class="text-sm font-medium text-gray-700 mb-1">Client Name</p><input type="text" id="clientNameInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Client name"></div>
+            <div id="cashResults" class="hidden">
+                <h3 class="text-lg font-semibold mb-3">Cash Price</h3>
+                <div class="p-5 rounded-2xl bg-green-50 text-center">
+                    <p class="text-sm text-gray-600">Total Due</p>
+                    <p id="cashOutTotal" class="text-4xl font-bold text-green-700">$0</p>
+                </div>
             </div>
-            <div id="vloButton" class="vlo-button">📋 Copy VLO Call</div>
+            <div id="financingResults" class="hidden">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div id="monthlyPayments" class="flex justify-center"></div>
+                    <div id="upgradeOfferContainer">
+                        <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
+                            <p id="upgradeOfferText" class="text-sm"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client & VLO (moved here) -->
+            <div class="mt-6">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><p class="text-sm font-medium text-gray-700 mb-1">Podium Host</p><input type="text" id="podiumHostInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Host name"></div>
+                    <div><p class="text-sm font-medium text-gray-700 mb-1">Client Name</p><input type="text" id="clientNameInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Client name"></div>
+                </div>
+                <div id="vloButton" class="vlo-button">📋 Copy VLO Call</div>
+            </div>
+
+            <h2 class="text-xl font-semibold text-center mt-6 mb-4">Your Wholesale Travel Membership</h2>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="summary-tile">
+                    <p class="text-sm font-medium text-gray-500">Membership Value</p>
+                    <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
+                </div>
+                <div class="summary-tile">
+                    <p class="text-sm font-medium text-gray-500">Initial Amount</p>
+                    <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
+                </div>
+                <div class="summary-tile">
+                    <p id="balanceLabel" class="text-sm font-medium text-gray-500">Financed Balance</p>
+                    <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
+                </div>
+            </div>
         </div>
 
-            <!-- Reset Button -->
+        <!-- Reset Button -->
         <div class="mt-8">
             <button id="resetButton" 
                     class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-2xl transition-all">
@@ -329,45 +328,40 @@
             calculate();
         }
 
-      function quickSetInitial(action) {
-    const plan = document.querySelector('.input-tile.active').dataset.plan;
+        function quickSetInitial(action) {
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
 
-    if (action === 'max-discount-financed') {
-        discountSlider.value = (plan === '3year') ? 0 : 1000;
-        discountValue.textContent = '$' + discountSlider.value;
-        forceAutoInitial();
-    } else if (action === 'max-cash-out') {
-        let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
-        discountSlider.value = maxDiscount;
-        discountValue.textContent = '$' + maxDiscount;
+            if (action === 'max-discount-financed') {
+                discountSlider.value = (plan === '3year') ? 0 : 1000;
+                discountValue.textContent = '$' + discountSlider.value;
+                forceAutoInitial();
+            } else if (action === 'max-cash-out') {
+                let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
+                discountSlider.value = maxDiscount;
+                discountValue.textContent = '$' + maxDiscount;
 
-        const principal = Math.max(0, planPrices[plan] - maxDiscount);
-        
-        // Reset constraints so full cash-out value is accepted
-        initialAmountSlider.min = 0;
-        initialAmountSlider.max = principal;
-        initialAmountSlider.value = principal;
-        initialAmountValue.textContent = '$' + principal;
-    } else if (action === 'cash-out-no-discount') {
-        discountSlider.value = 0;
-        discountValue.textContent = '$0';
+                const principal = Math.max(0, planPrices[plan] - maxDiscount);
+                initialAmountSlider.min = 0;
+                initialAmountSlider.max = principal;
+                initialAmountSlider.value = principal;
+                initialAmountValue.textContent = '$' + principal;
+            } else if (action === 'cash-out-no-discount') {
+                discountSlider.value = 0;
+                discountValue.textContent = '$0';
 
-        const principal = planPrices[plan];
-        
-        // Reset constraints so full cash-out value is accepted
-        initialAmountSlider.min = 0;
-        initialAmountSlider.max = principal;
-        initialAmountSlider.value = principal;
-        initialAmountValue.textContent = '$' + principal;
-    }
+                const principal = planPrices[plan];
+                initialAmountSlider.min = 0;
+                initialAmountSlider.max = principal;
+                initialAmountSlider.value = principal;
+                initialAmountValue.textContent = '$' + principal;
+            }
 
-    setTimeout(() => {
-        calculate();
-    }, 10);
-}
+            setTimeout(() => {
+                calculate();
+            }, 10);
+        }
 
         function resetCalculator() {
-            // Reset to initial state (same as page load)
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             document.querySelector('[data-plan="legacy"]').classList.add('active');
 
