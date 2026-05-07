@@ -208,11 +208,12 @@
         }
 
         function getDiscountDescription(discount, plan) {
-            if (discount <= 0) return "No BB";
-            if (plan === '3year') return "No BB";
+    if (discount <= 0) return "No BB";
+    if (plan === '3year') return "No BB";
 
-            if (discount <= 500) return "Hero";
-            return "Hero / Buy Back";
+    if (discount <= 500) return `$${discount} Hero`;
+    return `$${discount} Hero / Buy Back`;
+}
         }
 
         function forceAutoInitial() {
