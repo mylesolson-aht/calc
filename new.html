@@ -232,13 +232,9 @@
 
             let cashDown = parseInt(initialAmountSlider.value) || 0;
 
-            // ========== EDIT THIS BLOCK IF STILL DROPPING ==========
-            // Strong protection for Max Cash Out button
             if (cashDown >= principal - 50) {
                 cashDown = principal;
-                initialAmountSlider.value = principal;
             }
-            // ========================================================
 
             const minAllowed = getDefaultInitialAmount(principal);
             if (cashDown < minAllowed) cashDown = minAllowed;
@@ -248,8 +244,7 @@
             initialAmountSlider.max = principal;
             initialAmountSlider.value = cashDown;
 
-            // Extra safety re-assert
-            if (cashDown >= principal - 10) {
+            if (cashDown >= principal - 5) {
                 cashDown = principal;
                 initialAmountSlider.value = principal;
             }
@@ -261,8 +256,7 @@
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
 
-            if (cashDown >= principal - 10) {
-                // CASH OUT MODE
+            if (cashDown >= principal - 5) {
                 cashResultsSection.classList.remove('hidden');
                 financingResultsSection.classList.add('hidden');
                 upgradeOfferContainer.classList.add('hidden');
@@ -272,7 +266,6 @@
                 balanceLabel.textContent = 'Interest Saved';
                 remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
             } else {
-                // FINANCING MODE
                 cashResultsSection.classList.add('hidden');
                 financingResultsSection.classList.remove('hidden');
 
@@ -350,63 +343,52 @@
 
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
 
+        // ========== VLO BUTTON ==========
         vloButton.addEventListener('click', async () => {
             const host = document.getElementById('podiumHostInput').value.trim();
             const client = document.getElementById('clientNameInput').value.trim();
 
+            // Warn if mandatory fields are empty
             if (!host || !client) {
                 vloButton.classList.add('error');
-                vloButton.textContent = '❌ Enter Client & Podium Name';
+                vloButton.textContent = '❌ Podium Host & Client Name are required';
                 setTimeout(() => {
                     vloButton.classList.remove('error');
                     vloButton.innerHTML = '📋 Copy VLO Call';
-                }, 2200);
+                }, 2500);
                 return;
             }
 
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             const planName = PLAN_DISPLAY[plan];
-            const isCashOut = cashResultsSection.classList.contains('hidden') === false;
+            const discount = parseInt(discountSlider.value) || 0;
+            const initial = cashDownAmountOutput.textContent;
+            const isCashOut = cashDownAmountOutput.textContent.replace(/[^0-9]/g, '') == principalAmountOutput.textContent.replace(/[^0-9]/g, '');
 
-            let script = `VLO Call Script\n`;
-            script += `Date: ${new Date().toLocaleDateString()}\n`;
-            script += `Podium Host: ${host}\n`;
-            script += `Client: ${client}\n`;
-            script += `Membership: ${planName}\n\n`;
+            let text = `VLO Please\n\n`;
+            text += `Client Name: ${client}\n`;
+            text += `Membership Type: ${planName}\n`;
+            text += `Deposit: ${initial}\n`;
+            text += `Discount amount applied: ${discount} Discount\n`;
 
             if (isCashOut) {
-                const totalDue = cashOutTotalOutput.textContent;
-                const interestSaved = remainingBalanceAmountOutput.textContent.replace(/[^0-9.,]/g, '');
-                script += `TYPE: CASH OUT\n`;
-                script += `Total Due: ${totalDue}\n`;
-                script += `Interest Saved: $${interestSaved}\n`;
+                text += `Financing Term: Cash Out\n`;
             } else {
-                const principal = principalAmountOutput.textContent;
-                const initial = cashDownAmountOutput.textContent;
-                const financed = remainingBalanceAmountOutput.textContent;
-                const monthlyEl = document.querySelector('#monthlyPayments .text-5xl');
-                const monthly = monthlyEl ? monthlyEl.textContent : 'N/A';
-                const term = termValueDisplay.textContent;
-
-                script += `TYPE: FINANCED\n`;
-                script += `Membership Value: ${principal}\n`;
-                script += `Initial Amount: ${initial}\n`;
-                script += `Financed Balance: ${financed}\n`;
-                script += `Monthly Payment: ${monthly} for ${term}\n`;
+                text += `Financing Term: ${termValueDisplay.textContent}\n`;
             }
 
-            script += `\n---\nReady to close?`;
+            text += `Podium Host Name: ${host}`;
 
             try {
-                await navigator.clipboard.writeText(script);
+                await navigator.clipboard.writeText(text);
                 const originalText = vloButton.innerHTML;
-                vloButton.textContent = '✅ Copied to Clipboard!';
+                vloButton.textContent = '✅ Copied to WhatsApp!';
                 setTimeout(() => {
                     vloButton.innerHTML = originalText;
                 }, 2000);
             } catch (err) {
                 const textArea = document.createElement('textarea');
-                textArea.value = script;
+                textArea.value = text;
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
