@@ -344,7 +344,7 @@
 
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
 
-        // ========== SIMPLE VLO BUTTON ==========
+        // ========== VLO BUTTON (Simple Format) ==========
         vloButton.addEventListener('click', async () => {
             const host = document.getElementById('podiumHostInput').value.trim();
             const client = document.getElementById('clientNameInput').value.trim();
@@ -370,10 +370,13 @@
             text += `${initial} down\n`;
             text += `${planName}\n`;
 
-            if (discount > 0) {
-                text += `$${discount} BB\n`;
-            } else {
-                text += `No BB\n`;
+            // Only show discount line if NOT 3 Year Cash Out
+            if (!(plan === '3year' && isCashOut)) {
+                if (discount > 0) {
+                    text += `$${discount} BB\n`;
+                } else {
+                    text += `No BB\n`;
+                }
             }
 
             if (isCashOut) {
