@@ -13,12 +13,14 @@
         .container-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
         .input-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; min-height: 68px; display: flex; align-items: center; justify-content: center; }
         .input-tile.active { background-color: #007aff !important; color: white !important; border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,0.3); }
-        .quick-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 0.65rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .quick-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 0.65rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 0.82rem; line-height: 1.15; }
+        .quick-tile.disabled { opacity: 0.4; pointer-events: none; background-color: #e5e5e5; border-color: #d1d5db; }
         .vlo-button { background-color: #25D366; color: white; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; font-weight: 700; }
         .vlo-button.error { background-color: #ff3b30; animation: shake 0.3s; }
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); padding: 0.75rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
+        .commission-warning { font-size: 0.7rem; color: #b45309; background-color: #fefce8; padding: 0.25rem 0.5rem; border-radius: 6px; margin-top: 0.25rem; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
@@ -41,7 +43,7 @@
             </div>
         </div>
 
-        <!-- RESULTS - Tighter fixed container + mb-0 -->
+        <!-- RESULTS -->
         <div class="min-h-[120px] flex items-center justify-center mb-0">
             <div id="cashResults" class="hidden w-full">
                 <div class="result-card">
@@ -63,7 +65,7 @@
             </div>
         </div>
 
-        <!-- All Inputs - starts immediately after results -->
+        <!-- All Inputs -->
         <div class="space-y-4">
 
             <!-- Membership Tiles -->
@@ -76,13 +78,14 @@
                 </div>
             </div>
 
-            <!-- Quick Initial Amount Tiles -->
+            <!-- Quick Pick -->
             <div>
-                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Initial Amount</p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="quick-tile" data-set="max-discount-financed">Max Discount Financed</div>
-                    <div class="quick-tile" data-set="max-cash-out">Max Cash Out Discount</div>
-                    <div class="quick-tile" data-set="cash-out-no-discount">Cash Out (no discount)</div>
+                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Pick</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="quick-tile" data-set="full-price-cashout">Cash Out Full Price</div>
+                    <div class="quick-tile" data-set="cashout-discount-no-bb">Cash Max Discount no BB</div>
+                    <div class="quick-tile" data-set="max-hero">Hero no BB</div>
+                    <div class="quick-tile" data-set="max-buyback">Hero + Gift Buy Back</div>
                 </div>
             </div>
 
@@ -118,6 +121,7 @@
                 <div class="flex justify-between text-xs text-gray-500 mt-1" id="termLabels">
                     <span>6</span><span>12</span><span>18</span><span>24</span><span id="termMaxLabel">36</span>
                 </div>
+                <div id="commissionWarning" class="commission-warning hidden"></div>
                 <div id="penaltyContainer" class="penalty-text hidden"></div>
             </div>
 
@@ -165,6 +169,7 @@
         const termMaxLabel = document.getElementById('termMaxLabel');
         const termLabelsContainer = document.getElementById('termLabels');
         const penaltyContainer = document.getElementById('penaltyContainer');
+        const commissionWarning = document.getElementById('commissionWarning');
         const vloButton = document.getElementById('vloButton');
         const resetButton = document.getElementById('resetButton');
 
@@ -175,7 +180,7 @@
             '3year': { name: '10 Year', price: 2999, nextPlan: '10year' },
             '10year': { name: 'Legacy', price: 4999, nextPlan: 'legacy' }
         };
-        const PLAN_DISPLAY = { 'legacy': 'Legacy', '10year': '10 Year', '3year': 'Trial' };
+        const PLAN_DISPLAY = { 'legacy': 'Legacy', '10year': '10 Year', '3year': '3 Year' };
 
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
@@ -207,12 +212,47 @@
             return Math.max(0, fullInterest - actualInterest);
         }
 
-        function getDiscountDescription(discount, plan) {
-            if (discount <= 0) return "No BB";
-            if (plan === '3year') return "No BB";
+        function getDiscountDescription(discount, plan, isCashOut) {
+            if (discount <= 0) return "No Buy Back";
+            if (plan === '3year') return "No Buy Back";
 
-            if (discount <= 500) return `$${discount} Hero`;
-            return `$${discount} Hero / Buy Back`;
+            const isLegacy = plan === 'legacy';
+            const is10Year = plan === '10year';
+
+            if (isLegacy && isCashOut) return "No Buy Back";
+            if (is10Year && isCashOut && discount === 750) return "No Buy Back";
+
+            if (discount <= 500) return `Hero $${discount}`;
+            return `Hero + Gift Buy Back $${discount}`;
+        }
+
+        function updateQuickPickButtons(plan) {
+            const heroBtn = document.querySelector('[data-set="max-hero"]');
+            const buybackBtn = document.querySelector('[data-set="max-buyback"]');
+
+            if (plan === '3year') {
+                heroBtn.classList.add('disabled');
+                buybackBtn.classList.add('disabled');
+            } else {
+                heroBtn.classList.remove('disabled');
+                buybackBtn.classList.remove('disabled');
+            }
+        }
+
+        function updateCommissionWarning(plan, term) {
+            if (plan !== '3year') {
+                commissionWarning.classList.add('hidden');
+                return;
+            }
+            if (term === 18) {
+                commissionWarning.textContent = "⚠️ 18-month financing = -25% commission";
+                commissionWarning.classList.remove('hidden');
+            } else if (term === 24) {
+                commissionWarning.textContent = "⚠️ 24-month financing = -35% commission";
+                commissionWarning.classList.remove('hidden');
+            } else {
+                commissionWarning.classList.add('hidden');
+            }
         }
 
         function forceAutoInitial() {
@@ -245,6 +285,7 @@
                 termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
             }
             termValueDisplay.textContent = termSlider.value + " Months";
+            updateCommissionWarning(plan, parseInt(termSlider.value));
         }
 
         function calculate() {
@@ -256,6 +297,7 @@
             discountValue.textContent = '$' + buyback;
 
             termValueDisplay.textContent = termSlider.value + " Months";
+            updateCommissionWarning(plan, parseInt(termSlider.value));
 
             let cashDown = parseInt(initialAmountSlider.value) || 0;
 
@@ -326,8 +368,12 @@
         function handlePlanChange(tile) {
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
+
+            const plan = tile.dataset.plan;
+            updateQuickPickButtons(plan);
+
             discountSlider.value = 0;
-            updateTermUI(tile.dataset.plan);
+            updateTermUI(plan);
             forceAutoInitial();
             calculate();
         }
@@ -335,25 +381,40 @@
         function quickSetInitial(action) {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
 
-            if (action === 'max-discount-financed') {
-                discountSlider.value = (plan === '3year') ? 0 : 1000;
-                discountValue.textContent = '$' + discountSlider.value;
-                forceAutoInitial();
-            } else if (action === 'max-cash-out') {
+            if (action === 'full-price-cashout') {
+                discountSlider.value = 0;
+                discountValue.textContent = '$0';
+                const principal = planPrices[plan];
+                initialAmountSlider.min = 0;
+                initialAmountSlider.max = principal;
+                initialAmountSlider.value = principal;
+                initialAmountValue.textContent = '$' + principal;
+            } 
+            else if (action === 'cashout-discount-no-bb') {
                 let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
                 discountSlider.value = maxDiscount;
                 discountValue.textContent = '$' + maxDiscount;
-
                 const principal = Math.max(0, planPrices[plan] - maxDiscount);
                 initialAmountSlider.min = 0;
                 initialAmountSlider.max = principal;
                 initialAmountSlider.value = principal;
                 initialAmountValue.textContent = '$' + principal;
-            } else if (action === 'cash-out-no-discount') {
-                discountSlider.value = 0;
-                discountValue.textContent = '$0';
-
-                const principal = planPrices[plan];
+            } 
+            else if (action === 'max-hero') {
+                discountSlider.value = 500;
+                discountValue.textContent = '$500';
+                const principal = Math.max(0, planPrices[plan] - 500);
+                const defaultInitial = getDefaultInitialAmount(principal);
+                initialAmountSlider.min = defaultInitial;
+                initialAmountSlider.max = principal;
+                initialAmountSlider.value = defaultInitial;
+                initialAmountValue.textContent = '$' + defaultInitial;
+            } 
+            else if (action === 'max-buyback') {
+                let maxDiscount = (plan === 'legacy' || plan === '10year') ? 1000 : 100;
+                discountSlider.value = maxDiscount;
+                discountValue.textContent = '$' + maxDiscount;
+                const principal = Math.max(0, planPrices[plan] - maxDiscount);
                 initialAmountSlider.min = 0;
                 initialAmountSlider.max = principal;
                 initialAmountSlider.value = principal;
@@ -366,6 +427,7 @@
         function resetCalculator() {
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             document.querySelector('[data-plan="legacy"]').classList.add('active');
+            updateQuickPickButtons('legacy');
             discountSlider.value = 0;
             document.getElementById('podiumHostInput').value = '';
             document.getElementById('clientNameInput').value = '';
@@ -374,14 +436,17 @@
             calculate();
         }
 
-        // Event Listeners
         document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
         discountSlider.addEventListener('input', () => { forceAutoInitial(); calculate(); });
         initialAmountSlider.addEventListener('input', () => {
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
             calculate();
         });
-        termSlider.addEventListener('input', calculate);
+        termSlider.addEventListener('input', () => {
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
+            updateCommissionWarning(plan, parseInt(termSlider.value));
+            calculate();
+        });
 
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
 
@@ -405,24 +470,20 @@
             const planName = PLAN_DISPLAY[plan];
             const discount = parseInt(discountSlider.value) || 0;
             const initial = cashDownAmountOutput.textContent.replace('$', '');
-            const isCashOut = (parseInt(cashDownAmountOutput.textContent.replace(/[^0-9]/g, '')) >= parseInt(principalAmountOutput.textContent.replace(/[^0-9]/g, '')) - 10);
+            const principalNum = parseInt(principalAmountOutput.textContent.replace(/[^0-9]/g, ''));
+            const cashDownNum = parseInt(cashDownAmountOutput.textContent.replace(/[^0-9]/g, ''));
+            const isCashOut = (cashDownNum >= principalNum - 10);
+            const term = termValueDisplay.textContent;
 
-            let text = `VLO please\n`;
-            text += `${client}\n`;
-            text += `${initial} down\n`;
-            text += `${planName}\n`;
+            const discountLine = getDiscountDescription(discount, plan, isCashOut);
 
-            if (!(plan === '3year' && isCashOut)) {
-                text += `${getDiscountDescription(discount, plan)}\n`;
-            }
-
-            if (isCashOut) {
-                text += `Cash Out\n`;
-            } else {
-                text += `${termValueDisplay.textContent}\n`;
-            }
-
-            text += `${host}`;
+            let text = `VLO Please\n`;
+            text += `• ${client}\n`;
+            text += `• ${planName}\n`;
+            text += `• Deposit: ${initial}\n`;
+            text += `• Discount: ${discountLine}\n`;
+            text += `• Term: ${term}\n`;
+            text += `• Podium: ${host}`;
 
             try {
                 await navigator.clipboard.writeText(text);
@@ -449,7 +510,10 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => handlePlanChange(document.querySelector('[data-plan="legacy"]')));
+        document.addEventListener('DOMContentLoaded', () => {
+            const legacyTile = document.querySelector('[data-plan="legacy"]');
+            handlePlanChange(legacyTile);
+        });
     </script>
 </body>
 </html>
