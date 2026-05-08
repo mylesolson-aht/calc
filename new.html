@@ -25,24 +25,24 @@
     <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
 
         <!-- Summary Tiles at Top -->
-        <h2 class="text-xl font-semibold text-center mb-4">Your Wholesale Travel Membership</h2>
-        <div class="grid grid-cols-3 gap-3 mb-5">
+        <h2 class="text-xl font-semibold text-center mb-3">Your Wholesale Travel Membership</h2>
+        <div class="grid grid-cols-3 gap-3 mb-2">
             <div class="summary-tile">
                 <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                <p id="principalAmount" class="text-2xl font-bold mt-auto">$0</p>
+                <p id="principalAmount" class="text-xl sm:text-2xl font-bold mt-auto">$0</p>
             </div>
             <div class="summary-tile">
                 <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                <p id="cashDownAmount" class="text-2xl font-bold mt-auto">$0</p>
+                <p id="cashDownAmount" class="text-xl sm:text-2xl font-bold mt-auto">$0</p>
             </div>
             <div class="summary-tile">
                 <p id="balanceLabel" class="text-sm font-medium text-gray-500">Interest Saved</p>
-                <p id="remainingBalanceAmount" class="text-2xl font-bold mt-auto">$0</p>
+                <p id="remainingBalanceAmount" class="text-xl sm:text-2xl font-bold mt-auto">$0</p>
             </div>
         </div>
 
-        <!-- COMPACT RESULTS - Side by side, minimal space -->
-        <div class="min-h-[148px] flex items-start justify-center mb-5">
+        <!-- RESULTS - Side by side, ZERO gap below on mobile -->
+        <div class="min-h-[148px] flex items-start justify-center mb-0">
             <div id="cashResults" class="hidden w-full">
                 <div class="result-card">
                     <h3 class="text-base font-semibold mb-1">Cash Price</h3>
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <!-- All Inputs -->
+        <!-- All Inputs - starts immediately after results -->
         <div class="space-y-4">
 
             <!-- Membership Tiles -->
