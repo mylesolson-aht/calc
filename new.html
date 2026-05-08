@@ -17,7 +17,7 @@
         .vlo-button { background-color: #25D366; color: white; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; font-weight: 700; }
         .vlo-button.error { background-color: #ff3b30; animation: shake 0.3s; }
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-        .result-card { background-color: white; border-radius: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); padding: 1rem; text-align: center; }
+        .result-card { background-color: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); padding: 0.85rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
     </style>
 </head>
@@ -41,21 +41,20 @@
             </div>
         </div>
 
-        <!-- COMPACT RESULTS - Narrow vertical stacked tiles -->
-        <div class="mb-6 space-y-3">
+        <!-- COMPACT RESULTS - Very short narrow vertical tiles -->
+        <div class="mb-6 space-y-2.5">
             <div id="cashResults" class="hidden">
                 <div class="result-card">
-                    <h3 class="text-base font-semibold">Cash Price</h3>
-                    <p class="text-sm text-gray-600">Total Due</p>
+                    <p class="text-xs text-gray-500">Cash Price</p>
                     <p id="cashOutTotal" class="text-3xl font-bold text-green-700">$0</p>
                 </div>
             </div>
 
-            <div id="financingResults" class="hidden space-y-3">
-                <!-- Monthly Payment - Narrow Tile -->
+            <div id="financingResults" class="hidden space-y-2.5">
+                <!-- Monthly Payment -->
                 <div id="monthlyPayments" class="w-full"></div>
                 
-                <!-- Upgrade Offer - Narrow Tile -->
+                <!-- Upgrade Offer -->
                 <div id="upgradeOfferContainer" class="w-full">
                     <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all">
                         <p id="upgradeOfferText" class="text-sm"></p>
@@ -64,7 +63,7 @@
             </div>
         </div>
 
-        <!-- All Inputs (lower for thumb-friendly mobile use) -->
+        <!-- All Inputs -->
         <div class="space-y-4">
 
             <!-- Membership Tiles -->
@@ -144,7 +143,7 @@
     </div>
 
     <script>
-        // (Full JavaScript - same as previous stable version)
+        // (Same reliable JavaScript as before)
         const discountSlider = document.getElementById('discountSlider');
         const initialAmountSlider = document.getElementById('initialAmountSlider');
         const initialAmountValue = document.getElementById('initialAmountValue');
@@ -297,9 +296,9 @@
 
                 monthlyPaymentsContainer.innerHTML = `
                     <div class="result-card">
-                        <p class="text-sm text-gray-500 mb-1">${term} Months</p>
-                        <p class="text-5xl font-bold text-blue-600">${formatCurrency(payment)}</p>
-                        <p class="text-xs text-gray-400 mt-1">per month</p>
+                        <p class="text-sm text-gray-500">${term} Months</p>
+                        <p class="text-3xl font-bold text-blue-600">${formatCurrency(payment)}</p>
+                        <p class="text-xs text-gray-400">per month</p>
                     </div>`;
 
                 const upgradeInfo = UPGRADE_PATHS[plan];
@@ -314,14 +313,12 @@
                     const nextMonthly = pmt(interestRate / 12, nextTerm, nextRemaining);
                     const delta = payment - nextMonthly;
                     let deltaHTML = '';
-                    if (delta > 0) deltaHTML = `<span class="upgrade-delta-positive">↓ Save ${formatCurrency(delta)}/mo</span>`;
-                    else if (delta < 0) deltaHTML = `<span class="upgrade-delta-negative">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
+                    if (delta > 0) deltaHTML = `<span class="text-emerald-600 text-xs">↓ Save ${formatCurrency(delta)}/mo</span>`;
+                    else if (delta < 0) deltaHTML = `<span class="text-orange-600 text-xs">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
                     upgradeOfferText.innerHTML = `
-                        <span class="text-sm text-gray-600">Upgrade to ${upgradeInfo.name}</span><br>
-                        <span class="text-3xl font-bold text-emerald-600 block mt-1">${formatCurrency(nextMonthly)}</span>
-                        <span class="text-xs text-gray-500">per month</span><br>
-                        ${deltaHTML}
-                        <span class="text-xs text-gray-500 block mt-2">(${formatCurrency(nextCashDown)} down • ${nextTerm} mo • max buyback)</span>
+                        Upgrade to ${upgradeInfo.name}<br>
+                        <span class="text-2xl font-bold text-emerald-600">${formatCurrency(nextMonthly)}</span><br>
+                        <span class="text-xs text-gray-500">${deltaHTML}</span>
                     `;
                 }
             }
