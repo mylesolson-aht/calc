@@ -21,11 +21,53 @@
         .result-card { background-color: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); padding: 0.75rem; text-align: center; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
         .commission-warning { font-size: 0.7rem; color: #b45309; background-color: #fefce8; padding: 0.25rem 0.5rem; border-radius: 6px; margin-top: 0.25rem; }
+
+        /* Quick Pick active/selected state */
+        .quick-tile.active {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534;
+            font-weight: 600;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+        }
+
+        /* Membership tile color variations based on mode */
+        .input-tile.cash-mode.active {
+            background-color: #dcfce7 !important;
+            border-color: #4ade80 !important;
+            color: #166534 !important;
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.35);
+        }
+        .input-tile.cash-mode.active span {
+            color: #166534 !important;
+        }
+        .input-tile.cash-mode.active .text-gray-500 {
+            color: #15803d !important; /* darker green for subtitle */
+        }
+
+        .input-tile.financed-mode.active {
+            background-color: #dbeafe !important;
+            border-color: #60a5fa !important;
+            color: #1e40af !important;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35);
+        }
+        .input-tile.financed-mode.active span {
+            color: #1e40af !important;
+        }
+        .input-tile.financed-mode.active .text-gray-500 {
+            color: #1e40af !important; /* match main text for subtitle */
+        }
+
+        #dealSummary {
+            white-space: pre-line;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875rem;
+            line-height: 1.35;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
     <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
-
         <!-- Summary Tiles at Top -->
         <h2 class="text-xl font-semibold text-center mb-3">Your Wholesale Travel Membership</h2>
         <div class="grid grid-cols-3 gap-3 mb-2">
@@ -43,52 +85,76 @@
             </div>
         </div>
 
-        <!-- RESULTS -->
-        <div class="min-h-[120px] flex items-center justify-center mb-0">
-            <div id="cashResults" class="hidden w-full">
-                <div class="result-card">
-                    <h3 class="text-base font-semibold mb-1">Cash Price</h3>
-                    <p class="text-xs text-gray-600">Total Due</p>
-                    <p id="cashOutTotal" class="text-3xl font-bold text-green-700">$0</p>
+        <!-- Podium & Client + Deal Summary (very top) -->
+        <!-- Podium & Client (required for full VLO copy) -->
+        <div class="mt-2 mb-3">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Podium Host <span class="text-red-500">*</span></p>
+                    <input type="text" id="podiumHostInput" class="w-full px-3 py-2.5 border border-gray-300 rounded-2xl text-sm" placeholder="Host name">
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Client Name <span class="text-red-500">*</span></p>
+                    <input type="text" id="clientNameInput" class="w-full px-3 py-2.5 border border-gray-300 rounded-2xl text-sm" placeholder="Client name">
                 </div>
             </div>
+            <p class="text-[10px] text-gray-500 mt-1">Both fields required to copy Deal Summary</p>
+        </div>
 
-            <div id="financingResults" class="hidden w-full">
-                <div class="grid grid-cols-2 gap-3">
-                    <div id="monthlyPayments" class="flex justify-center"></div>
-                    <div id="upgradeOfferContainer">
-                        <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full">
-                            <p id="upgradeOfferText" class="text-sm"></p>
-                        </div>
-                    </div>
+        <!-- Deal Summary -->
+        <div class="mb-3">
+            <p class="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                Deal Summary
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 font-normal">tap to copy</span>
+            </p>
+            <div id="dealSummary"
+                 class="bg-white border border-gray-200 hover:border-gray-300 active:bg-gray-50 rounded-2xl p-3.5 text-sm leading-tight cursor-pointer transition-all min-h-[88px] flex flex-col justify-center">
+                <!-- Populated dynamically by JS -->
+            </div>
+        </div>
+
+        <!-- RESULTS - Persistent 3-column layout like summary tiles above -->
+        <div class="grid grid-cols-3 gap-3 min-h-[120px] mb-2">
+            <!-- Cash Price (always visible) -->
+            <div id="cashResults" class="result-card flex flex-col justify-center">
+                <h3 class="text-base font-semibold mb-1">Cash Price</h3>
+                <p class="text-xs text-gray-600">Total Due</p>
+                <p id="cashOutTotal" class="text-3xl font-bold text-green-700 mt-auto">$0</p>
+            </div>
+
+            <!-- Monthly Payment (financed) or blank/greyed -->
+            <div id="monthlyColumn" class="result-card flex flex-col justify-center">
+                <div id="monthlyPayments" class="flex justify-center w-full"></div>
+            </div>
+
+            <!-- Upgrade Offer -->
+            <div id="upgradeOfferContainer" class="flex flex-col justify-center">
+                <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full flex flex-col justify-center">
+                    <p id="upgradeOfferText" class="text-sm"></p>
                 </div>
             </div>
         </div>
 
         <!-- All Inputs -->
         <div class="space-y-4">
-
             <!-- Membership Tiles -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Membership</p>
                 <div class="grid grid-cols-3 gap-3">
-                    <div class="input-tile flex flex-col justify-center items-center active" data-plan="legacy"><span class="text-xl font-bold">Legacy</span><span class="text-xs text-gray-500">Unlimited</span></div>
+                    <div class="input-tile flex flex-col justify-center items-center" data-plan="legacy"><span class="text-xl font-bold">Legacy</span><span class="text-xs text-gray-500">Unlimited</span></div>
                     <div class="input-tile flex flex-col justify-center items-center" data-plan="10year"><span class="text-xl font-bold">10 Year</span><span class="text-xs text-gray-500">Unlimited</span></div>
                     <div class="input-tile flex flex-col justify-center items-center" data-plan="3year"><span class="text-xl font-bold">Trial</span><span class="text-xs text-gray-500">3 Year</span></div>
                 </div>
             </div>
-
             <!-- Quick Pick -->
             <div>
                 <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Pick</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="quick-tile" data-set="full-price-cashout">Cash Out Full Price</div>
+                <div class="grid grid-cols-3 gap-3">
                     <div class="quick-tile" data-set="cashout-discount-no-bb">Cash Discount no Buy Back</div>
                     <div class="quick-tile" data-set="max-hero">Hero no Buy Back ($500)</div>
                     <div class="quick-tile" data-set="max-buyback">Hero + Gift Buy Back ($1000)</div>
                 </div>
             </div>
-
             <!-- Discount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
@@ -97,7 +163,6 @@
                 </div>
                 <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" class="w-full accent-blue-600">
             </div>
-
             <!-- Initial Amount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
@@ -110,7 +175,6 @@
                     <span id="sliderMaxLabel">$4,999</span>
                 </div>
             </div>
-
             <!-- Financing Term -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
@@ -124,28 +188,15 @@
                 <div id="commissionWarning" class="commission-warning hidden"></div>
                 <div id="penaltyContainer" class="penalty-text hidden"></div>
             </div>
-
-            <!-- Client & VLO -->
-            <div class="mt-4">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div><p class="text-sm font-medium text-gray-700 mb-1">Podium Host</p><input type="text" id="podiumHostInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Host name"></div>
-                    <div><p class="text-sm font-medium text-gray-700 mb-1">Client Name</p><input type="text" id="clientNameInput" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Client name"></div>
-                </div>
-                <div id="vloButton" class="vlo-button">📋 Copy VLO Call</div>
-            </div>
-
         </div>
-
         <!-- Reset Button -->
         <div class="mt-8">
-            <button id="resetButton" 
+            <button id="resetButton"
                     class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-2xl transition-all">
                 Reset Calculator
             </button>
         </div>
-
     </div>
-
     <script>
         const discountSlider = document.getElementById('discountSlider');
         const initialAmountSlider = document.getElementById('initialAmountSlider');
@@ -159,8 +210,6 @@
         const balanceLabel = document.getElementById('balanceLabel');
         const monthlyPaymentsContainer = document.getElementById('monthlyPayments');
         const cashOutTotalOutput = document.getElementById('cashOutTotal');
-        const cashResultsSection = document.getElementById('cashResults');
-        const financingResultsSection = document.getElementById('financingResults');
         const upgradeOfferContainer = document.getElementById('upgradeOfferContainer');
         const upgradeOfferText = document.getElementById('upgradeOfferText');
         const upgradeOffer = document.getElementById('upgradeOffer');
@@ -170,9 +219,7 @@
         const termLabelsContainer = document.getElementById('termLabels');
         const penaltyContainer = document.getElementById('penaltyContainer');
         const commissionWarning = document.getElementById('commissionWarning');
-        const vloButton = document.getElementById('vloButton');
         const resetButton = document.getElementById('resetButton');
-
         const interestRate = 0.1799;
         const planPrices = { 'legacy': 4999, '10year': 2999, '3year': 999 };
         const PLAN_TERMS = { 'legacy': 36, '10year': 24, '3year': 12 };
@@ -181,55 +228,47 @@
             '10year': { name: 'Legacy', price: 4999, nextPlan: 'legacy' }
         };
         const PLAN_DISPLAY = { 'legacy': 'Legacy', '10year': '10 Year', '3year': '3 Year' };
-
+        let planCashMode = {
+            'legacy': true,
+            '10year': true,
+            '3year': true
+        };
         function pmt(rate, nper, pv) {
             if (rate === 0) return pv / nper;
             const pvif = Math.pow(1 + rate, nper);
             return (rate * pv * pvif) / (pvif - 1);
         }
-
         function formatCurrency(amount) {
             return '$' + Math.round(amount).toLocaleString('en-US');
         }
-
         function getDefaultInitialAmount(principal) {
             if (principal <= 0) return 99;
             return Math.max(Math.ceil(principal * 0.10) - 1, 99);
         }
-
         function calculateInterestSaved(principal, cashDown, plan) {
             if (principal <= 0) return 0;
             const term = PLAN_TERMS[plan];
             const monthlyRate = interestRate / 12;
-
             const fullPayment = pmt(monthlyRate, term, principal);
             const fullInterest = fullPayment * term - principal;
-
             const financedAmount = Math.max(0, principal - cashDown);
             const actualPayment = pmt(monthlyRate, term, financedAmount);
             const actualInterest = actualPayment * term - financedAmount;
-
             return Math.max(0, fullInterest - actualInterest);
         }
-
         function getDiscountDescription(discount, plan, isCashOut) {
             if (discount <= 0) return "No Buy Back";
             if (plan === '3year') return "No Buy Back";
-
             const isLegacy = plan === 'legacy';
             const is10Year = plan === '10year';
-
             if (isLegacy && isCashOut) return "No Buy Back";
             if (is10Year && isCashOut && discount === 750) return "No Buy Back";
-
             if (discount <= 500) return `Hero $${discount}`;
             return `Hero + Gift Buy Back $${discount}`;
         }
-
         function updateQuickPickButtons(plan) {
             const heroBtn = document.querySelector('[data-set="max-hero"]');
             const buybackBtn = document.querySelector('[data-set="max-buyback"]');
-
             if (plan === '3year') {
                 heroBtn.classList.add('disabled');
                 buybackBtn.classList.add('disabled');
@@ -238,7 +277,6 @@
                 buybackBtn.classList.remove('disabled');
             }
         }
-
         function updateCommissionWarning(plan, term) {
             if (plan !== '3year') {
                 commissionWarning.classList.add('hidden');
@@ -254,14 +292,12 @@
                 commissionWarning.classList.add('hidden');
             }
         }
-
         function forceAutoInitial() {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             let buyback = parseInt(discountSlider.value) || 0;
             if (plan === '3year') buyback = Math.min(buyback, 100);
             const principal = Math.max(0, planPrices[plan] - buyback);
             const defaultInitial = getDefaultInitialAmount(principal);
-
             initialAmountSlider.min = defaultInitial;
             initialAmountSlider.max = principal;
             initialAmountSlider.value = defaultInitial;
@@ -269,7 +305,6 @@
             sliderMinLabel.textContent = '$' + defaultInitial;
             sliderMaxLabel.textContent = '$' + principal;
         }
-
         function updateTermUI(plan) {
             if (plan === 'legacy') {
                 termSlider.max = 36; termSlider.value = 36;
@@ -288,62 +323,114 @@
             updateCommissionWarning(plan, parseInt(termSlider.value));
         }
 
+        function clearActiveQuickPicks() {
+            document.querySelectorAll('.quick-tile').forEach(t => t.classList.remove('active'));
+        }
+
+        function updateMembershipTileColors() {
+            const activeTile = document.querySelector('.input-tile.active');
+            if (!activeTile) return;
+
+            const plan = activeTile.dataset.plan;
+            const isCash = planCashMode[plan] === true;
+
+            activeTile.classList.remove('cash-mode', 'financed-mode');
+
+            if (isCash) {
+                activeTile.classList.add('cash-mode');
+            } else {
+                activeTile.classList.add('financed-mode');
+            }
+        }
+
+        function getVLOText() {
+            const host = document.getElementById('podiumHostInput').value.trim();
+            const client = document.getElementById('clientNameInput').value.trim();
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
+            const planName = PLAN_DISPLAY[plan];
+            const discount = parseInt(discountSlider.value) || 0;
+            const cashDownText = cashDownAmountOutput.textContent;
+            const principalNum = parseInt(principalAmountOutput.textContent.replace(/[^0-9]/g, '')) || 0;
+            const cashDownNum = parseInt(cashDownText.replace(/[^0-9]/g, '')) || 0;
+            const isCashOut = (cashDownNum >= principalNum - 10);
+            const term = termValueDisplay.textContent;
+            const discountLine = getDiscountDescription(discount, plan, isCashOut);
+
+            let text = `VLO Please\n`;
+            if (client) text += `• ${client}\n`;
+            text += `• ${planName}\n`;
+            text += `• Deposit: ${cashDownText}\n`;
+            text += `• Discount: ${discountLine}\n`;
+            text += `• Term: ${term}\n`;
+            if (host) text += `• Podium: ${host}`;
+
+            return text.trim();
+        }
+
+        function updateDealSummary() {
+            const dealSummaryEl = document.getElementById('dealSummary');
+            if (dealSummaryEl) {
+                dealSummaryEl.innerHTML = getVLOText().replace(/\n/g, '<br>');
+            }
+        }
+
         function calculate() {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             let buyback = parseInt(discountSlider.value) || 0;
             if (plan === '3year') buyback = Math.min(buyback, 100);
-
             const principal = Math.max(0, planPrices[plan] - buyback);
             discountValue.textContent = '$' + buyback;
-
             termValueDisplay.textContent = termSlider.value + " Months";
             updateCommissionWarning(plan, parseInt(termSlider.value));
-
             let cashDown = parseInt(initialAmountSlider.value) || 0;
-
             if (cashDown >= principal - 50) cashDown = principal;
-
             const minAllowed = getDefaultInitialAmount(principal);
             if (cashDown < minAllowed) cashDown = minAllowed;
             if (cashDown > principal) cashDown = principal;
-
             initialAmountSlider.min = minAllowed;
             initialAmountSlider.max = principal;
             initialAmountSlider.value = cashDown;
-
             initialAmountValue.textContent = '$' + cashDown;
             sliderMinLabel.textContent = '$' + minAllowed;
             sliderMaxLabel.textContent = '$' + principal;
-
             principalAmountOutput.textContent = formatCurrency(principal);
             cashDownAmountOutput.textContent = formatCurrency(cashDown);
-
             const interestSaved = calculateInterestSaved(principal, cashDown, plan);
             balanceLabel.textContent = 'Interest Saved';
             remainingBalanceAmountOutput.innerHTML = `<span class="interest-saved">${formatCurrency(interestSaved)}</span>`;
 
-            if (cashDown >= principal - 10) {
-                cashResultsSection.classList.remove('hidden');
-                financingResultsSection.classList.add('hidden');
-                upgradeOfferContainer.classList.add('hidden');
-                cashOutTotalOutput.textContent = formatCurrency(principal);
-            } else {
-                cashResultsSection.classList.add('hidden');
-                financingResultsSection.classList.remove('hidden');
+            // Always show Cash Price (left column)
+            cashOutTotalOutput.textContent = formatCurrency(principal);
 
+            const isCashPurchase = (cashDown >= principal - 10);
+
+            if (isCashPurchase) {
+                // Cash mode: grey monthly + upgrade columns
+                monthlyPaymentsContainer.innerHTML = `
+                    <div class="text-center opacity-40">
+                        <p class="text-sm text-gray-500 mb-1">Monthly</p>
+                        <p class="text-3xl font-bold text-gray-400">—</p>
+                        <p class="text-xs text-gray-400">Cash purchase</p>
+                    </div>`;
+
+                upgradeOffer.classList.add('opacity-40', 'pointer-events-none');
+                upgradeOfferText.innerHTML = `<span class="text-gray-400 text-xs">No upgrade<br>in cash mode</span>`;
+            } else {
+                // Financed mode: show monthly payment + upgrade (if available)
                 const remaining = principal - cashDown;
                 const term = parseInt(termSlider.value);
                 const payment = pmt(interestRate / 12, term, remaining);
 
                 monthlyPaymentsContainer.innerHTML = `
-                    <div class="result-card">
+                    <div class="text-center">
                         <p class="text-sm text-gray-500 mb-1">${term} Months</p>
-                        <p class="text-4xl font-bold text-blue-600">${formatCurrency(payment)}</p>
+                        <p class="text-3xl font-bold text-blue-600">${formatCurrency(payment)}</p>
                         <p class="text-xs text-gray-400">per month</p>
                     </div>`;
 
                 const upgradeInfo = UPGRADE_PATHS[plan];
-                upgradeOfferContainer.classList.toggle('hidden', !upgradeInfo);
+                upgradeOffer.classList.remove('opacity-40', 'pointer-events-none');
+
                 if (upgradeInfo) {
                     const nextPlan = upgradeInfo.nextPlan;
                     const nextTerm = PLAN_TERMS[nextPlan];
@@ -361,36 +448,48 @@
                         <span class="text-2xl font-bold text-emerald-600">${formatCurrency(nextMonthly)}</span><br>
                         ${deltaHTML}
                     `;
+                } else {
+                    upgradeOffer.classList.add('opacity-40', 'pointer-events-none');
+                    upgradeOfferText.innerHTML = `<span class="text-gray-400 text-xs">No upgrade<br>available</span>`;
                 }
             }
-        }
 
+            // Update membership tile color based on current mode
+            updateMembershipTileColors();
+
+            // Update visible Deal Summary
+            updateDealSummary();
+        }
         function handlePlanChange(tile) {
+            const plan = tile.dataset.plan;
+            const wasActive = tile.classList.contains('active');
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
             tile.classList.add('active');
-
-            const plan = tile.dataset.plan;
             updateQuickPickButtons(plan);
-
             discountSlider.value = 0;
             updateTermUI(plan);
-            forceAutoInitial();
-            calculate();
-        }
-
-        function quickSetInitial(action) {
-            const plan = document.querySelector('.input-tile.active').dataset.plan;
-
-            if (action === 'full-price-cashout') {
-                discountSlider.value = 0;
-                discountValue.textContent = '$0';
+            if (wasActive) {
+                planCashMode[plan] = !planCashMode[plan];
+            }
+            if (planCashMode[plan]) {
+                // Cash Full Price mode
                 const principal = planPrices[plan];
                 initialAmountSlider.min = 0;
                 initialAmountSlider.max = principal;
                 initialAmountSlider.value = principal;
                 initialAmountValue.textContent = '$' + principal;
-            } 
-            else if (action === 'cashout-discount-no-bb') {
+            } else {
+                // Min financed (~10% down) mode
+                forceAutoInitial();
+            }
+            calculate();
+            clearActiveQuickPicks();
+            updateMembershipTileColors();
+        }
+        function quickSetInitial(action) {
+            const plan = document.querySelector('.input-tile.active').dataset.plan;
+            clearActiveQuickPicks();
+            if (action === 'cashout-discount-no-bb') {
                 let maxDiscount = plan === 'legacy' ? 1000 : (plan === '10year' ? 750 : 100);
                 discountSlider.value = maxDiscount;
                 discountValue.textContent = '$' + maxDiscount;
@@ -399,7 +498,7 @@
                 initialAmountSlider.max = principal;
                 initialAmountSlider.value = principal;
                 initialAmountValue.textContent = '$' + principal;
-            } 
+            }
             else if (action === 'max-hero') {
                 discountSlider.value = 500;
                 discountValue.textContent = '$500';
@@ -409,97 +508,142 @@
                 initialAmountSlider.max = principal;
                 initialAmountSlider.value = defaultInitial;
                 initialAmountValue.textContent = '$' + defaultInitial;
-            } 
+            }
             else if (action === 'max-buyback') {
                 let maxDiscount = (plan === 'legacy' || plan === '10year') ? 1000 : 100;
                 discountSlider.value = maxDiscount;
                 discountValue.textContent = '$' + maxDiscount;
                 const principal = Math.max(0, planPrices[plan] - maxDiscount);
-                initialAmountSlider.min = 0;
+                const defaultInitial = getDefaultInitialAmount(principal);
+                initialAmountSlider.min = defaultInitial;
                 initialAmountSlider.max = principal;
-                initialAmountSlider.value = principal;
-                initialAmountValue.textContent = '$' + principal;
+                initialAmountSlider.value = defaultInitial;
+                initialAmountValue.textContent = '$' + defaultInitial;
             }
+            // Highlight the selected quick pick
+            const quickBtn = document.querySelector(`[data-set="${action}"]`);
+            if (quickBtn) quickBtn.classList.add('active');
 
-            setTimeout(() => calculate(), 10);
+            setTimeout(() => {
+                calculate();
+                updateMembershipTileColors();
+            }, 10);
         }
-
         function resetCalculator() {
+            clearActiveQuickPicks();
             document.querySelectorAll('.input-tile').forEach(t => t.classList.remove('active'));
-            document.querySelector('[data-plan="legacy"]').classList.add('active');
+            const legacyTile = document.querySelector('[data-plan="legacy"]');
+            legacyTile.classList.add('active');
+            // Reset all plans to cash full price mode
+            planCashMode['legacy'] = true;
+            planCashMode['10year'] = true;
+            planCashMode['3year'] = true;
             updateQuickPickButtons('legacy');
             discountSlider.value = 0;
             document.getElementById('podiumHostInput').value = '';
             document.getElementById('clientNameInput').value = '';
             updateTermUI('legacy');
-            forceAutoInitial();
+            // Apply cash full price for legacy (default state)
+            const principal = planPrices['legacy'];
+            initialAmountSlider.min = 0;
+            initialAmountSlider.max = principal;
+            initialAmountSlider.value = principal;
+            initialAmountValue.textContent = '$' + principal;
             calculate();
+            updateMembershipTileColors();
         }
-
         document.querySelectorAll('.input-tile').forEach(tile => tile.addEventListener('click', () => handlePlanChange(tile)));
-        discountSlider.addEventListener('input', () => { forceAutoInitial(); calculate(); });
+        discountSlider.addEventListener('input', () => { 
+            clearActiveQuickPicks(); 
+            forceAutoInitial(); 
+            calculate(); 
+        });
         initialAmountSlider.addEventListener('input', () => {
+            clearActiveQuickPicks();
             initialAmountValue.textContent = '$' + initialAmountSlider.value;
             calculate();
         });
         termSlider.addEventListener('input', () => {
+            clearActiveQuickPicks();
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             updateCommissionWarning(plan, parseInt(termSlider.value));
             calculate();
         });
-
         document.querySelectorAll('.quick-tile').forEach(tile => tile.addEventListener('click', () => quickSetInitial(tile.dataset.set)));
-
         resetButton.addEventListener('click', resetCalculator);
 
-        vloButton.addEventListener('click', async () => {
-            const host = document.getElementById('podiumHostInput').value.trim();
-            const client = document.getElementById('clientNameInput').value.trim();
+        // Deal Summary click to copy (requires both names)
+        const dealSummaryEl = document.getElementById('dealSummary');
+        if (dealSummaryEl) {
+            dealSummaryEl.addEventListener('click', async () => {
+                const host = document.getElementById('podiumHostInput').value.trim();
+                const client = document.getElementById('clientNameInput').value.trim();
 
-            if (!host || !client) {
-                vloButton.classList.add('error');
-                vloButton.textContent = '❌ Podium Host & Client Name required';
-                setTimeout(() => {
-                    vloButton.classList.remove('error');
-                    vloButton.innerHTML = '📋 Copy VLO Call';
-                }, 2500);
-                return;
-            }
+                if (!host || !client) {
+                    // Error state - red border + message, no copy
+                    const originalBorder = dealSummaryEl.style.border;
+                    const originalHTML = dealSummaryEl.innerHTML;
 
-            const plan = document.querySelector('.input-tile.active').dataset.plan;
-            const planName = PLAN_DISPLAY[plan];
-            const discount = parseInt(discountSlider.value) || 0;
-            const initial = cashDownAmountOutput.textContent.replace('$', '');
-            const principalNum = parseInt(principalAmountOutput.textContent.replace(/[^0-9]/g, ''));
-            const cashDownNum = parseInt(cashDownAmountOutput.textContent.replace(/[^0-9]/g, ''));
-            const isCashOut = (cashDownNum >= principalNum - 10);
-            const term = termValueDisplay.textContent;
+                    dealSummaryEl.style.border = '2px solid #ef4444';
+                    dealSummaryEl.innerHTML = `<span class="text-red-600 font-medium">Podium Host & Client Name are required</span>`;
 
-            const discountLine = getDiscountDescription(discount, plan, isCashOut);
+                    setTimeout(() => {
+                        dealSummaryEl.style.border = originalBorder || '1px solid #d1d5db';
+                        dealSummaryEl.innerHTML = originalHTML;
+                    }, 2200);
+                    return;
+                }
 
-            let text = `VLO Please\n`;
-            text += `• ${client}\n`;
-            text += `• ${planName}\n`;
-            text += `• Deposit: ${initial}\n`;
-            text += `• Discount: ${discountLine}\n`;
-            text += `• Term: ${term}\n`;
-            text += `• Podium: ${host}`;
+                // Names present → copy
+                const text = getVLOText();
 
-            try {
-                await navigator.clipboard.writeText(text);
-                vloButton.textContent = '✅ Copied!';
-                setTimeout(() => vloButton.innerHTML = '📋 Copy VLO Call', 1800);
-            } catch (err) {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                vloButton.textContent = '✅ Copied!';
-                setTimeout(() => vloButton.innerHTML = '📋 Copy VLO Call', 1800);
-            }
-        });
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const originalHTML = dealSummaryEl.innerHTML;
+
+                    // Strong green success feedback
+                    dealSummaryEl.style.border = '2px solid #22c55e';
+                    dealSummaryEl.style.boxShadow = '0 0 0 4px rgba(34, 197, 94, 0.2)';
+                    dealSummaryEl.innerHTML = `<span class="text-emerald-700 font-semibold">✅ Copied to clipboard!</span>`;
+
+                    setTimeout(() => {
+                        dealSummaryEl.style.border = originalBorder || '1px solid #d1d5db';
+                        dealSummaryEl.style.boxShadow = '';
+                        dealSummaryEl.innerHTML = originalHTML;
+                    }, 1800);
+                } catch (err) {
+                    // Fallback
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    const originalHTML = dealSummaryEl.innerHTML;
+                    dealSummaryEl.style.border = '2px solid #22c55e';
+                    dealSummaryEl.style.boxShadow = '0 0 0 4px rgba(34, 197, 94, 0.2)';
+                    dealSummaryEl.innerHTML = `<span class="text-emerald-700 font-semibold">✅ Copied to clipboard!</span>`;
+
+                    setTimeout(() => {
+                        dealSummaryEl.style.border = originalBorder || '1px solid #d1d5db';
+                        dealSummaryEl.style.boxShadow = '';
+                        dealSummaryEl.innerHTML = originalHTML;
+                    }, 1800);
+                }
+            });
+        }
+
+        // Live update Deal Summary when typing in name fields
+        const podiumHostInput = document.getElementById('podiumHostInput');
+        const clientNameInput = document.getElementById('clientNameInput');
+
+        if (podiumHostInput) {
+            podiumHostInput.addEventListener('input', updateDealSummary);
+        }
+        if (clientNameInput) {
+            clientNameInput.addEventListener('input', updateDealSummary);
+        }
 
         upgradeOffer.addEventListener('click', () => {
             const plan = document.querySelector('.input-tile.active').dataset.plan;
@@ -509,7 +653,6 @@
                 if (nextTile) handlePlanChange(nextTile);
             }
         });
-
         document.addEventListener('DOMContentLoaded', () => {
             const legacyTile = document.querySelector('[data-plan="legacy"]');
             handlePlanChange(legacyTile);
