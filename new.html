@@ -534,22 +534,20 @@
                 initialAmountSlider.value = defaultInitial;
                 initialAmountValue.textContent = '$' + defaultInitial;
             }
-            // Highlight the selected quick pick with correct color
-            const quickBtn = document.querySelector(`[data-set="${action}"]`);
-            if (quickBtn) {
-                quickBtn.classList.remove('cash', 'financed');
-                quickBtn.classList.add('active');
-
-                if (action === 'cashout-discount-no-bb' || action === 'max-buyback') {
-                    quickBtn.classList.add('cash');      // Green = Cash out deals
-                } else {
-                    quickBtn.classList.add('financed');  // Blue = Financed deals (Hero only)
-                }
-            }
-
             setTimeout(() => {
                 calculate();
                 updateMembershipTileColors();
+
+                // Color the clicked quick pick based on current membership mode
+                // (green if membership is in cash mode, blue if in financed mode)
+                const quickBtn = document.querySelector(`[data-set="${action}"]`);
+                if (quickBtn) {
+                    quickBtn.classList.remove('cash', 'financed');
+                    quickBtn.classList.add('active');
+
+                    const isCashMode = planCashMode[plan] === true;
+                    quickBtn.classList.add(isCashMode ? 'cash' : 'financed');
+                }
             }, 10);
         }
         function resetCalculator() {
