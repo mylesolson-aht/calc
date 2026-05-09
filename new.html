@@ -19,7 +19,9 @@
         .vlo-button.error { background-color: #ff3b30; animation: shake 0.3s; }
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); padding: 0.75rem; text-align: center; }
+        .result-card.dark { background-color: #27272a; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
+        .summary-tile.dark { background-color: #27272a; border-color: #3f3f46; }
         .commission-warning { font-size: 0.7rem; color: #b45309; background-color: #fefce8; padding: 0.25rem 0.5rem; border-radius: 6px; margin-top: 0.25rem; }
 
         /* Quick Pick active/selected state - aligned with Cash vs Financed */
@@ -95,20 +97,20 @@
         <!-- RESULTS - Persistent 3-column layout like summary tiles above -->
         <div class="grid grid-cols-3 gap-2 min-h-[110px] mb-3">
             <!-- Cash Price -->
-            <div id="cashResults" class="result-card flex flex-col items-center justify-center py-2">
+            <div id="cashResults" class="result-card flex flex-col items-center justify-center py-2 min-h-[100px]">
                 <div class="text-sm font-semibold text-gray-600 mb-0.5">Cash Price</div>
-                <div id="cashOutTotal" class="text-4xl font-bold text-green-700 leading-none">$0</div>
+                <div id="cashOutTotal" class="text-2xl sm:text-3xl font-bold text-green-700 leading-none">$0</div>
             </div>
 
             <!-- Financed Price -->
-            <div id="monthlyColumn" class="result-card flex flex-col items-center justify-center py-2">
+            <div id="monthlyColumn" class="result-card flex flex-col items-center justify-center py-2 min-h-[100px]">
                 <div class="text-xs text-gray-500 mb-0.5">Financed Price</div>
-                <div id="monthlyPayments" class="flex justify-center w-full"></div>
+                <div id="monthlyPayments" class="flex justify-center w-full min-h-[72px]"></div>
             </div>
 
             <!-- Upgrade Offer -->
             <div id="upgradeOfferContainer" class="flex flex-col justify-center">
-                <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full flex flex-col items-center justify-center py-2">
+                <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full flex flex-col items-center justify-center py-2 min-h-[100px]">
                     <p id="upgradeOfferText" class="text-sm"></p>
                 </div>
             </div>
@@ -188,7 +190,7 @@
                     <span id="termValueDisplay" class="text-lg font-semibold text-blue-600">36 Months</span>
                 </div>
                 <input type="range" id="termSlider" min="6" max="36" step="6" value="36" class="w-full accent-blue-600">
-                <div class="flex justify-between text-xs text-gray-500 mt-1" id="termLabels">
+                <div class="flex justify-between text-xs text-gray-500 mt-1 min-h-[18px]" id="termLabels">
                     <span>6</span><span>12</span><span>18</span><span>24</span><span id="termMaxLabel">36</span>
                 </div>
                 <div id="commissionWarning" class="commission-warning hidden"></div>
@@ -313,17 +315,17 @@
         }
         function updateTermUI(plan) {
             if (plan === 'legacy') {
-                termSlider.max = 36; termSlider.value = 36;
+                termSlider.max = 36;
+                termSlider.value = 36;
                 termMaxLabel.textContent = '36';
                 termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span>36</span>`;
-            } else if (plan === '10year') {
-                termSlider.max = 24; termSlider.value = 24;
-                termMaxLabel.textContent = '24';
-                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
             } else {
-                termSlider.max = 24; termSlider.value = 12;
+                // 10 Year and 3 Year both max at 24
+                termSlider.max = 24;
+                termSlider.value = (plan === '10year') ? 24 : 12;
                 termMaxLabel.textContent = '24';
-                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span>`;
+                // Always render 5 labels to prevent layout shift
+                termLabelsContainer.innerHTML = `<span>6</span><span>12</span><span>18</span><span>24</span><span class="opacity-0">36</span>`;
             }
             termValueDisplay.textContent = termSlider.value + " Months";
             updateCommissionWarning(plan, parseInt(termSlider.value));
@@ -419,13 +421,16 @@
                 cashResultsCard.style.border = '';
 
                 monthlyPaymentsContainer.innerHTML = `
-                    <div class="text-center opacity-40">
-                        <p class="text-3xl font-bold text-gray-400">—</p>
+                    <div class="text-center opacity-40 flex flex-col justify-center h-full min-h-[72px]">
+                        <p class="text-[10px] text-gray-400 -mb-0.5">—</p>
+                        <p class="text-2xl sm:text-3xl font-bold text-gray-400 leading-none">—</p>
                         <p class="text-xs text-gray-400 mt-0.5">Cash purchase</p>
                     </div>`;
 
                 upgradeOffer.classList.add('opacity-40', 'pointer-events-none');
-                upgradeOfferText.innerHTML = `<span class="text-gray-400 text-xs">No upgrade<br>in cash mode</span>`;
+                upgradeOfferText.innerHTML = `
+                    <div class="text-[10px] text-gray-400">No upgrade</div>
+                    <div class="text-xs text-gray-400 mt-0.5">in cash mode</div>`;
             } else {
                 // Membership is in Financed mode → Financed Price prominent, Cash Price muted
                 cashResultsCard.classList.add('opacity-40');
@@ -436,9 +441,9 @@
                 const payment = pmt(interestRate / 12, term, remaining);
 
                 monthlyPaymentsContainer.innerHTML = `
-                    <div class="text-center">
+                    <div class="text-center flex flex-col justify-center h-full min-h-[72px]">
                         <p class="text-[10px] text-gray-500 -mb-0.5">${term} Months</p>
-                        <p class="text-4xl font-bold text-blue-600 leading-none">${formatCurrency(payment)}</p>
+                        <p class="text-2xl sm:text-3xl font-bold text-blue-600 leading-none">${formatCurrency(payment)}</p>
                         <p class="text-xs text-gray-400 mt-0.5">per month</p>
                     </div>`;
 
@@ -458,13 +463,15 @@
                     if (delta > 0) deltaHTML = `<span class="text-emerald-600 text-xs">↓ Save ${formatCurrency(delta)}/mo</span>`;
                     else if (delta < 0) deltaHTML = `<span class="text-orange-600 text-xs">↑ +${formatCurrency(Math.abs(delta))}/mo</span>`;
                     upgradeOfferText.innerHTML = `
-                        Upgrade to ${upgradeInfo.name}<br>
-                        <span class="text-2xl font-bold text-emerald-600">${formatCurrency(nextMonthly)}</span><br>
-                        ${deltaHTML}
+                        <div class="text-[10px] text-gray-500">Upgrade to ${upgradeInfo.name}</div>
+                        <div class="text-2xl sm:text-3xl font-bold text-emerald-600 leading-none mt-0.5">${formatCurrency(nextMonthly)}</div>
+                        <div class="text-xs mt-0.5">${deltaHTML}</div>
                     `;
                 } else {
                     upgradeOffer.classList.add('opacity-40', 'pointer-events-none');
-                    upgradeOfferText.innerHTML = `<span class="text-gray-400 text-xs">No upgrade<br>available</span>`;
+                    upgradeOfferText.innerHTML = `
+                        <div class="text-[10px] text-gray-400">No upgrade</div>
+                        <div class="text-xs text-gray-400 mt-0.5">available</div>`;
                 }
             }
 
@@ -670,8 +677,13 @@
             const plan = document.querySelector('.input-tile.active').dataset.plan;
             const upgradeInfo = UPGRADE_PATHS[plan];
             if (upgradeInfo) {
-                const nextTile = document.querySelector(`[data-plan="${upgradeInfo.nextPlan}"]`);
-                if (nextTile) handlePlanChange(nextTile);
+                const nextPlan = upgradeInfo.nextPlan;
+                const nextTile = document.querySelector(`[data-plan="${nextPlan}"]`);
+                if (nextTile) {
+                    // Preserve current financing mode when upgrading
+                    planCashMode[nextPlan] = planCashMode[plan];
+                    handlePlanChange(nextTile);
+                }
             }
         });
         document.addEventListener('DOMContentLoaded', () => {
