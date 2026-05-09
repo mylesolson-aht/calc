@@ -19,7 +19,9 @@
         .vlo-button.error { background-color: #ff3b30; animation: shake 0.3s; }
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .result-card { background-color: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); padding: 0.75rem; text-align: center; }
+        .result-card.dark { background-color: #27272a; }
         .summary-tile { background-color: #f9f9f9; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; text-align: center; display: flex; flex-direction: column; }
+        .summary-tile.dark { background-color: #27272a; border-color: #3f3f46; }
         .commission-warning { font-size: 0.7rem; color: #b45309; background-color: #fefce8; padding: 0.25rem 0.5rem; border-radius: 6px; margin-top: 0.25rem; }
 
         /* Quick Pick active/selected state - aligned with Cash vs Financed */
@@ -75,40 +77,47 @@
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
-    <div class="bg-white p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto">
+    <div class="bg-white dark:bg-zinc-900 p-5 sm:p-8 rounded-2xl container-shadow w-full max-w-lg mx-auto relative">
+        <!-- Dark Mode Toggle -->
+        <button id="darkModeToggle"
+                class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors text-lg"
+                aria-label="Toggle dark mode">
+            🌙
+        </button>
+
         <!-- Summary Tiles at Top -->
         <div class="grid grid-cols-3 gap-3 mb-2">
-            <div class="summary-tile">
-                <p class="text-sm font-medium text-gray-500">Membership Value</p>
-                <p id="principalAmount" class="text-xl sm:text-2xl font-bold mt-auto">$0</p>
+            <div class="summary-tile dark:bg-zinc-800 dark:border-zinc-700">
+                <p class="text-sm font-medium text-gray-500 dark:text-zinc-400">Membership Value</p>
+                <p id="principalAmount" class="text-xl sm:text-2xl font-bold mt-auto dark:text-white">$0</p>
             </div>
-            <div class="summary-tile">
-                <p class="text-sm font-medium text-gray-500">Initial Amount</p>
-                <p id="cashDownAmount" class="text-xl sm:text-2xl font-bold mt-auto">$0</p>
+            <div class="summary-tile dark:bg-zinc-800 dark:border-zinc-700">
+                <p class="text-sm font-medium text-gray-500 dark:text-zinc-400">Initial Amount</p>
+                <p id="cashDownAmount" class="text-xl sm:text-2xl font-bold mt-auto dark:text-white">$0</p>
             </div>
-            <div class="summary-tile">
-                <p id="balanceLabel" class="text-sm font-medium text-gray-500">Interest Saved</p>
-                <p id="remainingBalanceAmount" class="text-xl sm:text-2xl font-bold mt-auto">$0</p>
+            <div class="summary-tile dark:bg-zinc-800 dark:border-zinc-700">
+                <p id="balanceLabel" class="text-sm font-medium text-gray-500 dark:text-zinc-400">Interest Saved</p>
+                <p id="remainingBalanceAmount" class="text-xl sm:text-2xl font-bold mt-auto dark:text-white">$0</p>
             </div>
         </div>
 
         <!-- RESULTS - Persistent 3-column layout like summary tiles above -->
         <div class="grid grid-cols-3 gap-2 min-h-[110px] mb-3">
             <!-- Cash Price -->
-            <div id="cashResults" class="result-card flex flex-col items-center justify-center py-2">
-                <div class="text-sm font-semibold text-gray-600 mb-0.5">Cash Price</div>
-                <div id="cashOutTotal" class="text-4xl font-bold text-green-700 leading-none">$0</div>
+            <div id="cashResults" class="result-card flex flex-col items-center justify-center py-2 dark:bg-zinc-800">
+                <div class="text-sm font-semibold text-gray-600 dark:text-zinc-400 mb-0.5">Cash Price</div>
+                <div id="cashOutTotal" class="text-4xl font-bold text-green-700 dark:text-emerald-400 leading-none">$0</div>
             </div>
 
             <!-- Financed Price -->
-            <div id="monthlyColumn" class="result-card flex flex-col items-center justify-center py-2">
-                <div class="text-xs text-gray-500 mb-0.5">Financed Price</div>
+            <div id="monthlyColumn" class="result-card flex flex-col items-center justify-center py-2 dark:bg-zinc-800">
+                <div class="text-xs text-gray-500 dark:text-zinc-400 mb-0.5">Financed Price</div>
                 <div id="monthlyPayments" class="flex justify-center w-full"></div>
             </div>
 
             <!-- Upgrade Offer -->
             <div id="upgradeOfferContainer" class="flex flex-col justify-center">
-                <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 transition-all h-full flex flex-col items-center justify-center py-2">
+                <div id="upgradeOffer" class="result-card cursor-pointer hover:border-blue-300 dark:hover:border-blue-500 transition-all h-full flex flex-col items-center justify-center py-2 dark:bg-zinc-800">
                     <p id="upgradeOfferText" class="text-sm"></p>
                 </div>
             </div>
@@ -116,12 +125,12 @@
 
         <!-- Deal Summary -->
         <div class="mb-3">
-            <p class="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+            <p class="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1 flex items-center gap-2">
                 Deal Summary
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 font-normal">tap or click to copy</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 font-normal">tap or click to copy</span>
             </p>
             <div id="dealSummary"
-                 class="bg-white border border-gray-200 hover:border-gray-300 active:bg-gray-50 rounded-2xl p-3.5 text-sm leading-tight cursor-pointer transition-all min-h-[88px] flex flex-col justify-center">
+                 class="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-zinc-600 active:bg-gray-50 dark:active:bg-zinc-700 rounded-2xl p-3.5 text-sm leading-tight cursor-pointer transition-all min-h-[88px] flex flex-col justify-center dark:text-zinc-200">
                 <!-- Populated dynamically by JS -->
             </div>
         </div>
@@ -130,42 +139,42 @@
         <div class="mt-1 mb-3">
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Podium Host <span class="text-red-500">*</span></p>
-                    <input type="text" id="podiumHostInput" class="w-full px-3 py-2.5 border border-gray-300 rounded-2xl text-sm" placeholder="Host name">
+                    <p class="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Podium Host <span class="text-red-500">*</span></p>
+                    <input type="text" id="podiumHostInput" class="w-full px-3 py-2.5 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white rounded-2xl text-sm" placeholder="Host name">
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Client Name <span class="text-red-500">*</span></p>
-                    <input type="text" id="clientNameInput" class="w-full px-3 py-2.5 border border-gray-300 rounded-2xl text-sm" placeholder="Client name">
+                    <p class="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Client Name <span class="text-red-500">*</span></p>
+                    <input type="text" id="clientNameInput" class="w-full px-3 py-2.5 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white rounded-2xl text-sm" placeholder="Client name">
                 </div>
             </div>
-            <p class="text-[10px] text-gray-500 mt-1">Both fields required to copy Deal Summary</p>
+            <p class="text-[10px] text-gray-500 dark:text-zinc-500 mt-1">Both fields required to copy Deal Summary</p>
         </div>
 
         <!-- All Inputs -->
         <div class="space-y-4">
             <!-- Membership Tiles -->
             <div>
-                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Membership</p>
+                <p class="section-label text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">Membership</p>
                 <div class="grid grid-cols-3 gap-3">
-                    <div class="input-tile flex flex-col justify-center items-center" data-plan="legacy"><span class="text-xl font-bold">Legacy</span><span class="text-xs text-gray-500">Unlimited</span></div>
-                    <div class="input-tile flex flex-col justify-center items-center" data-plan="10year"><span class="text-xl font-bold">10 Year</span><span class="text-xs text-gray-500">Unlimited</span></div>
-                    <div class="input-tile flex flex-col justify-center items-center" data-plan="3year"><span class="text-xl font-bold">Trial</span><span class="text-xs text-gray-500">3 Year</span></div>
+                    <div class="input-tile flex flex-col justify-center items-center dark:bg-zinc-800 dark:border-zinc-700 dark:text-white" data-plan="legacy"><span class="text-xl font-bold">Legacy</span><span class="text-xs text-gray-500 dark:text-zinc-400">Unlimited</span></div>
+                    <div class="input-tile flex flex-col justify-center items-center dark:bg-zinc-800 dark:border-zinc-700 dark:text-white" data-plan="10year"><span class="text-xl font-bold">10 Year</span><span class="text-xs text-gray-500 dark:text-zinc-400">Unlimited</span></div>
+                    <div class="input-tile flex flex-col justify-center items-center dark:bg-zinc-800 dark:border-zinc-700 dark:text-white" data-plan="3year"><span class="text-xl font-bold">Trial</span><span class="text-xs text-gray-500 dark:text-zinc-400">3 Year</span></div>
                 </div>
             </div>
             <!-- Quick Pick -->
             <div>
-                <p class="section-label text-sm font-medium text-gray-700 mb-1.5">Quick Pick</p>
+                <p class="section-label text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1.5">Quick Pick</p>
                 <div class="grid grid-cols-3 gap-3">
-                    <div class="quick-tile" data-set="cashout-discount-no-bb">Cash Discount no Buy Back</div>
-                    <div class="quick-tile" data-set="max-hero">Hero no Buy Back ($500)</div>
-                    <div class="quick-tile" data-set="max-buyback">Hero + Gift Buy Back ($1000)</div>
+                    <div class="quick-tile dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200" data-set="cashout-discount-no-bb">Cash Discount no Buy Back</div>
+                    <div class="quick-tile dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200" data-set="max-hero">Hero no Buy Back ($500)</div>
+                    <div class="quick-tile dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200" data-set="max-buyback">Hero + Gift Buy Back ($1000)</div>
                 </div>
             </div>
             <!-- Discount -->
             <div>
                 <div class="flex justify-between items-baseline mb-1">
-                    <p class="text-sm font-medium text-gray-700">Discount (Hero, Gift Buy Back or Cash Out)</p>
-                    <p id="discountValue" class="text-lg font-semibold text-blue-600">$0</p>
+                    <p class="text-sm font-medium text-gray-700 dark:text-zinc-300">Discount (Hero, Gift Buy Back or Cash Out)</p>
+                    <p id="discountValue" class="text-lg font-semibold text-blue-600 dark:text-blue-400">$0</p>
                 </div>
                 <input type="range" id="discountSlider" min="0" max="1000" step="50" value="0" class="w-full accent-blue-600">
             </div>
@@ -677,6 +686,35 @@
         document.addEventListener('DOMContentLoaded', () => {
             const legacyTile = document.querySelector('[data-plan="legacy"]');
             handlePlanChange(legacyTile);
+
+            // Dark Mode Setup
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const html = document.documentElement;
+
+            // Load saved preference or system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                html.classList.add('dark');
+                darkModeToggle.textContent = '☀️';
+            } else {
+                html.classList.remove('dark');
+                darkModeToggle.textContent = '🌙';
+            }
+
+            // Toggle handler
+            darkModeToggle.addEventListener('click', () => {
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                    darkModeToggle.textContent = '🌙';
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                    darkModeToggle.textContent = '☀️';
+                }
+            });
         });
     </script>
 </body>
