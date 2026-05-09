@@ -697,9 +697,25 @@
                 const nextPlan = upgradeInfo.nextPlan;
                 const nextTile = document.querySelector(`[data-plan="${nextPlan}"]`);
                 if (nextTile) {
-                    // Preserve current financing mode when upgrading
-                    planCashMode[nextPlan] = planCashMode[plan];
+                    // Switch and preserve financed mode
+                    planCashMode[nextPlan] = false; // force financed on upgrade
                     handlePlanChange(nextTile);
+
+                    // Apply $1000 upgrade discount (Hero + Gift Buy Back style)
+                    setTimeout(() => {
+                        discountSlider.value = 1000;
+                        discountValue.textContent = '$1000';
+
+                        const discountedPrincipal = planPrices[nextPlan] - 1000;
+                        const newMinInitial = getDefaultInitialAmount(discountedPrincipal);
+
+                        initialAmountSlider.min = newMinInitial;
+                        initialAmountSlider.max = discountedPrincipal;
+                        initialAmountSlider.value = newMinInitial;
+                        initialAmountValue.textContent = '$' + newMinInitial;
+
+                        calculate();
+                    }, 50);
                 }
             }
         });
